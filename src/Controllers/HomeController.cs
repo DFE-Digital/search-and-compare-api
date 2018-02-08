@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using search_and_compare_api.Models;
+using GovUk.Education.SearchAndCompareApi.Models;
 
-namespace search_and_compare_api.Controllers
+namespace GovUk.Education.SearchAndCompareApi.Controllers
 {
     public class HomeController : Controller
     {

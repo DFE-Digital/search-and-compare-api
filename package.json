@@ -1,0 +1,18 @@
+{
+  "name": "dfe-search-and-compare-api",
+  "version": "0.1.0",
+  "scripts": {
+    "ocd-scmsecret": "ls ~/.ssh/become-a-teacher_rsa | sed 's/^/ssh-privatekey=/1' | xargs ocd scmsecret  | grep '^oc' | sh",
+    "ocd-create-dotnet-dbaas": "cat search-and-compare-api-properties.yaml dbaas-properties.yaml > dbaas.tmp ; ocd parameters -t dotnet-dbaas -c dbaas.tmp | oc process -f dotnet-dbaas.json --param-file=-  |  oc create -f - ; rm dbaas.tmp",
+    "ocd-status": "oc project ; git status | fgrep 'On branch'",
+    "ocd-switch": "git checkout $OCD_BRANCH ; oc project $OCD_PROJECT; git secret list | xargs rm ; git secret reveal"
+  },
+  "devDependencies": {
+    "generator-dfe-platform-tool": "^0.9.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DFE-Digital/search-and-compare-api.git"
+  },
+  "license": "ISC"
+}
