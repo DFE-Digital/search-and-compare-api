@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace GovUk.Education.SearchAndCompare.API
+namespace GovUk.Education.SearchAndCompare.Api
 {
     public class Startup
     {

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace GovUk.Education.SearchAndCompareApi
+namespace GovUk.Education.SearchAndCompare.Api
 {
     public class Program
     {

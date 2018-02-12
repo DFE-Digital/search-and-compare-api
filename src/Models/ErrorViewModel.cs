@@ -1,6 +1,6 @@
 using System;
 
-namespace GovUk.Education.SearchAndCompareApi.Models
+namespace GovUk.Education.SearchAndCompare.Api.Models
 {
     public class ErrorViewModel
     {
