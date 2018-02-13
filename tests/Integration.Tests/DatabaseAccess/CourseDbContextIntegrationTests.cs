@@ -79,8 +79,10 @@ namespace GovUk.Education.SearchAndCompare.Api.Integration.Tests.DatabaseAccess
             
             using (var context2 = GetContext()) 
             {
-                Assert.AreEqual(1, context2.Courses.Count());
-                Assert.AreEqual(GetSimpleCourse().Name, context2.Courses.First().Name);
+                var allCourses = context2.Courses.FromSql("SELECT *, NULL as \"Distance\" FROM \"course\"");
+                
+                Assert.AreEqual(1, allCourses.Count());
+                Assert.AreEqual(GetSimpleCourse().Name, allCourses.First().Name);
             }
 
         }

@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\api\SearchAndCompareApi.csproj" />
-    <ProjectReference Include="..\domain\SearchAndCompareApi.csproj" />
+    <ProjectReference Include="..\src\api\SearchAndCompareApi.csproj" />
+    <ProjectReference Include="..\src\domain\SearchAndCompareApi.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="integration-tests.json" CopyToOutputDirectory="PreserveNewest" />
