@@ -1,0 +1,8 @@
+{
+    "DatabaseConnection": { 
+        "Server": "localhost",
+        "Port": "5432",
+        "Database": "courses-test",
+        "Username": "postgres",
+        "Password": "postgres" }
+}
