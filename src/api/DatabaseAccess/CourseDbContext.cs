@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Threading.Tasks;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 using GovUk.Education.SearchAndCompare.Domain.Models.Joins;
 using Microsoft.EntityFrameworkCore;
@@ -102,18 +104,24 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
                 .Include(x => x.DescriptionSections);
         }
 
+        public async Task<Course> GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(int courseId)
+        {
+            return await GetCoursesWithProviderSubjectsRouteCampusesAndDescriptions()
+                .Where(c => c.Id == courseId).FirstAsync();
+        }
+
         public IQueryable<Subject> GetSubjects()
         {
             return from subject in Subjects select subject;
         }
 
-        public IQueryable<SubjectArea> GetOrderedSubjectsByArea()
+        public List<SubjectArea> GetOrderedSubjectsByArea()
         {
-            return from subjectArea in SubjectAreas
+            return SubjectAreas
                 .Include(x => x.Subjects)
                 .OrderBy(x => x.Ordinal)
                 .AsNoTracking()
-                select subjectArea;
+                .ToList();
         }
 
         public Fees GetLatestFees() 

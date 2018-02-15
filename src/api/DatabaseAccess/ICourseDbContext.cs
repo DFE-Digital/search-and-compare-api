@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 using GovUk.Education.SearchAndCompare.Domain.Models.Joins;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +9,6 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 {
     public interface ICourseDbContext
     {
-
         DbSet<Course> Courses { get; set; }
 
         DbSet<Subject> Subjects { get; set; }
@@ -28,9 +29,11 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
         IQueryable<Course> GetCoursesWithProviderSubjectsRouteCampusesAndDescriptions();
 
+        Task<Course> GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(int courseId);
+
         IQueryable<Subject> GetSubjects();
 
-        IQueryable<SubjectArea> GetOrderedSubjectsByArea();
+        List<SubjectArea> GetOrderedSubjectsByArea();
         
         Fees GetLatestFees();
     }
