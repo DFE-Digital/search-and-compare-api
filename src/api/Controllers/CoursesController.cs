@@ -9,27 +9,21 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GovUk.Education.SearchAndCompare.Api.Controllers
 {
-    public class CourseController : Controller
+    [Route("api/[controller]")]
+    public class CoursesController : Controller
     {
         private readonly ICourseDbContext _context;
 
         private int pageSize = 10;
 
-        public CourseController(ICourseDbContext courseDbContext)
+        public CoursesController(ICourseDbContext courseDbContext)
         {
             _context = courseDbContext;
         }
 
-        [HttpGet("course")]
-        public async Task<IActionResult> Course(int courseId)
-        {
-            var course = await _context.GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(courseId);
-
-            return View(course);
-        }
-
-        [HttpGet("courses")]
-        public IActionResult Index(ResultsFilter filter)
+        // GET api/courses
+        [HttpGet]
+        public IActionResult GetAllFiltered(QueryFilter filter)
         {
             IQueryable<Course> courses;
             if (filter.Coordinates != null && filter.RadiusOption != null)
@@ -74,7 +68,16 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
             var paginatedCourses = courses.ToPaginatedList<Course>(filter.page ?? 1, pageSize);
 
-            return View(paginatedCourses);
+            return Ok(paginatedCourses);
+        }
+
+        // GET api/courses/{id}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int courseId)
+        {
+            var course = await _context.GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(courseId);
+
+            return Ok(course);
         }
     }
 }

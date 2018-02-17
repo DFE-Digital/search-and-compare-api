@@ -11,12 +11,12 @@ namespace GovUk.Education.SearchAndCompare.Api.ListExtensions
 {
     public static class FilteredListExtensions
     {
-        public static async Task<FilteredList<T>> ToFilteredList<T>(
+        public static FilteredList<T> ToFilteredList<T>(
             this IQueryable<T> source, Expression<Func<T, bool>> predicate)
         {
-            var totalCount = await source.CountAsync();
+            var totalCount = source.Count();
 
-            var filtered = await source.Where(predicate).ToListAsync();
+            var filtered = source.Where(predicate).ToList();
 
             return new FilteredList<T>(filtered, totalCount);
         }

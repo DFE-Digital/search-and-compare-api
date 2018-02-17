@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace GovUk.Education.SearchAndCompare.Domain.Lists
 {
-    public class FilteredList<T> : List<T>
+    public class FilteredList<T> : List<T>, IFilteredList<T>
     {
         public int TotalCount { get; private set; }
 

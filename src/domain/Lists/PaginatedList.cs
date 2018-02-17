@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace GovUk.Education.SearchAndCompare.Domain.Lists
 {
-    public class PaginatedList<T> : List<T>
+    public class PaginatedList<T> : List<T>, IPaginatedList<T>
     {
         public int PageIndex { get; private set; }
 

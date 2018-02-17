@@ -2,6 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <PackageId>DFE.SearchAndCompare.Domain</PackageId>
+    <Authors>DfE Digital</Authors>
+    <Title>Domain objects for SearchAndCompare project</Title>
+    <Description>Domain objects for SearchAndCompare project</Description>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionSuffix>beta</VersionSuffix>
   </PropertyGroup>
 
 </Project>

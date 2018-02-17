@@ -7,22 +7,22 @@ using Microsoft.AspNetCore.Mvc;
 namespace GovUk.Education.SearchAndCompare.Api.Controllers
 {
     [Route("api/[controller]")]
-    public class FeesController : Controller
+    public class SubjectAreasController : Controller
     {
         private readonly ICourseDbContext _context;
 
-        public FeesController(ICourseDbContext courseDbContext)
+        public SubjectAreasController(ICourseDbContext courseDbContext)
         {
             _context = courseDbContext;
         }
 
-        // GET api/fees
+        // GET api/subjectareas
         [HttpGet]
         public IActionResult GetAll()
         {
-            var fees = _context.GetLatestFees();
+            var subjectAreas = _context.GetOrderedSubjectsByArea();
 
-            return Ok(fees);
+            return Ok(subjectAreas);
         }
     }
 }

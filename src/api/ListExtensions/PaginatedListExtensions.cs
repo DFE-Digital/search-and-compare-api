@@ -8,17 +8,17 @@ namespace GovUk.Education.SearchAndCompare.Api.ListExtensions
 {
     public static class PaginatedListExtensions
     {
-        public static async Task<PaginatedList<T>> ToPaginatedList<T>(
+        public static PaginatedList<T> ToPaginatedList<T>(
             this IQueryable<T> source, int pageIndex, int pageSize)
         {
             pageIndex = Math.Max(pageIndex, 1);
             pageSize = Math.Max(pageSize, 1);
-            var count = await source.CountAsync();
+            var count = source.Count();
             var totalPages = Math.Max((int)Math.Ceiling(count / (double)pageSize), 1);
             pageIndex = Math.Min(totalPages, pageIndex);
 
-            var items = await source.Skip((pageIndex - 1) * pageSize)
-                                    .Take(pageSize).ToListAsync();
+            var items = source.Skip((pageIndex - 1) * pageSize)
+                                    .Take(pageSize).ToList();
             return new PaginatedList<T>(items, count, totalPages, pageIndex, pageSize);
         }
     }

@@ -1,14 +1,13 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using GovUk.Education.SearchAndCompare.Domain.Models;
 using GovUk.Education.SearchAndCompare.Domain.Filters.Enums;
-using System;
+using GovUk.Education.SearchAndCompare.Domain.Models;
 
 namespace GovUk.Education.SearchAndCompare.Domain.Filters
 {
-    public class ResultsFilter
-    {
-        // model-bound properties        
+    public class QueryFilter
+    { 
         public int? page { get; set; }
 
         public double? lng { get; set; }

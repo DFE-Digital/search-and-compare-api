@@ -6,30 +6,24 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GovUk.Education.SearchAndCompare.Api.Controllers
 {
-    public class SubjectController : Controller
+    [Route("api/[controller]")]
+    public class SubjectsController : Controller
     {
         private readonly ICourseDbContext _context;
 
-        public SubjectController(ICourseDbContext courseDbContext)
+        public SubjectsController(ICourseDbContext courseDbContext)
         {
             _context = courseDbContext;
         }
 
-        [HttpGet("subjects")]
-        public IActionResult Index(ResultsFilter filter)
+        // GET api/subjects
+        [HttpGet]
+        public IActionResult GetAllFiltered(QueryFilter filter)
         {
             var filteredSubjects = _context.GetSubjects().ToFilteredList<Subject>(
                 subject => filter.SelectedSubjects.Contains(subject.Id));
 
-            return View(filteredSubjects);
-        }
-
-        [HttpGet("subjectAreas")]
-        public IActionResult SubjectAreas()
-        {
-            var subjectAreas = _context.GetOrderedSubjectsByArea();
-
-            return View(subjectAreas);
+            return Ok(filteredSubjects);
         }
     }
 }
