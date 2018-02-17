@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 
-namespace GovUk.Education.SearchAndCompare.Api.Integration.Tests.DatabaseAccess 
+namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.DatabaseAccess 
 {
     [TestFixture]
     [Category("Integration")]
@@ -17,6 +17,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Integration.Tests.DatabaseAccess
     public class CourseDbContextIntegrationTests
     {
         private CourseDbContext context;
+
         private IList<EntityEntry> entitiesToCleanUp = new List<EntityEntry>();
 
         public CourseDbContext GetContext()
