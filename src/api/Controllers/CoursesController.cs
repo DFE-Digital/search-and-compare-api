@@ -23,7 +23,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
         // GET api/courses
         [HttpGet]
-        public IActionResult GetAllFiltered(QueryFilter filter)
+        public IActionResult GetFiltered(QueryFilter filter)
         {
             IQueryable<Course> courses;
             if (filter.Coordinates != null && filter.RadiusOption != null)
@@ -72,7 +72,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         }
 
         // GET api/courses/{id}
-        [HttpGet("{id}")]
+        [HttpGet("{courseId:int}")]
         public async Task<IActionResult> GetById(int courseId)
         {
             var course = await _context.GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(courseId);

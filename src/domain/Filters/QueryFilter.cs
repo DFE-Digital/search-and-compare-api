@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Web;
 using GovUk.Education.SearchAndCompare.Domain.Filters.Enums;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 
@@ -22,6 +25,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
 
         public int? sortby { get; set; }
 
+        [IgnoreDataMemberAttribute]
         public List<int> SelectedSubjects { 
             get {            
                 List<int> subjectFilterIds = new List<int> ();
@@ -37,6 +41,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
             }
         }
         
+        [IgnoreDataMemberAttribute]
         public Coordinates Coordinates
         {
             get {
@@ -46,6 +51,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
             }
         }
 
+        [IgnoreDataMemberAttribute]
         public RadiusOption? RadiusOption
         {
             get {
@@ -53,6 +59,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
             }
         }
 
+        [IgnoreDataMemberAttribute]
         public SortByOption? SortBy
         {
             get {
@@ -60,12 +67,22 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
             }
         }
 
+        [IgnoreDataMemberAttribute]
         public IEnumerable<SortByOption> ValidSortings
         {
             get {
                 return Enum.GetValues(typeof(SortByOption)).Cast<SortByOption>()
                            .Where(x => x != SortByOption.Distance || RadiusOption != null);
             }
+        }
+
+        public string AsQueryString()
+        {
+            var properties = from property in this.GetType().GetProperties()
+                where property.GetCustomAttribute(typeof(IgnoreDataMemberAttribute)) == null && property.GetValue(this, null) != null
+                select property.Name + "=" + HttpUtility.UrlEncode(property.GetValue(this, null).ToString());
+
+            return String.Join("&", properties.ToArray());
         }
     }
 }

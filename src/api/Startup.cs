@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Serialization;
 
 namespace GovUk.Education.SearchAndCompare.Api
 {
@@ -34,7 +35,12 @@ namespace GovUk.Education.SearchAndCompare.Api
             services.AddEntityFrameworkNpgsql().AddDbContext<CourseDbContext>(options => options
                 .UseNpgsql(connectionString));
                 
-            services.AddMvc();
+            services.AddMvc().AddJsonOptions(
+            options => {
+                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                options.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects;
+            }
+            );;
             services.AddScoped<ICourseDbContext>(provider => provider.GetService<CourseDbContext>());
         }
 

@@ -18,7 +18,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
         // GET api/subjects
         [HttpGet]
-        public IActionResult GetAllFiltered(QueryFilter filter)
+        public IActionResult GetFiltered(QueryFilter filter)
         {
             var filteredSubjects = _context.GetSubjects().ToFilteredList<Subject>(
                 subject => filter.SelectedSubjects.Contains(subject.Id));
