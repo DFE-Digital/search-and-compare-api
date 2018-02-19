@@ -5,8 +5,15 @@ using GovUk.Education.SearchAndCompare.Domain.Models;
 
 namespace GovUk.Education.SearchAndCompare.Domain.Client
 {
-    public class CourseDbContext : ISearchAndCompareApi
+    public class SearchAndCompareApi : ISearchAndCompareApi
     {
+        private readonly string _apiUri;
+
+        public SearchAndCompareApi(string apiUri)
+        {
+            _apiUri = apiUri;
+        }
+
         public Course GetCourse(int courseId)
         {
             throw new System.NotImplementedException();
@@ -17,12 +24,17 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             throw new System.NotImplementedException();
         }
 
-        public Fees GetLatestFees()
+        public FilteredList<Subject> GetSubjects(QueryFilter filter)
         {
             throw new System.NotImplementedException();
         }
 
         public List<SubjectArea> GetSubjectAreas()
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Fees GetLatestFees()
         {
             throw new System.NotImplementedException();
         }

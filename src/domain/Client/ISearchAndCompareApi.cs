@@ -9,10 +9,12 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
     {
         Course GetCourse(int courseId);
 
-        Fees GetLatestFees();
+        PaginatedList<Course> GetCourses(QueryFilter filter);
+
+        FilteredList<Subject> GetSubjects(QueryFilter filter);
 
         List<SubjectArea> GetSubjectAreas();
 
-        PaginatedList<Course> GetCourses(QueryFilter filter);
+        Fees GetLatestFees();
     }
 }
