@@ -2,13 +2,17 @@ using System.Collections.Generic;
 
 namespace GovUk.Education.SearchAndCompare.Domain.Lists
 {
-    public interface IPaginatedList<T> : IList<T>
+    public interface IPaginatedList<T>
     {
-        int PageIndex { get; }
+        int TotalCount { get; set; }
 
-        int TotalPages { get; }
+        int TotalPages { get; set; }
 
-        int TotalCount { get; }
+        int PageIndex { get; set; }
+
+        int PageSize { get; set; }
+
+        List<T> Items { get; set; }
 
         bool HasPreviousPage { get; }
 

@@ -30,8 +30,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit
 
             Assert.That(filtered.Count == 2);
             Assert.That(filtered.TotalCount == 2);
-            Assert.That(filtered.Contains(testSubjects[1]));
-            Assert.That(filtered.Contains(testSubjects[2]));
+            Assert.That(filtered.Items.Contains(testSubjects[1]));
+            Assert.That(filtered.Items.Contains(testSubjects[2]));
         }
     }
 }
