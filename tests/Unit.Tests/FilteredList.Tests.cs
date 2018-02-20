@@ -29,7 +29,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit
                 subject => testFilterIds.Contains(subject.Id));
 
             Assert.That(filtered.Count == 2);
-            Assert.That(filtered.TotalCount == 2);
+            Assert.That(filtered.TotalCount == 4);
             Assert.That(filtered.Items.Contains(testSubjects[1]));
             Assert.That(filtered.Items.Contains(testSubjects[2]));
         }
