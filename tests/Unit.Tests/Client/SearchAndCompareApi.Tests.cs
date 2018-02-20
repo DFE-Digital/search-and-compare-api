@@ -11,15 +11,15 @@ namespace GovUk.Education.SearchAndCompare.Domain.Unit.Tests.Client
         [TestFixture]
         public class GetAllTests
         {
-            [Test]
-            public void GetCourse()
-            {
-                var api = new SearchAndCompareApi(new HttpClient(), "http://localhost:5000/api");
+            // [Test]
+            // public void GetCourse()
+            // {
+            //     var api = new SearchAndCompareApi(new HttpClient(), "http://localhost:5000/api");
 
-                var course = api.GetCourse(1);
+            //     var course = api.GetCourse(1);
 
-                var courses = api.GetCourses(new QueryFilter());
-            }
+            //     var courses = api.GetCourses(new QueryFilter());
+            // }
         }
     }
 }

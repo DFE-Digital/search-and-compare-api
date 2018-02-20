@@ -12,7 +12,6 @@ namespace GovUk.Education.SearchAndCompare.UI.Tests.Unit
     [TestFixture]
     public class PaginatedListTests
     {
-        private int _pageSize = 10;
         private static List<string> _EmptySource = new List<string>();
 
         private static List<string> _SixItemSource = new List<string>()
