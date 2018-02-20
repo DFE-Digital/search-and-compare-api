@@ -1,3 +1,4 @@
+using System.Linq;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
 using GovUk.Education.SearchAndCompare.Api.ListExtensions;
 using GovUk.Education.SearchAndCompare.Domain.Filters;
@@ -18,12 +19,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
         // GET api/subjects
         [HttpGet]
-        public IActionResult GetFiltered(QueryFilter filter)
+        public IActionResult GetFiltered()
         {
-            var filteredSubjects = _context.GetSubjects().ToFilteredList<Subject>(
-                subject => filter.SelectedSubjects.Contains(subject.Id));
+            var subjects = _context.GetSubjects().ToList();
 
-            return Ok(filteredSubjects);
+            return Ok(subjects);
         }
     }
 }

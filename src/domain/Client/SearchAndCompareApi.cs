@@ -36,11 +36,11 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             return GetObjects<PaginatedList<Course>>(queryUri);
         }
 
-        public FilteredList<Subject> GetSubjects(QueryFilter filter)
+        public List<Subject> GetSubjects()
         {
-            var queryUri = GetUri("/subjects", filter);
+            var queryUri = GetUri("/subjects", null);
 
-            return GetObjects<FilteredList<Subject>>(queryUri);
+            return GetObjects<List<Subject>>(queryUri);
         }
 
         public List<SubjectArea> GetSubjectAreas()

@@ -11,7 +11,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
 
         PaginatedList<Course> GetCourses(QueryFilter filter);
 
-        FilteredList<Subject> GetSubjects(QueryFilter filter);
+        List<Subject> GetSubjects();
 
         List<SubjectArea> GetSubjectAreas();
 
