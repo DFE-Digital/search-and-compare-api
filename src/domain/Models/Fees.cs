@@ -6,19 +6,12 @@ using GovUk.Education.SearchAndCompare.Domain.Models.Joins;
 
 namespace GovUk.Education.SearchAndCompare.Domain.Models
 {
-    [Table("fees")]
     public class Fees
     {
-        public int Id { get; set; }
+        public long Uk { get; set; }
 
-        public int StartYear { get; set; }
+        public long Eu { get; set; }
 
-        public int EndYear { get; set; }
-
-        public long UkFees { get; set; }
-
-        public long EuFees { get; set; }
-
-        public long InternationalFees { get; set; }
+        public long International { get; set; }
     }
 }
