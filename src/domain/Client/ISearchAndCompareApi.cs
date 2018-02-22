@@ -15,6 +15,6 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
 
         List<SubjectArea> GetSubjectAreas();
 
-        Fees GetLatestFees();
+        List<FeeCaps> GetFeeCaps();
     }
 }

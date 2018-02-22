@@ -128,9 +128,9 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
                 .ToList();
         }
 
-        public FeeCaps GetLatestFees() 
+        public List<FeeCaps> GetFeeCaps() 
         {
-            return FeeCaps.OrderByDescending(x => x.EndYear).FirstOrDefault();
+            return FeeCaps.ToList();
         }
     }
 }

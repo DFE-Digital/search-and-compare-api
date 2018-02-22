@@ -37,6 +37,6 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
         List<SubjectArea> GetOrderedSubjectsByArea();
         
-        FeeCaps GetLatestFees();
+        List<FeeCaps> GetFeeCaps();
     }
 }
