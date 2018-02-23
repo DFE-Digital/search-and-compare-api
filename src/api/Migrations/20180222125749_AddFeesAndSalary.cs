@@ -60,6 +60,53 @@ namespace SearchAndCompare.Migrations
                 type: "int8",
                 nullable: false,
                 defaultValue: 9250L);
+
+            migrationBuilder.Sql(@"DROP FUNCTION course_distance");
+            
+            migrationBuilder.Sql(@"
+                CREATE OR REPLACE FUNCTION course_distance( lat DOUBLE PRECISION, 
+                                                            lon DOUBLE PRECISION, 
+                                                            rad DOUBLE PRECISION) 
+                                            RETURNS TABLE ( ""Id"" integer,  
+                                                            ""AccreditingProviderId"" integer, 
+                                                            ""AgeRange"" integer, 
+                                                            ""IncludesPgce"" integer, 
+                                                            ""Name"" text, 
+                                                            ""ProgrammeCode"" text, 
+                                                            ""ProviderCodeName"" text, 
+                                                            ""ProviderId"" integer, 
+                                                            ""ProviderLocationId"" integer, 
+                                                            ""RouteId"" integer,
+                                                            ""IsSalaried"" bool,
+                                                            ""Salary_Maximum"" int8,
+                                                            ""Salary_Minimum"" int8,
+                                                            ""Fees_Eu"" int8,
+                                                            ""Fees_International"" int8,
+                                                            ""Fees_Uk"" int8,
+                                                            ""Distance"" double precision) AS $$
+                    SELECT course.""Id"",
+                        course.""AccreditingProviderId"",
+                        course.""AgeRange"",
+                        course.""IncludesPgce"",
+                        course.""Name"",
+                        course.""ProgrammeCode"",
+                        course.""ProviderCodeName"",
+                        course.""ProviderId"",
+                        course.""ProviderLocationId"",
+                        course.""RouteId"",
+                        course.""IsSalaried"",
+                        course.""Salary_Maximum"",
+                        course.""Salary_Minimum"",
+                        course.""Fees_Eu"",
+                        course.""Fees_International"",
+                        course.""Fees_Uk"",
+                        earth_distance(ll_to_earth(lat, lon), ll_to_earth(""Latitude"",""Longitude"")) AS ""Distance""
+                    FROM ""course""
+                    JOIN location ON course.""ProviderLocationId"" = location.""Id""
+                    WHERE ""earth_box""(ll_to_earth(lat, lon), rad) @> ll_to_earth(location.""Latitude"",location.""Longitude"") 
+                    AND earth_distance(ll_to_earth(lat, lon), ll_to_earth(location.""Latitude"",location.""Longitude"")) <= rad
+                $$ LANGUAGE SQL;");
+
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -92,6 +139,39 @@ namespace SearchAndCompare.Migrations
                 name: "feecaps",
                 newName: "fees");
 
+            migrationBuilder.Sql(@"DROP FUNCTION course_distance");
+
+            migrationBuilder.Sql(@"
+                CREATE OR REPLACE FUNCTION course_distance( lat DOUBLE PRECISION, 
+                                                            lon DOUBLE PRECISION, 
+                                                            rad DOUBLE PRECISION) 
+                                            RETURNS TABLE ( ""Id"" integer,  
+                                                            ""AccreditingProviderId"" integer, 
+                                                            ""AgeRange"" integer, 
+                                                            ""IncludesPgce"" integer, 
+                                                            ""Name"" text, 
+                                                            ""ProgrammeCode"" text, 
+                                                            ""ProviderCodeName"" text, 
+                                                            ""ProviderId"" integer, 
+                                                            ""ProviderLocationId"" integer, 
+                                                            ""RouteId"" integer,
+                                                            ""Distance"" double precision) AS $$
+                    SELECT course.""Id"",
+                        course.""AccreditingProviderId"",
+                        course.""AgeRange"",
+                        course.""IncludesPgce"",
+                        course.""Name"",
+                        course.""ProgrammeCode"",
+                        course.""ProviderCodeName"",
+                        course.""ProviderId"",
+                        course.""ProviderLocationId"",
+                        course.""RouteId"",
+                        earth_distance(ll_to_earth(lat, lon), ll_to_earth(""Latitude"",""Longitude"")) AS ""Distance""
+                    FROM ""course""
+                    JOIN location ON course.""ProviderLocationId"" = location.""Id""
+                    WHERE ""earth_box""(ll_to_earth(lat, lon), rad) @> ll_to_earth(location.""Latitude"",location.""Longitude"") 
+                    AND earth_distance(ll_to_earth(lat, lon), ll_to_earth(location.""Latitude"",location.""Longitude"")) <= rad
+                $$ LANGUAGE SQL;");
         }
     }
 }

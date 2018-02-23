@@ -58,7 +58,8 @@ namespace SearchAndCompare.Migrations
 
                     b.Property<int>("AgeRange");
 
-                    b.Property<double?>("Distance");
+                    b.Property<double?>("Distance")
+                        .ValueGeneratedOnAddOrUpdate();
 
                     b.Property<int>("IncludesPgce");
 
