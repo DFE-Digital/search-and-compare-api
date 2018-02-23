@@ -102,7 +102,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.DatabaseAccess
                 Assert.AreEqual(1, context2.GetLocationFilteredCourses(50, 0, 1000).Count(), "Filtered to (roughly) London, the course should be found");
                 Assert.AreEqual(0, context2.GetLocationFilteredCourses(56.0, -3.2, 1000).Count(), "Filtered to (roughly) Edinburgh, the course shouldn't be found");
                 
-                var distance = context2.GetLocationFilteredCourses(50,0.01, 1000).Single().Distance;
+                var distance = context2.GetLocationFilteredCourses(50, 0.01, 1000).Single().Distance;
                 Assert.NotNull(distance);
                 Assert.LessOrEqual(715, distance.Value);
                 Assert.GreaterOrEqual(716, distance.Value);
@@ -155,7 +155,10 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.DatabaseAccess
                 Route = new Route
                 {
                     Name = "SCITT"
-                }
+                },
+                IsSalaried = false,
+                Fees = new Fees { Eu = 9250, Uk = 9250, International = 16340 },
+                Salary = new Salary()
             };
         }
     }
