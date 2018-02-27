@@ -61,7 +61,9 @@ namespace SearchAndCompare.Migrations
                 nullable: false,
                 defaultValue: 9250);
 
-            migrationBuilder.Sql(@"DROP FUNCTION course_distance;");
+            migrationBuilder.Sql(@"DROP FUNCTION course_distance(double precision,
+                                                                 double precision,
+                                                                 double precision);");
             
             migrationBuilder.Sql(@"
                 CREATE OR REPLACE FUNCTION course_distance( lat DOUBLE PRECISION, 
@@ -139,7 +141,9 @@ namespace SearchAndCompare.Migrations
                 name: "feecaps",
                 newName: "fees");
 
-            migrationBuilder.Sql(@"DROP FUNCTION course_distance;");
+            migrationBuilder.Sql(@"DROP FUNCTION course_distance(double precision,
+                                                                 double precision,
+                                                                 double precision);");
 
             migrationBuilder.Sql(@"
                 CREATE OR REPLACE FUNCTION course_distance( lat DOUBLE PRECISION, 
