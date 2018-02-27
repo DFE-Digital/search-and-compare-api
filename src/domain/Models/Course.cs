@@ -45,18 +45,6 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
 
         public Salary Salary { get; set; }
 
-        ///
-        /// Convenience method equivalent to CourseSubjects.Select(x => x.Subject)
-        ///
-        [NotMapped]
-        public IEnumerable<Subject> Subjects 
-        {
-            get
-            {
-                return CourseSubjects.Select(x => x.Subject);
-            }
-        }
-
         public int? ProviderLocationId { get; set; }
 
         public Location ProviderLocation { get; set; }

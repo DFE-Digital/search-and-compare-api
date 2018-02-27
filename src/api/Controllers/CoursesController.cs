@@ -51,8 +51,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 if (filter.SelectedFunding == FundingOption.BursaryOrScholarship)
                 {
                     courses = courses
-                        .Where(course => course.Subjects
-                            .Any(subject => subject.FundingId.HasValue));
+                        .Where(course => course.CourseSubjects
+                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue));
                 }
                 else if (filter.SelectedFunding == FundingOption.Salary)
                 {
