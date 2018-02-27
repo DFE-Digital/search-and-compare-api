@@ -61,7 +61,13 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.DatabaseAccess
                 context.SaveChanges();
             }
         }
-        
+
+        [OneTimeTearDown]
+        public void TearDownFixture()
+        {
+            context = GetContext();
+            context.Database.EnsureDeleted();
+        }
 
         [Test]
         public void EnsureCreated()
