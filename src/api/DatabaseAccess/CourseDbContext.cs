@@ -22,7 +22,7 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
         
         public DbSet<Route> Routes { get; set; }
         
-        public DbSet<Fees> Fees { get; set; }
+        public DbSet<FeeCaps> FeeCaps { get; set; }
 
         // Join tables
         public DbSet<CourseSubject> CourseSubjects { get; set; }
@@ -34,15 +34,19 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
             // Distance is not a real column (except when TVF "course_distance" is used)
             modelBuilder.Entity<Course>()
                 .Property(x => x.Distance)
-                .Metadata.BeforeSaveBehavior = PropertySaveBehavior.Ignore;  
+                .Metadata.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
 
             modelBuilder.Entity<Course>()
                 .Property(x => x.Distance)
-                .Metadata.AfterSaveBehavior = PropertySaveBehavior.Ignore;  
+                .Metadata.AfterSaveBehavior = PropertySaveBehavior.Ignore;
+
+            modelBuilder.Entity<Course>().OwnsOne(p => p.Fees);
+
+            modelBuilder.Entity<Course>().OwnsOne(p => p.Salary);
                 
             // Location Index
             modelBuilder.Entity<Location>()
-                .HasIndex(b => new { b.Longitude, b.Latitude });        
+                .HasIndex(b => new { b.Longitude, b.Latitude });
 
             // Many-Many mapping between Course and Subject
             modelBuilder.Entity<CourseSubject>()
@@ -124,9 +128,9 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
                 .ToList();
         }
 
-        public Fees GetLatestFees() 
+        public List<FeeCaps> GetFeeCaps() 
         {
-            return Fees.OrderByDescending(x=>x.EndYear).FirstOrDefault();
+            return FeeCaps.ToList();
         }
     }
 }

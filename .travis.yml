@@ -17,7 +17,7 @@ before_script:
 script:
 - "./travis-build.sh --quiet verify"
 services:
-- postgresql
+- postgresql: "9.4"
 deploy:
   - provider: script
     script: bash travis-deploy.sh $OC_WEBHOOK_DEV

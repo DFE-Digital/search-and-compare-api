@@ -7,11 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace GovUk.Education.SearchAndCompare.Api.Controllers
 {
     [Route("api/[controller]")]
-    public class FeesController : Controller
+    public class FeeCapsController : Controller
     {
         private readonly ICourseDbContext _context;
 
-        public FeesController(ICourseDbContext courseDbContext)
+        public FeeCapsController(ICourseDbContext courseDbContext)
         {
             _context = courseDbContext;
         }
@@ -20,9 +20,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var fees = _context.GetLatestFees();
+            var feeCaps = _context.GetFeeCaps();
 
-            return Ok(fees);
+            return Ok(feeCaps);
         }
     }
 }

@@ -12,9 +12,10 @@ using System;
 namespace SearchAndCompare.Migrations
 {
     [DbContext(typeof(CourseDbContext))]
-    partial class CourseDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180222125749_AddFeesAndSalary")]
+    partial class AddFeesAndSalary
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -290,11 +291,11 @@ namespace SearchAndCompare.Migrations
                         {
                             b1.Property<int>("CourseId");
 
-                            b1.Property<long>("Eu");
+                            b1.Property<int>("Eu");
 
-                            b1.Property<long>("International");
+                            b1.Property<int>("International");
 
-                            b1.Property<long>("Uk");
+                            b1.Property<int>("Uk");
 
                             b1.ToTable("course");
 
@@ -308,9 +309,9 @@ namespace SearchAndCompare.Migrations
                         {
                             b1.Property<int>("CourseId");
 
-                            b1.Property<long?>("Maximum");
+                            b1.Property<int?>("Maximum");
 
-                            b1.Property<long?>("Minimum");
+                            b1.Property<int?>("Minimum");
 
                             b1.ToTable("course");
 

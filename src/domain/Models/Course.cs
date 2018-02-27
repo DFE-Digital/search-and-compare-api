@@ -39,17 +39,11 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
 
         public ICollection<CourseSubject> CourseSubjects { get; set; }
 
-        ///
-        /// Convenience method equivalent to CourseSubjects.Select(x => x.Subject)
-        ///
-        [NotMapped]
-        public IEnumerable<Subject> Subjects 
-        {
-            get
-            {
-                return CourseSubjects.Select(x => x.Subject);
-            }
-        }
+        public Fees Fees { get; set; }
+
+        public bool IsSalaried { get; set; }
+
+        public Salary Salary { get; set; }
 
         public int? ProviderLocationId { get; set; }
 

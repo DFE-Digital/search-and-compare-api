@@ -50,11 +50,11 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             return GetObjects<List<SubjectArea>>(queryUri);
         }
 
-        public Fees GetLatestFees()
+        public List<FeeCaps> GetFeeCaps()
         {
-            var queryUri = GetUri("/fees", null);
+            var queryUri = GetUri("/feecaps", null);
 
-            return GetObjects<Fees>(queryUri);
+            return GetObjects<List<FeeCaps>>(queryUri);
         }
 
         private T GetObjects<T>(Uri queryUri)
