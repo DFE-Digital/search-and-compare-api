@@ -25,6 +25,8 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
 
         public int? sortby { get; set; }
 
+        public int? funding { get; set; }
+
         [IgnoreDataMemberAttribute]
         public List<int> SelectedSubjects { 
             get {            
@@ -38,6 +40,27 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
 
             set {
                 subjects = string.Join(",", value);
+            }
+        }
+
+        [IgnoreDataMemberAttribute]
+        public FundingOption SelectedFunding {
+            get {
+                if (funding.HasValue)
+                {
+                    return (FundingOption)funding.Value;
+                }
+                return FundingOption.All;
+            }
+            set {
+                if (value == FundingOption.All)
+                {
+                    funding = null;
+                }
+                else
+                {
+                    funding = (int)value;
+                }
             }
         }
         

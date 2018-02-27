@@ -46,6 +46,21 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                             .Contains(courseSubject.Subject.Id)));
             }
 
+            if (filter.SelectedFunding != FundingOption.All)
+            {
+                if (filter.SelectedFunding == FundingOption.BursaryOrScholarship)
+                {
+                    courses = courses
+                        .Where(course => course.Subjects
+                            .Any(subject => subject.FundingId.HasValue));
+                }
+                else if (filter.SelectedFunding == FundingOption.Salary)
+                {
+                    courses = courses
+                        .Where(course => course.IsSalaried);
+                }
+            }
+
             switch (filter.SortBy)
             {
                 case (SortByOption.ZtoA):
