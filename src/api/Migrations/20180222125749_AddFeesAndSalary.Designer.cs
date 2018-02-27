@@ -291,11 +291,11 @@ namespace SearchAndCompare.Migrations
                         {
                             b1.Property<int>("CourseId");
 
-                            b1.Property<long>("Eu");
+                            b1.Property<int>("Eu");
 
-                            b1.Property<long>("International");
+                            b1.Property<int>("International");
 
-                            b1.Property<long>("Uk");
+                            b1.Property<int>("Uk");
 
                             b1.ToTable("course");
 
@@ -309,9 +309,9 @@ namespace SearchAndCompare.Migrations
                         {
                             b1.Property<int>("CourseId");
 
-                            b1.Property<long?>("Maximum");
+                            b1.Property<int?>("Maximum");
 
-                            b1.Property<long?>("Minimum");
+                            b1.Property<int?>("Minimum");
 
                             b1.ToTable("course");
 

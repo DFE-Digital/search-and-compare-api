@@ -8,10 +8,10 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
 {
     public class Fees
     {
-        public long Uk { get; set; }
+        public int Uk { get; set; }
 
-        public long Eu { get; set; }
+        public int Eu { get; set; }
 
-        public long International { get; set; }
+        public int International { get; set; }
     }
 }

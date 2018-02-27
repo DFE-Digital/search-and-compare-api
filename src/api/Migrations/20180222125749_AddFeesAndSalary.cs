@@ -28,38 +28,38 @@ namespace SearchAndCompare.Migrations
                   WHERE course.""RouteId"" = route.""Id"""
             );
 
-            migrationBuilder.AddColumn<long>(
+            migrationBuilder.AddColumn<int>(
                 name: "Salary_Maximum",
                 table: "course",
-                type: "int8",
+                type: "integer",
                 nullable: true);
 
-            migrationBuilder.AddColumn<long>(
+            migrationBuilder.AddColumn<int>(
                 name: "Salary_Minimum",
                 table: "course",
-                type: "int8",
+                type: "integer",
                 nullable: true);
 
-            migrationBuilder.AddColumn<long>(
+            migrationBuilder.AddColumn<int>(
                 name: "Fees_Eu",
                 table: "course",
-                type: "int8",
+                type: "integer",
                 nullable: false,
-                defaultValue: 9250L);
+                defaultValue: 9250);
 
-            migrationBuilder.AddColumn<long>(
+            migrationBuilder.AddColumn<int>(
                 name: "Fees_International",
                 table: "course",
-                type: "int8",
+                type: "integer",
                 nullable: false,
-                defaultValue: 16340L);
+                defaultValue: 16340);
 
-            migrationBuilder.AddColumn<long>(
+            migrationBuilder.AddColumn<int>(
                 name: "Fees_Uk",
                 table: "course",
-                type: "int8",
+                type: "integer",
                 nullable: false,
-                defaultValue: 9250L);
+                defaultValue: 9250);
 
             migrationBuilder.Sql(@"DROP FUNCTION course_distance;");
             
@@ -78,11 +78,11 @@ namespace SearchAndCompare.Migrations
                                                             ""ProviderLocationId"" integer, 
                                                             ""RouteId"" integer,
                                                             ""IsSalaried"" bool,
-                                                            ""Salary_Maximum"" int8,
-                                                            ""Salary_Minimum"" int8,
-                                                            ""Fees_Eu"" int8,
-                                                            ""Fees_International"" int8,
-                                                            ""Fees_Uk"" int8,
+                                                            ""Salary_Maximum"" integer,
+                                                            ""Salary_Minimum"" integer,
+                                                            ""Fees_Eu"" integer,
+                                                            ""Fees_International"" integer,
+                                                            ""Fees_Uk"" integer,
                                                             ""Distance"" double precision) AS $$
                     SELECT course.""Id"",
                         course.""AccreditingProviderId"",
