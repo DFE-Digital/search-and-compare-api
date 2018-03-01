@@ -21,6 +21,8 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
 
         public string loc { get; set; }
 
+        public string lq { get; set; }
+
         public string subjects { get; set; }
 
         public int? sortby { get; set; }
