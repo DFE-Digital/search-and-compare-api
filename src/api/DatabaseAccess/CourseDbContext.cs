@@ -82,6 +82,55 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
                 .Include(x => x.Campuses);
         }
 
+        public IQueryable<Course> GetTextFilteredCourses(string searchText)
+        {
+            if (string.IsNullOrWhiteSpace(searchText)) 
+            {
+                return GetCoursesWithProviderSubjectsRouteAndCampuses();
+            }
+            
+            // TODO: ORDER BY ts_rank(to_tsvector(""p1"".""Name"") || to_tsvector(""p2"".""Name"") @@ to_tsquery(@query)) DESC
+            return Courses
+                .FromSql(@"
+SELECT *, NULL as ""Distance"" 
+FROM ""course"" 
+WHERE gin_fts_course_fn(""Id"") @@ to_tsquery(@query) IS TRUE",
+                    new NpgsqlParameter("@query", searchText))
+                .Include("Provider")
+                .Include(course => course.CourseSubjects)
+                    .ThenInclude(courseSubject => courseSubject.Subject) 
+                        .ThenInclude(subject => subject.Funding)               
+                .Include(x => x.ProviderLocation)
+                .Include(x => x.Route)
+                .Include(x => x.Campuses);
+        }
+
+        public IQueryable<Course> GetTextAndLocationFilteredCourses(string searchText, double latitude, double longitude, double radiusInMeters)
+        {
+            if (string.IsNullOrWhiteSpace(searchText)) 
+            {
+                return GetLocationFilteredCourses(latitude, longitude, radiusInMeters);
+            }
+
+            // TODO: ORDER BY ts_rank(to_tsvector(""p1"".""Name"") || to_tsvector(""p2"".""Name"") @@ to_tsquery(@query)) DESC
+            return Courses
+                .FromSql(@"
+SELECT * 
+FROM course_distance(@lat,@lon,@rad)
+WHERE gin_fts_course_fn(""Id"") @@ to_tsquery(@query) IS TRUE",
+                    new NpgsqlParameter("@lat", latitude),
+                    new NpgsqlParameter("@lon", longitude),
+                    new NpgsqlParameter("@rad", radiusInMeters),
+                    new NpgsqlParameter("@query", searchText))
+                .Include("Provider")
+                .Include(course => course.CourseSubjects)
+                    .ThenInclude(courseSubject => courseSubject.Subject) 
+                        .ThenInclude(subject => subject.Funding)               
+                .Include(x => x.ProviderLocation)
+                .Include(x => x.Route)
+                .Include(x => x.Campuses);
+        }
+
         public IQueryable<Course> GetCoursesWithProviderAndSubjects()
         {
             return from course in Courses

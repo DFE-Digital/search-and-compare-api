@@ -134,6 +134,44 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.DatabaseAccess
 
             Assert.Throws<DbUpdateException>(() => context.SaveChanges());
         }
+
+        [Test]
+        public void TextSearch()
+        {
+            Assert.AreEqual(0, context.Courses.Count());
+
+            var entity = context.Courses.Add(GetSimpleCourse());
+            context.SaveChanges();
+            entitiesToCleanUp.Add(entity);
+
+            using (var context2 = GetContext()) 
+            {
+                Assert.AreEqual(1, context2.GetTextFilteredCourses("Provider").Count(), "Filtered to a text string that exists, the course should be found");
+                Assert.AreEqual(0, context2.GetTextFilteredCourses("FooBar").Count(), "Filtered to a text string that doensn't exist , the course should not be found");
+                Assert.AreEqual(1, context2.GetTextAndLocationFilteredCourses("Provider", 50, 0, 1000).Count(), "Combining text search with location search should work");
+                Assert.AreEqual(0, context2.GetTextAndLocationFilteredCourses("FooBar", 50, 0, 1000).Count(), "Combining bad text search with location search should work");
+            }
+        }
+
+        [Test]
+        public void TextSearch_NullAndEmpty()
+        {
+            Assert.AreEqual(0, context.Courses.Count());
+
+            var entity = context.Courses.Add(GetSimpleCourse());
+            context.SaveChanges();
+            entitiesToCleanUp.Add(entity);
+
+            using (var context2 = GetContext()) 
+            {
+                Assert.AreEqual(1, context2.GetTextFilteredCourses("").Count(), "Empty");
+                Assert.AreEqual(1, context2.GetTextFilteredCourses("  ").Count(), "Whitespace");
+                Assert.AreEqual(1, context2.GetTextFilteredCourses(null).Count(), "Null");
+                Assert.AreEqual(1, context2.GetTextAndLocationFilteredCourses("", 50, 0, 1000).Count(), "Empty (with location)");
+                Assert.AreEqual(1, context2.GetTextAndLocationFilteredCourses("  ", 50, 0, 1000).Count(), "Whitespace (with location)");
+                Assert.AreEqual(1, context2.GetTextAndLocationFilteredCourses(null, 50, 0, 1000).Count(), "Null (with location)");
+            }
+        }
         
         private static Course GetSimpleCourse()
         {
