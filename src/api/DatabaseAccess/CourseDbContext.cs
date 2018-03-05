@@ -83,12 +83,12 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
             {
                 throw new ArgumentException("Cannot be null or white space", nameof(searchText));
             }
-            
+
             return ForListing(Courses.FromSql(@"
 SELECT ""course"".*, NULL as ""Distance"" 
 FROM course_matching_query(to_tsquery('english', @query)) AS ""ids""
 JOIN ""course"" ON ""course"".""Id"" = ""ids"".""Id""",
-                    new NpgsqlParameter("@query", searchText)));
+                    new NpgsqlParameter("@query", ToQueryText(searchText))));
         }
 
         public IQueryable<Course> GetTextAndLocationFilteredCourses(string searchText, double latitude, double longitude, double radiusInMeters)
@@ -105,7 +105,12 @@ JOIN course_distance(@lat,@lon,@rad) AS ""course"" ON ""course"".""Id"" = ""ids"
                     new NpgsqlParameter("@lat", latitude),
                     new NpgsqlParameter("@lon", longitude),
                     new NpgsqlParameter("@rad", radiusInMeters),
-                    new NpgsqlParameter("@query", searchText)));
+                    new NpgsqlParameter("@query", ToQueryText(searchText))));
+        }
+
+        private static string ToQueryText(string searchText)
+        {
+            return $"'{searchText}'";
         }
 
         public IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses()

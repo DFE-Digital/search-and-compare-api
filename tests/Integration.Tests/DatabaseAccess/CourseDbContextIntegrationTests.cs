@@ -148,6 +148,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.DatabaseAccess
             using (var context2 = GetContext()) 
             {
                 Assert.AreEqual(1, context2.GetTextFilteredCourses("Provider").Count(), "Filtered to a text string that exists, the course should be found");
+                Assert.AreEqual(1, context2.GetTextFilteredCourses("My Provider").Count(), "Filter with multiple words");
                 Assert.AreEqual(0, context2.GetTextFilteredCourses("FooBar").Count(), "Filtered to a text string that doensn't exist , the course should not be found");
                 Assert.AreEqual(1, context2.GetTextAndLocationFilteredCourses("Provider", 50, 0, 1000).Count(), "Combining text search with location search should work");
                 Assert.AreEqual(0, context2.GetTextAndLocationFilteredCourses("FooBar", 50, 0, 1000).Count(), "Combining bad text search with location search should work");
