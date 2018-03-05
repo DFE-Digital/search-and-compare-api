@@ -13,6 +13,8 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
 
         public string Email { get; set; }
 
+        public string Website { get; set; }
+
         public Address Address { get; set; }
 
         public Course Course { get; set; }
