@@ -12,9 +12,10 @@ using System;
 namespace SearchAndCompare.Migrations
 {
     [DbContext(typeof(CourseDbContext))]
-    partial class CourseDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180305110011_StructuredContactDetails")]
+    partial class StructuredContactDetails
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -59,8 +60,6 @@ namespace SearchAndCompare.Migrations
                     b.Property<string>("Fax");
 
                     b.Property<string>("Phone");
-
-                    b.Property<string>("Website");
 
                     b.HasKey("Id");
 
@@ -228,8 +227,6 @@ namespace SearchAndCompare.Migrations
                         .ValueGeneratedOnAdd();
 
                     b.Property<int?>("FundingId");
-
-                    b.Property<bool>("IsSubjectKnowledgeEnhancementAvailable");
 
                     b.Property<string>("Name");
 
