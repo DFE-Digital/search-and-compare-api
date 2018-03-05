@@ -8,10 +8,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace GovUk.Education.SearchAndCompare.Api.Controllers
 {
     [Route("api/[controller]")]
-    public class ProviderController : Controller
+    public class ProvidersController : Controller
     {
         private readonly ICourseDbContext _context;
-        public ProviderController(ICourseDbContext courseDbContext)
+        public ProvidersController(ICourseDbContext courseDbContext)
         {
             _context = courseDbContext;
         }

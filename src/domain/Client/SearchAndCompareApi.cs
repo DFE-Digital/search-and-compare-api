@@ -60,8 +60,11 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
 
         public List<Provider> GetProviderSuggestions(string query)
         {
-            var queryUri = GetUri($"/providers/suggest?query={HttpUtility.UrlEncode(query)}", null);
-            return GetObjects<List<Provider>>(queryUri);
+            var buider = new UriBuilder(new Uri(_apiUri));
+            buider.Path += "/providers/suggest";
+            buider.Query = "query=" + HttpUtility.UrlEncode(query);
+            
+            return GetObjects<List<Provider>>(buider.Uri) ?? new List<Provider>();
         }
 
         private T GetObjects<T>(Uri queryUri)
