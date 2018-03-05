@@ -50,5 +50,9 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
         public Location ProviderLocation { get; set; }
 
         public double? Distance { get; set; }
+
+        public int? ContactDetailsId { get; set; }
+
+        public Contact ContactDetails { get; set; }
     }
 }

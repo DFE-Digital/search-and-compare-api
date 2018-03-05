@@ -12,9 +12,10 @@ using System;
 namespace SearchAndCompare.Migrations
 {
     [DbContext(typeof(CourseDbContext))]
-    partial class CourseDbContextModelSnapshot : ModelSnapshot
+    [Migration("20180305155113_AddSke")]
+    partial class AddSke
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -49,24 +50,6 @@ namespace SearchAndCompare.Migrations
                     b.ToTable("campus");
                 });
 
-            modelBuilder.Entity("GovUk.Education.SearchAndCompare.Domain.Models.Contact", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("Email");
-
-                    b.Property<string>("Fax");
-
-                    b.Property<string>("Phone");
-
-                    b.Property<string>("Website");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("contact");
-                });
-
             modelBuilder.Entity("GovUk.Education.SearchAndCompare.Domain.Models.Course", b =>
                 {
                     b.Property<int>("Id")
@@ -75,8 +58,6 @@ namespace SearchAndCompare.Migrations
                     b.Property<int?>("AccreditingProviderId");
 
                     b.Property<int>("AgeRange");
-
-                    b.Property<int?>("ContactDetailsId");
 
                     b.Property<double?>("Distance");
 
@@ -99,8 +80,6 @@ namespace SearchAndCompare.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AccreditingProviderId");
-
-                    b.HasIndex("ContactDetailsId");
 
                     b.HasIndex("ProviderId");
 
@@ -289,46 +268,11 @@ namespace SearchAndCompare.Migrations
                         .HasForeignKey("LocationId");
                 });
 
-            modelBuilder.Entity("GovUk.Education.SearchAndCompare.Domain.Models.Contact", b =>
-                {
-                    b.OwnsOne("GovUk.Education.SearchAndCompare.Domain.Models.Address", "Address", b1 =>
-                        {
-                            b1.Property<int>("ContactId");
-
-                            b1.Property<string>("County");
-
-                            b1.Property<string>("Line1");
-
-                            b1.Property<string>("Line2");
-
-                            b1.Property<string>("Line3");
-
-                            b1.Property<string>("Line4");
-
-                            b1.Property<string>("Line5");
-
-                            b1.Property<string>("Line6");
-
-                            b1.Property<string>("PostCode");
-
-                            b1.ToTable("contact");
-
-                            b1.HasOne("GovUk.Education.SearchAndCompare.Domain.Models.Contact")
-                                .WithOne("Address")
-                                .HasForeignKey("GovUk.Education.SearchAndCompare.Domain.Models.Address", "ContactId")
-                                .OnDelete(DeleteBehavior.Cascade);
-                        });
-                });
-
             modelBuilder.Entity("GovUk.Education.SearchAndCompare.Domain.Models.Course", b =>
                 {
                     b.HasOne("GovUk.Education.SearchAndCompare.Domain.Models.Provider", "AccreditingProvider")
                         .WithMany("AccreditedCourses")
                         .HasForeignKey("AccreditingProviderId");
-
-                    b.HasOne("GovUk.Education.SearchAndCompare.Domain.Models.Contact", "ContactDetails")
-                        .WithOne("Course")
-                        .HasForeignKey("GovUk.Education.SearchAndCompare.Domain.Models.Course", "ContactDetailsId");
 
                     b.HasOne("GovUk.Education.SearchAndCompare.Domain.Models.Provider", "Provider")
                         .WithMany("Courses")
