@@ -26,6 +26,7 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
         IQueryable<Course> GetLocationFilteredCourses(double latitude, double longitude, double radiusInMeters);
 
         IQueryable<Course> GetTextFilteredCourses(string searchText);
+
         IQueryable<Course> GetTextAndLocationFilteredCourses(string searchText, double latitude, double longitude, double radiusInMeters);
 
         IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses();

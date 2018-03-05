@@ -44,6 +44,9 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
             modelBuilder.Entity<Course>().OwnsOne(p => p.Fees);
 
             modelBuilder.Entity<Course>().OwnsOne(p => p.Salary);
+
+            // Contact
+            modelBuilder.Entity<Contact>().OwnsOne(c => c.Address);
                 
             // Location Index
             modelBuilder.Entity<Location>()
@@ -153,11 +156,13 @@ JOIN course_distance(@lat,@lon,@rad) AS ""course"" ON ""course"".""Id"" = ""ids"
         {
             return queryable.Include("Provider")
                 .Include(course => course.CourseSubjects)
-                    .ThenInclude(courseSubject => courseSubject.Subject) 
-                        .ThenInclude(subject => subject.Funding)               
-                .Include(x => x.ProviderLocation)
-                .Include(x => x.Route)
-                .Include(x => x.Campuses)
+                    .ThenInclude(courseSubject => courseSubject.Subject)
+                        .ThenInclude(subject => subject.Funding)
+                .Include(course => course.ContactDetails)
+                    .ThenInclude(contact => contact.Address)
+                .Include(course => course.ProviderLocation)
+                .Include(course => course.Route)
+                .Include(course => course.Campuses)
                     .ThenInclude(campus => campus.Location);
         }
     }
