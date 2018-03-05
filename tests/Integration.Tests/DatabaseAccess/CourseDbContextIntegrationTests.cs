@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -164,12 +165,12 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.DatabaseAccess
 
             using (var context2 = GetContext()) 
             {
-                Assert.AreEqual(1, context2.GetTextFilteredCourses("").Count(), "Empty");
-                Assert.AreEqual(1, context2.GetTextFilteredCourses("  ").Count(), "Whitespace");
-                Assert.AreEqual(1, context2.GetTextFilteredCourses(null).Count(), "Null");
-                Assert.AreEqual(1, context2.GetTextAndLocationFilteredCourses("", 50, 0, 1000).Count(), "Empty (with location)");
-                Assert.AreEqual(1, context2.GetTextAndLocationFilteredCourses("  ", 50, 0, 1000).Count(), "Whitespace (with location)");
-                Assert.AreEqual(1, context2.GetTextAndLocationFilteredCourses(null, 50, 0, 1000).Count(), "Null (with location)");
+                Assert.Throws(typeof(ArgumentException), () => context2.GetTextFilteredCourses(""), "Empty");
+                Assert.Throws(typeof(ArgumentException), () => context2.GetTextFilteredCourses("  "), "Whitespace");
+                Assert.Throws(typeof(ArgumentException), () => context2.GetTextFilteredCourses(null), "Null");
+                Assert.Throws(typeof(ArgumentException), () => context2.GetTextAndLocationFilteredCourses("", 50, 0, 1000), "Empty (with location)");
+                Assert.Throws(typeof(ArgumentException), () => context2.GetTextAndLocationFilteredCourses("  ", 50, 0, 1000), "Whitespace (with location)");
+                Assert.Throws(typeof(ArgumentException), () => context2.GetTextAndLocationFilteredCourses(null, 50, 0, 1000), "Null (with location)");
             }
         }
         

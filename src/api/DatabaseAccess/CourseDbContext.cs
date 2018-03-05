@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
@@ -69,86 +70,47 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
         public IQueryable<Course> GetLocationFilteredCourses(double latitude, double longitude, double radiusInMeters)
         {            
-            return Courses.FromSql("SELECT * FROM course_distance(@lat,@lon,@rad)", 
+            return ForListing(Courses.FromSql("SELECT * FROM course_distance(@lat,@lon,@rad)", 
                     new NpgsqlParameter("@lat", latitude),
                     new NpgsqlParameter("@lon", longitude),
-                    new NpgsqlParameter("@rad", radiusInMeters))
-                .Include("Provider")
-                .Include(course => course.CourseSubjects)
-                    .ThenInclude(courseSubject => courseSubject.Subject) 
-                        .ThenInclude(subject => subject.Funding)               
-                .Include(x => x.ProviderLocation)
-                .Include(x => x.Route)
-                .Include(x => x.Campuses);
+                    new NpgsqlParameter("@rad", radiusInMeters)));
+                
         }
 
         public IQueryable<Course> GetTextFilteredCourses(string searchText)
         {
             if (string.IsNullOrWhiteSpace(searchText)) 
             {
-                return GetCoursesWithProviderSubjectsRouteAndCampuses();
+                throw new ArgumentException("Cannot be null or white space", nameof(searchText));
             }
             
-            // TODO: ORDER BY ts_rank(to_tsvector(""p1"".""Name"") || to_tsvector(""p2"".""Name"") @@ to_tsquery(@query)) DESC
-            return Courses
-                .FromSql(@"
-SELECT *, NULL as ""Distance"" 
-FROM ""course"" 
-WHERE gin_fts_course_fn(""Id"") @@ to_tsquery(@query) IS TRUE",
-                    new NpgsqlParameter("@query", searchText))
-                .Include("Provider")
-                .Include(course => course.CourseSubjects)
-                    .ThenInclude(courseSubject => courseSubject.Subject) 
-                        .ThenInclude(subject => subject.Funding)               
-                .Include(x => x.ProviderLocation)
-                .Include(x => x.Route)
-                .Include(x => x.Campuses);
+            return ForListing(Courses.FromSql(@"
+SELECT ""course"".*, NULL as ""Distance"" 
+FROM course_matching_query(to_tsquery('english', @query)) AS ""ids""
+JOIN ""course"" ON ""course"".""Id"" = ""ids"".""Id""",
+                    new NpgsqlParameter("@query", searchText)));
         }
 
         public IQueryable<Course> GetTextAndLocationFilteredCourses(string searchText, double latitude, double longitude, double radiusInMeters)
         {
             if (string.IsNullOrWhiteSpace(searchText)) 
             {
-                return GetLocationFilteredCourses(latitude, longitude, radiusInMeters);
+                throw new ArgumentException("Cannot be null or white space", nameof(searchText));
             }
 
-            // TODO: ORDER BY ts_rank(to_tsvector(""p1"".""Name"") || to_tsvector(""p2"".""Name"") @@ to_tsquery(@query)) DESC
-            return Courses
-                .FromSql(@"
-SELECT * 
-FROM course_distance(@lat,@lon,@rad)
-WHERE gin_fts_course_fn(""Id"") @@ to_tsquery(@query) IS TRUE",
+            return ForListing(Courses.FromSql(@"
+SELECT ""course"".* 
+FROM course_matching_query(to_tsquery('english', @query)) AS ""ids""
+JOIN course_distance(@lat,@lon,@rad) AS ""course"" ON ""course"".""Id"" = ""ids"".""Id""",
                     new NpgsqlParameter("@lat", latitude),
                     new NpgsqlParameter("@lon", longitude),
                     new NpgsqlParameter("@rad", radiusInMeters),
-                    new NpgsqlParameter("@query", searchText))
-                .Include("Provider")
-                .Include(course => course.CourseSubjects)
-                    .ThenInclude(courseSubject => courseSubject.Subject) 
-                        .ThenInclude(subject => subject.Funding)               
-                .Include(x => x.ProviderLocation)
-                .Include(x => x.Route)
-                .Include(x => x.Campuses);
-        }
-
-        public IQueryable<Course> GetCoursesWithProviderAndSubjects()
-        {
-            return from course in Courses
-                .FromSql("SELECT *, NULL as \"Distance\" FROM \"course\"")
-                .Include("Provider")
-                .Include(course => course.CourseSubjects)
-                    .ThenInclude(courseSubject => courseSubject.Subject)
-                        .ThenInclude(subject => subject.Funding)
-                select course;
+                    new NpgsqlParameter("@query", searchText)));
         }
 
         public IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses()
         {
-            return GetCoursesWithProviderAndSubjects()
-                .Include(x => x.ProviderLocation)
-                .Include(x => x.Route)
-                .Include(x => x.Campuses)
-                    .ThenInclude(campus => campus.Location);
+            return ForListing(Courses.FromSql("SELECT *, NULL as \"Distance\" FROM \"course\""));
         }
 
         public IQueryable<Course> GetCoursesWithProviderSubjectsRouteCampusesAndDescriptions()
@@ -180,6 +142,18 @@ WHERE gin_fts_course_fn(""Id"") @@ to_tsquery(@query) IS TRUE",
         public List<FeeCaps> GetFeeCaps() 
         {
             return FeeCaps.ToList();
+        }
+        
+        private IQueryable<Course> ForListing(IQueryable<Course> queryable)
+        {
+            return queryable.Include("Provider")
+                .Include(course => course.CourseSubjects)
+                    .ThenInclude(courseSubject => courseSubject.Subject) 
+                        .ThenInclude(subject => subject.Funding)               
+                .Include(x => x.ProviderLocation)
+                .Include(x => x.Route)
+                .Include(x => x.Campuses)
+                    .ThenInclude(campus => campus.Location);
         }
     }
 }
