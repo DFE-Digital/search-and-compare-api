@@ -29,6 +29,8 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
 
         public int? funding { get; set; }
 
+        public string query { get; set; }
+
         [IgnoreDataMemberAttribute]
         public List<int> SelectedSubjects { 
             get {            

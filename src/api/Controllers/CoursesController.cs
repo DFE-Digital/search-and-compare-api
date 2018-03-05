@@ -26,7 +26,23 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         public IActionResult GetFiltered(QueryFilter filter)
         {
             IQueryable<Course> courses;
-            if (filter.Coordinates != null && filter.RadiusOption != null)
+            bool locationFilter = filter.Coordinates != null && filter.RadiusOption != null;
+            bool textFilter = !string.IsNullOrWhiteSpace(filter.query);
+
+            if (textFilter && locationFilter)
+            {
+                courses = _context.GetTextAndLocationFilteredCourses(
+                    filter.query,
+                    filter.Coordinates.Latitude,
+                    filter.Coordinates.Longitude,
+                    filter.RadiusOption.Value.ToMetres());
+            }
+            else if (textFilter && !locationFilter)
+            {
+                courses = _context.GetTextFilteredCourses(
+                    filter.query);
+            }
+            else if (!textFilter && locationFilter)
             {
                 courses = _context.GetLocationFilteredCourses(
                     filter.Coordinates.Latitude,

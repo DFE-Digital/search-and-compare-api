@@ -6,7 +6,7 @@
     <Authors>DfE Digital</Authors>
     <Title>Domain objects for SearchAndCompare project</Title>
     <Description>Domain objects for SearchAndCompare project</Description>
-    <VersionPrefix>0.1.8</VersionPrefix>
+    <VersionPrefix>0.1.9</VersionPrefix>
     <VersionSuffix>beta</VersionSuffix>
   </PropertyGroup>
 
