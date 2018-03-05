@@ -154,6 +154,7 @@ JOIN course_distance(@lat,@lon,@rad) AS ""course"" ON ""course"".""Id"" = ""ids"
                     .ThenInclude(courseSubject => courseSubject.Subject)
                         .ThenInclude(subject => subject.Funding)
                 .Include(course => course.ContactDetails)
+                    .ThenInclude(contact => contact.Address)
                 .Include(course => course.ProviderLocation)
                 .Include(course => course.Route)
                 .Include(course => course.Campuses)
