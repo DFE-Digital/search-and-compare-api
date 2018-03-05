@@ -75,7 +75,10 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
         public IQueryable<Course> GetLocationFilteredCourses(double latitude, double longitude, double radiusInMeters)
         {            
-            return ForListing(Courses.FromSql("SELECT * FROM course_distance(@lat,@lon,@rad)", 
+            return ForListing(Courses.FromSql(@"
+SELECT ""course"".*, distance.""Distance"" 
+FROM course_distance(@lat,@lon,@rad) AS distance
+JOIN ""course"" ON ""course"".""Id"" = ""distance"".""Id""", 
                     new NpgsqlParameter("@lat", latitude),
                     new NpgsqlParameter("@lon", longitude),
                     new NpgsqlParameter("@rad", radiusInMeters)));
@@ -104,9 +107,10 @@ JOIN ""course"" ON ""course"".""Id"" = ""ids"".""Id""",
             }
 
             return ForListing(Courses.FromSql(@"
-SELECT ""course"".* 
-FROM course_matching_query(to_tsquery('english', @query)) AS ""ids""
-JOIN course_distance(@lat,@lon,@rad) AS ""course"" ON ""course"".""Id"" = ""ids"".""Id""",
+SELECT ""course"".*, c2.""Distance"" 
+FROM course_matching_query(to_tsquery('english', @query)) AS ""c1""
+JOIN course_distance(@lat,@lon,@rad) AS ""c2"" ON ""c1"".""Id"" = ""c2"".""Id""
+JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
                     new NpgsqlParameter("@lat", latitude),
                     new NpgsqlParameter("@lon", longitude),
                     new NpgsqlParameter("@rad", radiusInMeters),
