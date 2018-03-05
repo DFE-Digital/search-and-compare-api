@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Web;
 using GovUk.Education.SearchAndCompare.Domain.Filters;
 using GovUk.Education.SearchAndCompare.Domain.Lists;
 using GovUk.Education.SearchAndCompare.Domain.Models;
@@ -55,6 +56,15 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             var queryUri = GetUri("/feecaps", null);
 
             return GetObjects<List<FeeCaps>>(queryUri);
+        }
+
+        public List<Provider> GetProviderSuggestions(string query)
+        {
+            var buider = new UriBuilder(new Uri(_apiUri));
+            buider.Path += "/providers/suggest";
+            buider.Query = "query=" + HttpUtility.UrlEncode(query);
+            
+            return GetObjects<List<Provider>>(buider.Uri) ?? new List<Provider>();
         }
 
         private T GetObjects<T>(Uri queryUri)
