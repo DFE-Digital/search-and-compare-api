@@ -14,6 +14,8 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
     public class CourseDbContext : DbContext, ICourseDbContext
     {
         public DbSet<Course> Courses { get; set; }
+        
+        public DbSet<Provider> Providers { get; set; }
 
         public DbSet<Subject> Subjects { get; set; }
 
@@ -147,6 +149,22 @@ JOIN course_distance(@lat,@lon,@rad) AS ""course"" ON ""course"".""Id"" = ""ids"
         public List<FeeCaps> GetFeeCaps() 
         {
             return FeeCaps.ToList();
+        }
+
+        public List<Provider> SuggestProviders(string query)
+        {
+            return Providers.FromSql(@"
+SELECT * FROM (
+    SELECT ""provider"".*, COUNT(*) AS cnt 
+    FROM ""provider""
+    JOIN ""course"" ON ""course"".""ProviderId"" = ""provider"".""Id""  OR ""course"".""AccreditingProviderId"" = ""provider"".""Id""
+    WHERE to_tsvector('english', ""provider"".""Name"") @@ to_tsquery(@query) IS TRUE
+    GROUP BY ""provider"".""Id"") AS sub
+ORDER BY ""cnt"" DESC
+LIMIT @limit",
+            new NpgsqlParameter("@query", ToQueryText(query) + ":*"),
+            new NpgsqlParameter("@limit", 5))
+            .ToList();
         }
         
         private IQueryable<Course> ForListing(IQueryable<Course> queryable)

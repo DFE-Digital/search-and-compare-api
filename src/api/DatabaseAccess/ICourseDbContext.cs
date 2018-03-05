@@ -10,12 +10,14 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
     public interface ICourseDbContext
     {
         DbSet<Course> Courses { get; set; }
+        DbSet<Provider> Providers { get; set; }
 
         DbSet<Subject> Subjects { get; set; }
 
         DbSet<SubjectArea> SubjectAreas { get; set; }
 
         DbSet<Campus> Campuses { get; set; }
+
         
         DbSet<Route> Routes { get; set; }
         
@@ -39,5 +41,8 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
         List<SubjectArea> GetOrderedSubjectsByArea();
         
         List<FeeCaps> GetFeeCaps();
+
+        List<Provider> SuggestProviders(string query);
     }
+
 }
