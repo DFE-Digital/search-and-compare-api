@@ -100,8 +100,7 @@ namespace SearchAndCompare.Migrations
 
                     b.HasIndex("AccreditingProviderId");
 
-                    b.HasIndex("ContactDetailsId")
-                        .IsUnique();
+                    b.HasIndex("ContactDetailsId");
 
                     b.HasIndex("ProviderId");
 

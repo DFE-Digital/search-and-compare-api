@@ -42,7 +42,7 @@ namespace SearchAndCompare.Migrations
                 name: "IX_course_ContactDetailsId",
                 table: "course",
                 column: "ContactDetailsId",
-                unique: true);
+                unique: false);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_course_contact_ContactDetailsId",

@@ -12,7 +12,7 @@ using System;
 namespace SearchAndCompare.Migrations
 {
     [DbContext(typeof(CourseDbContext))]
-    [Migration("20180305113105_StructuredContactDetails")]
+    [Migration("20180305113105_StructuredContactDetails2")]
     partial class StructuredContactDetails2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -101,8 +101,7 @@ namespace SearchAndCompare.Migrations
 
                     b.HasIndex("AccreditingProviderId");
 
-                    b.HasIndex("ContactDetailsId")
-                        .IsUnique();
+                    b.HasIndex("ContactDetailsId");
 
                     b.HasIndex("ProviderId");
 
