@@ -16,6 +16,8 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
 
         public string Name { get; set; }
 
+        public bool IsSubjectKnowledgeEnhancementAvailable { get; set; }
+
         public ICollection<CourseSubject> CourseSubjects { get; set; }
     }
 }
