@@ -39,6 +39,16 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
 
         public double? offlat { get; set; }
 
+        public bool pgce { get; set; }
+
+        public bool qts { get; set; }
+        
+        public bool fulltime { get; set; }
+        
+        public bool parttime { get; set; }
+
+        
+
         [IgnoreDataMemberAttribute]
         public List<int> SelectedSubjects { 
             get {            

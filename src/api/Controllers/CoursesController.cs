@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
@@ -5,6 +6,7 @@ using GovUk.Education.SearchAndCompare.Api.ListExtensions;
 using GovUk.Education.SearchAndCompare.Domain.Filters;
 using GovUk.Education.SearchAndCompare.Domain.Filters.Enums;
 using GovUk.Education.SearchAndCompare.Domain.Models;
+using GovUk.Education.SearchAndCompare.Domain.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GovUk.Education.SearchAndCompare.Api.Controllers
@@ -75,6 +77,50 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     courses = courses
                         .Where(course => course.IsSalaried);
                 }
+            }
+
+            if (!filter.pgce || !filter.qts) 
+            {
+                if (!filter.pgce && !filter.qts) 
+                {
+                    courses = courses.Where(course => false);
+                }
+                else if (!filter.pgce)
+                {
+                    courses = courses.Where(course => course.IncludesPgce != IncludesPgce.Yes);
+                }
+                else if (!filter.qts)
+                {
+                    courses = courses.Where(course => course.IncludesPgce != IncludesPgce.No);
+                }
+                else 
+                {
+                    throw new ArgumentOutOfRangeException("filter.pgce");
+                }  
+            }
+
+            if (!filter.parttime || !filter.fulltime)
+            {
+                if (!filter.parttime && !filter.fulltime) 
+                {
+                    courses = courses.Where(course => false);
+                }
+                else if (!filter.parttime)
+                {
+                    courses = courses.Where(course => course.Campuses.Any(
+                        campus => campus.FullTime != VacancyStatus.NA
+                    ));
+                }
+                else if (!filter.qts)
+                {
+                    courses = courses.Where(course => course.Campuses.Any(
+                        campus => campus.PartTime != VacancyStatus.NA
+                    ));
+                }
+                else 
+                {
+                    throw new ArgumentOutOfRangeException("filter.pgce");
+                }  
             }
 
             switch (filter.SortBy)
