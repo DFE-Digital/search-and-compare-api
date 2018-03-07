@@ -79,33 +79,21 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 }
             }
 
-            if (!filter.pgce || !filter.qts) 
+            if (!filter.pgce ^ !filter.qts) 
             {
-                if (!filter.pgce && !filter.qts) 
-                {
-                    courses = courses.Where(course => false);
-                }
-                else if (!filter.pgce)
+                if (!filter.pgce)
                 {
                     courses = courses.Where(course => course.IncludesPgce != IncludesPgce.Yes);
                 }
                 else if (!filter.qts)
                 {
                     courses = courses.Where(course => course.IncludesPgce != IncludesPgce.No);
-                }
-                else 
-                {
-                    throw new ArgumentOutOfRangeException("filter.pgce");
-                }  
+                } 
             }
 
-            if (!filter.parttime || !filter.fulltime)
+            if (!filter.parttime ^ !filter.fulltime)
             {
-                if (!filter.parttime && !filter.fulltime) 
-                {
-                    courses = courses.Where(course => false);
-                }
-                else if (!filter.parttime)
+                if (!filter.parttime)
                 {
                     courses = courses.Where(course => course.Campuses.Any(
                         campus => campus.FullTime != VacancyStatus.NA
@@ -117,10 +105,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                         campus => campus.PartTime != VacancyStatus.NA
                     ));
                 }
-                else 
-                {
-                    throw new ArgumentOutOfRangeException("filter.pgce");
-                }  
             }
 
             switch (filter.SortBy)
