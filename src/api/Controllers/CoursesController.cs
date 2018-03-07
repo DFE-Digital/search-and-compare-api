@@ -99,7 +99,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                         campus => campus.FullTime != VacancyStatus.NA
                     ));
                 }
-                else if (!filter.qts)
+                else if (!filter.fulltime)
                 {
                     courses = courses.Where(course => course.Campuses.Any(
                         campus => campus.PartTime != VacancyStatus.NA
