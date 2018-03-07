@@ -19,10 +19,6 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
 
         public int? rad { get; set; }
 
-        public string loc { get; set; }
-
-        public string lq { get; set; }
-
         public string subjects { get; set; }
 
         public int? sortby { get; set; }
@@ -30,14 +26,6 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
         public int? funding { get; set; }
 
         public string query { get; set; }
-
-        public string display { get; set; }
-
-        public int? zoomlevel { get; set; }
-
-        public double? offlng { get; set; }
-
-        public double? offlat { get; set; }
 
         public bool pgce { get; set; }
 
@@ -91,17 +79,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
         {
             get {
                 return lng.HasValue && lat.HasValue && rad.HasValue 
-                    ? new Coordinates(lat.Value, lng.Value, null, loc) 
-                    : null;
-            }
-        }
-
-        [IgnoreDataMemberAttribute]
-        public Coordinates OffsetCoordinates
-        {
-            get {
-                return offlat.HasValue && offlng.HasValue
-                    ? new Coordinates(offlat.Value, offlng.Value) 
+                    ? new Coordinates(lat.Value, lng.Value) 
                     : null;
             }
         }
@@ -121,25 +99,6 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
                 return sortby.HasValue ? (SortByOption?) sortby.Value : null;
             }
         }
-
-        [IgnoreDataMemberAttribute]
-        public IEnumerable<SortByOption> ValidSortings
-        {
-            get {
-                return Enum.GetValues(typeof(SortByOption)).Cast<SortByOption>()
-                           .Where(x => x != SortByOption.Distance || RadiusOption != null);
-            }
-        }
-
-        public bool DisplayAsMap
-        {
-            get
-            {
-                return display == DisplayOptions.Map;
-            }
-        }
-
-        public DisplayOptions DisplayOptions = new DisplayOptions();
 
         public string AsQueryString()
         {
