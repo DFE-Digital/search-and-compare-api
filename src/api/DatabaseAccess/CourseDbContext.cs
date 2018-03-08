@@ -111,10 +111,10 @@ SELECT ""course"".*, c2.""Distance""
 FROM course_matching_query(to_tsquery('english', @query)) AS ""c1""
 JOIN course_distance(@lat,@lon,@rad) AS ""c2"" ON ""c1"".""Id"" = ""c2"".""Id""
 JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
+                    new NpgsqlParameter("@query", ToQueryText(searchText)),
                     new NpgsqlParameter("@lat", latitude),
                     new NpgsqlParameter("@lon", longitude),
-                    new NpgsqlParameter("@rad", radiusInMeters),
-                    new NpgsqlParameter("@query", ToQueryText(searchText))));
+                    new NpgsqlParameter("@rad", radiusInMeters)));
         }
 
         private static string ToQueryText(string searchText)
