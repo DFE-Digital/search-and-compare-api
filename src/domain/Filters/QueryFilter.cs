@@ -13,6 +13,8 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
     { 
         public int? page { get; set; }
 
+        public int? pageSize { get; set; }
+
         public double? lng { get; set; }
 
         public double? lat { get; set; }
