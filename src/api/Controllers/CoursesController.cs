@@ -16,7 +16,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
     {
         private readonly ICourseDbContext _context;
 
-        private int pageSize = 10;
+        private int defaultPageSize = 10;
 
         public CoursesController(ICourseDbContext courseDbContext)
         {
@@ -124,6 +124,20 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 {
                     courses = courses.OrderBy(c => c.Provider.Name);
                     break;
+                }
+            }
+
+            var pageSize = defaultPageSize;
+
+            if (filter.pageSize.HasValue)
+            {
+                if (filter.pageSize.Value == 0)
+                {
+                    pageSize = int.MaxValue;
+                }
+                else
+                {
+                    pageSize = filter.pageSize.Value;
                 }
             }
 
