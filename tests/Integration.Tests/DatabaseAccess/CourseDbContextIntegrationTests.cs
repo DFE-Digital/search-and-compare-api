@@ -148,6 +148,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.DatabaseAccess
             using (var context2 = GetContext()) 
             {
                 Assert.AreEqual(1, context2.GetTextFilteredCourses("Provider").Count(), "Filtered to a text string that exists, the course should be found");
+                Assert.AreEqual(1, context2.GetTextFilteredCourses("Provider's").Count(), "Even with single quote and plural, it works");
+                Assert.AreEqual(1, context2.GetTextFilteredCourses("Provider' &!|").Count(), "Even with operator garbage, it works");
                 Assert.AreEqual(1, context2.GetTextFilteredCourses("My Provider").Count(), "Filter with multiple words");
                 Assert.AreEqual(0, context2.GetTextFilteredCourses("FooBar").Count(), "Filtered to a text string that doensn't exist , the course should not be found");
                 Assert.AreEqual(1, context2.GetTextAndLocationFilteredCourses("Provider", 50, 0, 1000).Count(), "Combining text search with location search should work");
@@ -175,6 +177,28 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.DatabaseAccess
             }
         }
         
+        [Test]
+        public void ProviderSuggest()
+        {
+            Assert.AreEqual(0, context.Courses.Count());
+
+            var entity = context.Courses.Add(GetSimpleCourse());
+            context.SaveChanges();
+            entitiesToCleanUp.Add(entity);
+
+            using (var context2 = GetContext()) 
+            {
+                Assert.AreEqual(1, context2.SuggestProviders("prov").Count(), "incomplete");
+                Assert.AreEqual(1, context2.SuggestProviders("provider").Count(), "complete");
+                Assert.AreEqual(1, context2.SuggestProviders("providers").Count(), "plural");
+                Assert.AreEqual(1, context2.SuggestProviders("provider' &!").Count(), "garbage");
+                Assert.AreEqual(0, context2.SuggestProviders("providerrr").Count(), "overshoot");
+                Assert.AreEqual(0, context2.SuggestProviders("provider foobar").Count(), "multiwords bad");
+                Assert.AreEqual(1, context2.SuggestProviders("provider my").Count(), "multiwords good");
+                Assert.AreEqual(1, context2.SuggestProviders("prov my").Count(), "multiwords good incomplete");
+            }
+
+        }
         private static Course GetSimpleCourse()
         {
             return new Course()

@@ -94,9 +94,9 @@ JOIN ""course"" ON ""course"".""Id"" = ""distance"".""Id""",
 
             return ForListing(Courses.FromSql(@"
 SELECT ""course"".*, NULL as ""Distance"" 
-FROM course_matching_query(to_tsquery('english', @query)) AS ""ids""
+FROM course_matching_query(to_tsquery('english', quote_literal(@query))) AS ""ids""
 JOIN ""course"" ON ""course"".""Id"" = ""ids"".""Id""",
-                    new NpgsqlParameter("@query", ToQueryText(searchText))));
+                    new NpgsqlParameter("@query", searchText)));
         }
 
         public IQueryable<Course> GetTextAndLocationFilteredCourses(string searchText, double latitude, double longitude, double radiusInMeters)
@@ -108,18 +108,13 @@ JOIN ""course"" ON ""course"".""Id"" = ""ids"".""Id""",
 
             return ForListing(Courses.FromSql(@"
 SELECT ""course"".*, c2.""Distance"" 
-FROM course_matching_query(to_tsquery('english', @query)) AS ""c1""
+FROM course_matching_query(plainto_tsquery('english', quote_literal(@query))) AS ""c1""
 JOIN course_distance(@lat,@lon,@rad) AS ""c2"" ON ""c1"".""Id"" = ""c2"".""Id""
 JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
-                    new NpgsqlParameter("@query", ToQueryText(searchText)),
+                    new NpgsqlParameter("@query", searchText),
                     new NpgsqlParameter("@lat", latitude),
                     new NpgsqlParameter("@lon", longitude),
                     new NpgsqlParameter("@rad", radiusInMeters)));
-        }
-
-        private static string ToQueryText(string searchText)
-        {
-            return $"'{searchText}'";
         }
 
         public IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses()
@@ -165,11 +160,11 @@ SELECT * FROM (
     SELECT ""provider"".*, COUNT(*) AS cnt 
     FROM ""provider""
     JOIN ""course"" ON ""course"".""ProviderId"" = ""provider"".""Id""  OR ""course"".""AccreditingProviderId"" = ""provider"".""Id""
-    WHERE to_tsvector('english', ""provider"".""Name"") @@ to_tsquery(@query) IS TRUE
+    WHERE to_tsvector('english', ""provider"".""Name"") @@ to_tsquery('english', quote_literal(@query) || ':*') IS TRUE
     GROUP BY ""provider"".""Id"") AS sub
 ORDER BY ""cnt"" DESC
 LIMIT @limit",
-            new NpgsqlParameter("@query", ToQueryText(query) + ":*"),
+            new NpgsqlParameter("@query", query),
             new NpgsqlParameter("@limit", 5))
             .ToList();
         }
