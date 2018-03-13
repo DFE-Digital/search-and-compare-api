@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
 using GovUk.Education.SearchAndCompare.Api.ListExtensions;
@@ -65,17 +67,45 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             }
 
             if (filter.SelectedFunding != FundingOption.All)
-            {
-                if (filter.SelectedFunding == FundingOption.BursaryOrScholarship)
+            {        
+                Expression<Func<Course,bool>> f;
+                switch(filter.SelectedFunding)
                 {
-                    courses = courses
-                        .Where(course => course.CourseSubjects
-                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue));
+                    case FundingOption.AnyFunding:
+                        f = c => c.IsSalaried || c.CourseSubjects
+                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue);
+                        break;
+                    case FundingOption.NoScholarship:                        
+                        f = c => c.IsSalaried || c.CourseSubjects
+                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue && courseSubject.Subject.Funding.BursaryFirst.HasValue);
+                        break;
+                    case FundingOption.NoBursary:                        
+                        f = c => c.IsSalaried || c.CourseSubjects
+                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue && courseSubject.Subject.Funding.Scholarship.HasValue);
+                        break;   
+                    case FundingOption.NoSalary:
+                        f = c => !c.IsSalaried && c.CourseSubjects
+                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue);
+                        break;
+                    case FundingOption.Scholarship:
+                        f = c => !c.IsSalaried && c.CourseSubjects
+                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue && courseSubject.Subject.Funding.Scholarship.HasValue);
+                        break;
+                    case FundingOption.Bursary:
+                        f = c => !c.IsSalaried && c.CourseSubjects
+                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue && courseSubject.Subject.Funding.BursaryFirst.HasValue);
+                        break;
+                    case FundingOption.Salary:
+                        f = c => c.IsSalaried;
+                        break;
+                    default:
+                        f = null;
+                        break;                
                 }
-                else if (filter.SelectedFunding == FundingOption.Salary)
+
+                if (f != null)
                 {
-                    courses = courses
-                        .Where(course => course.IsSalaried);
+                    courses = courses.Where(f);
                 }
             }
 
