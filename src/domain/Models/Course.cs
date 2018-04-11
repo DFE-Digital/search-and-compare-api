@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -54,5 +55,15 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
         public int? ContactDetailsId { get; set; }
 
         public Contact ContactDetails { get; set; }
+
+        public VacancyStatus FullTime { get; set; }
+
+        public VacancyStatus PartTime { get; set; }
+
+        public DateTime? ApplicationsAcceptedFrom { get; set; }
+
+        public DateTime? StartDate { get; set; }
+
+        public string Duration { get; set; }
     }
 }

@@ -125,15 +125,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             {
                 if (!filter.parttime)
                 {
-                    courses = courses.Where(course => course.Campuses.Any(
-                        campus => campus.FullTime != VacancyStatus.NA
-                    ));
+                    courses = courses.Where(course => course.FullTime != VacancyStatus.NA);                    
                 }
                 else if (!filter.fulltime)
                 {
-                    courses = courses.Where(course => course.Campuses.Any(
-                        campus => campus.PartTime != VacancyStatus.NA
-                    ));
+                    courses = courses.Where(course => course.PartTime != VacancyStatus.NA);
                 }
             }
 
