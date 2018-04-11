@@ -15,12 +15,6 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
 
         public string CampusCode { get; set; }
 
-        public VacancyStatus FullTime { get; set; }
-
-        public VacancyStatus PartTime { get; set; }
-
-        public DateTime? ApplicationsAcceptedFrom { get; set; }
-
         public int? LocationId { get; set; }
 
         public Location Location { get; set; }

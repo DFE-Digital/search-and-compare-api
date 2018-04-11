@@ -15,7 +15,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
 
         public string Website { get; set; }
 
-        public Address Address { get; set; }
+        public string Address { get; set; }
 
         public Course Course { get; set; }
     }
