@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Serialization;
 
@@ -20,9 +21,12 @@ namespace GovUk.Education.SearchAndCompare.Api
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly ILogger<Startup> logger;
+
+        public Startup(IConfiguration configuration, ILogger<Startup> logger)
         {
             Configuration = configuration;
+            this.logger = logger;
         }
 
         public IConfiguration Configuration { get; }
@@ -30,8 +34,10 @@ namespace GovUk.Education.SearchAndCompare.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            this.logger.LogInformation("Configuring the services");
             var connectionString = new EnvConfigConnectionStringBuilder().GetConnectionString(Configuration);
-            
+            this.logger.LogInformation("Connnecting to "+connectionString);
+
             services.AddEntityFrameworkNpgsql().AddDbContext<CourseDbContext>(options => options
                 .UseNpgsql(connectionString));
                 
@@ -47,10 +53,15 @@ namespace GovUk.Education.SearchAndCompare.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, CourseDbContext dbContext)
         {
-             app.SeedSchema(dbContext);
+            this.logger.LogInformation("Configuring the application");
+            this.logger.LogInformation("Seeding the schema");
+
+            app.SeedSchema(dbContext);
 
             if (env.IsDevelopment())
             {
+                this.logger.LogInformation("We're in DEVELOPMENT mode");
+
                 app.UseDeveloperExceptionPage();
                 app.UseStaticFiles(new StaticFileOptions
                 {
@@ -62,6 +73,8 @@ namespace GovUk.Education.SearchAndCompare.Api
             }
             else
             {
+                this.logger.LogInformation("We're in a production mode");
+
                 app.UseExceptionHandler("/Home/Error");
                 app.UseStaticFiles();
             }
