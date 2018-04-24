@@ -67,6 +67,12 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             return GetObjects<List<Provider>>(buider.Uri) ?? new List<Provider>();
         }
 
+        public string GetUcasCourseUrl(string courseCode, string institutionCode, string modifier)
+        {
+            // todo: get url from api
+            return "http://search.gttr.ac.uk/cgi-bin/hsrun.hse/General/2018_gttr_search/gttr_search.hjx;start=gttr_search.HsForm.run";
+        }
+
         private T GetObjects<T>(Uri queryUri)
         {
             T objects = default(T);
