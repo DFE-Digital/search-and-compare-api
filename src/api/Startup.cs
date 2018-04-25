@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using GovUk.Education.SearchAndCompare.Api;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
@@ -42,6 +43,7 @@ namespace GovUk.Education.SearchAndCompare.Api
             }
             );;
             services.AddScoped<ICourseDbContext>(provider => provider.GetService<CourseDbContext>());
+            services.AddScoped(provider => new HttpClient());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,6 +69,9 @@ namespace GovUk.Education.SearchAndCompare.Api
             }
 
             app.UseMvc(routes => {});
+
+            // for reading ucas site we need 1252 available
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
         }
     }
 }
