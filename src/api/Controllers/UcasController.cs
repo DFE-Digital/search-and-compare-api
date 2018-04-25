@@ -32,14 +32,17 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         [HttpGet("course-url")]
         public async Task<IActionResult> GetUcasCourseUrl(int courseId)
         {
-            var sessionId = GetSessionId();
+            var sessionId = await GetSessionId();
+
             // todo: include provider
-            var course = _context.Courses.FindAsync(courseId).Result;
+            var course = await _context.Courses.FindAsync(courseId);
+
             if (course == null){
                 return NotFound();
             }
 
             var courseUrl = GenerateCourseUrl(course, sessionId);
+
             return Ok(courseUrl);
         }
 
@@ -53,10 +56,10 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             return Ok(url);
         }
 
-        private string GetSessionId()
+        private async Task<string> GetSessionId()
         {
             const string searchStartUrl = "http://search.gttr.ac.uk/cgi-bin/hsrun.hse/General/2018_gttr_search/gttr_search.hjx;start=gttr_search.HsForm.run";
-            var response = _httpClient.GetAsync(searchStartUrl).Result;
+            var response = await _httpClient.GetAsync(searchStartUrl);
             if (!response.IsSuccessStatusCode)
             {
                 // todo: improve handling
@@ -70,7 +73,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 throw new Exception("content type header missing in ucas site response");
             }
             var contentType = response.Content.Headers.FirstOrDefault(header => header.Key == contentTypeHeader).Value.FirstOrDefault();
-            var ucasBytes = response.Content.ReadAsByteArrayAsync().Result;
+            var ucasBytes = await response.Content.ReadAsByteArrayAsync();
             var ucasHtml = Encoding.GetEncoding(1252).GetString(ucasBytes);
             var matchCollection = Regex.Matches(ucasHtml, @"StateId\/([^\/]*)\/");
             var stateId = matchCollection.First().Groups.Skip(1).First().Captures.First().Value;
