@@ -19,6 +19,6 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
 
         List<Provider> GetProviderSuggestions(string query);
 
-        string GetUcasCourseUrl(string programmeCode, string providerCode);
+        string GetUcasCourseUrl(int courseId);
     }
 }
