@@ -10,6 +10,16 @@
                 "${workspaceFolder}/src/api/SearchAndCompareApi.csproj"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build-tests",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/tests/SearchAndCompareApi.Tests.csproj"
+            ],
+            "problemMatcher": "$msCompile"
         }
     ]
 }
