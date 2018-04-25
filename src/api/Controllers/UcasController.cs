@@ -17,7 +17,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         public async Task<IActionResult> GetUcasCourseUrl(string programmeCode, string providerCode)
         {
             // todo: grab sessionId, build actual url for course
-            return Ok("http://search.gttr.ac.uk/cgi-bin/hsrun.hse/General/2018_gttr_search/gttr_search.hjx;start=gttr_search.HsForm.run");
+            return Ok("http://search.gttr.ac.uk/cgi-bin/hsrun.hse/General/2018_gttr_search/StateId/FtZTMVzsnznHD12F9RlkEsGMDpCWs-VuyG/HAHTpage/gttr_search.HsProfile.run?inst=295&course=37T6&mod=");
         }
     }
 }
