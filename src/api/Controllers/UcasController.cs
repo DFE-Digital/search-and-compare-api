@@ -34,8 +34,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         {
             var sessionId = await GetSessionId();
 
-            // todo: include provider
-            var course = await _context.Courses.FindAsync(courseId);
+            var course =  await _context.GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(courseId);
 
             if (course == null){
                 return NotFound();
@@ -46,20 +45,22 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             return Ok(courseUrl);
         }
 
-        private object GenerateCourseUrl(Course course, string sessionId)
+        // extract to its own class
+        public string GenerateCourseUrl(Course course, string sessionId)
         {
             var inst = course.Provider.ProviderCode;
             var courseCode = course.ProgrammeCode;
             const string modifier = "";
             // e.g. "http://search.gttr.ac.uk/cgi-bin/hsrun.hse/General/2018_gttr_search/StateId/FtZTMVzsnznHD12F9RlkEsGMDpCWs-VuyG/HAHTpage/gttr_search.HsProfile.run?inst=295&course=37T6&mod="
             var url = string.Format($"http://search.gttr.ac.uk/cgi-bin/hsrun.hse/General/2018_gttr_search/StateId/{sessionId}/HAHTpage/gttr_search.HsProfile.run?inst={inst}&course={courseCode}&mod={modifier}");
-            return Ok(url);
+            return url;
         }
 
         private async Task<string> GetSessionId()
         {
             const string searchStartUrl = "http://search.gttr.ac.uk/cgi-bin/hsrun.hse/General/2018_gttr_search/gttr_search.hjx;start=gttr_search.HsForm.run";
             var response = await _httpClient.GetAsync(searchStartUrl);
+
             if (!response.IsSuccessStatusCode)
             {
                 // todo: improve handling
@@ -75,8 +76,16 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             var contentType = response.Content.Headers.FirstOrDefault(header => header.Key == contentTypeHeader).Value.FirstOrDefault();
             var ucasBytes = await response.Content.ReadAsByteArrayAsync();
             var ucasHtml = Encoding.GetEncoding(1252).GetString(ucasBytes);
+            var stateId = ExtractStateId(ucasHtml);
+            return stateId;
+        }
+
+        // Extract to its own class
+        public string ExtractStateId(string ucasHtml)
+        {
             var matchCollection = Regex.Matches(ucasHtml, @"StateId\/([^\/]*)\/");
             var stateId = matchCollection.First().Groups.Skip(1).First().Captures.First().Value;
+
             return stateId;
         }
     }
