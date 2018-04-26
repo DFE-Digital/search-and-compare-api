@@ -126,13 +126,31 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.UcasLink
                     Name = "My provider",
                     ProviderCode = "ProviderCode"
                 },
+                ProviderLocation = new Location
+                {
+                    Address = "123 Fake Street",
+                    Latitude = 50.0,
+                    Longitude = 0
+                },
+                Campuses = new HashSet<Campus>
+                {
+                    new Campus { Name = "My Campus" }
+                },
+                CourseSubjects = new HashSet<CourseSubject>
+                {
+                    new CourseSubject { Subject = new Subject {Name = "My subject"} }
+                },
                 Route = new Route
                 {
                     Name = "SCITT"
                 },
-                // IsSalaried = false,
+                IsSalaried = false,
                 Fees = new Fees { Eu = 9250, Uk = 9250, International = 16340 },
-                // Salary = new Salary()
+                Salary = new Salary(),
+                DescriptionSections = new HashSet<CourseDescriptionSection>
+                    {
+                        new CourseDescriptionSection { Name= "CourseDescriptionSection"}
+                    }
             };
         }
     }

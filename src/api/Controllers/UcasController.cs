@@ -75,7 +75,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             }
             var contentType = response.Content.Headers.FirstOrDefault(header => header.Key == contentTypeHeader).Value.FirstOrDefault();
             var ucasBytes = await response.Content.ReadAsByteArrayAsync();
-            var ucasHtml = Encoding.GetEncoding(1252).GetString(ucasBytes);
+
+            var enc1252 = CodePagesEncodingProvider.Instance.GetEncoding(1252);
+            var ucasHtml = enc1252.GetString(ucasBytes);
             var stateId = ExtractStateId(ucasHtml);
             return stateId;
         }
