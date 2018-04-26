@@ -18,9 +18,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
     {
         private readonly ICourseDbContext _context;
         private readonly HttpClient _httpClient;
+        private readonly UcasSettings _ucasSettings;
 
-        public UcasController(ICourseDbContext courseDbContext, HttpClient httpClient)
+        public UcasController(UcasSettings ucasSettings, ICourseDbContext courseDbContext, HttpClient httpClient)
         {
+            _ucasSettings = ucasSettings;
             _context = courseDbContext;
             _httpClient = httpClient;
         }
@@ -52,13 +54,14 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             var courseCode = course.ProgrammeCode;
             const string modifier = "";
             // e.g. "http://search.gttr.ac.uk/cgi-bin/hsrun.hse/General/2018_gttr_search/StateId/FtZTMVzsnznHD12F9RlkEsGMDpCWs-VuyG/HAHTpage/gttr_search.HsProfile.run?inst=295&course=37T6&mod="
-            var url = string.Format($"http://search.gttr.ac.uk/cgi-bin/hsrun.hse/General/2018_gttr_search/StateId/{sessionId}/HAHTpage/gttr_search.HsProfile.run?inst={inst}&course={courseCode}&mod={modifier}");
+            var url = string.Format(_ucasSettings.GenerateCourseUrlFormat, inst, courseCode, modifier, sessionId);
+
             return url;
         }
 
         private async Task<string> GetSessionId()
         {
-            const string searchStartUrl = "http://search.gttr.ac.uk/cgi-bin/hsrun.hse/General/2018_gttr_search/gttr_search.hjx;start=gttr_search.HsForm.run";
+            var searchStartUrl = _ucasSettings.SearchStartUrl;
             var response = await _httpClient.GetAsync(searchStartUrl);
 
             if (!response.IsSuccessStatusCode)
@@ -79,13 +82,14 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             var enc1252 = CodePagesEncodingProvider.Instance.GetEncoding(1252);
             var ucasHtml = enc1252.GetString(ucasBytes);
             var stateId = ExtractStateId(ucasHtml);
+
             return stateId;
         }
 
         // Extract to its own class
         public string ExtractStateId(string ucasHtml)
         {
-            var matchCollection = Regex.Matches(ucasHtml, @"StateId\/([^\/]*)\/");
+            var matchCollection = Regex.Matches(ucasHtml, _ucasSettings.ExtractStateIdRegex);
 
             var stateId = matchCollection.First().Groups.Skip(1).First().Captures.First().Value;
 

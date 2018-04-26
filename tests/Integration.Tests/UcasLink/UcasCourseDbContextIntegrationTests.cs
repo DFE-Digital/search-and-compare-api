@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
+using GovUk.Education.SearchAndCompare.Api.Integration.Tests.DatabaseAccess;
 
 namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.UcasLink
 {
@@ -19,70 +20,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.UcasLink
     [Category("Integration")]
     [Category("Integration_Ucas")]
     [Explicit]
-    public class UcasCourseDbContextIntegrationTests
+    public class UcasCourseDbContextIntegrationTests : CourseDbContextIntegrationBase
     {
-        // CourseDbContextIntegrationTests extract to base class [start]
-        private CourseDbContext context;
-
-        private IList<EntityEntry> entitiesToCleanUp = new List<EntityEntry>();
-
-        public CourseDbContext GetContext()
-        {
-            var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("integration-tests.json")
-                .Build();
-
-            var options = new DbContextOptionsBuilder<CourseDbContext>()
-                .UseNpgsql(new EnvConfigConnectionStringBuilder().GetConnectionString(config))
-                .Options;
-
-            return new CourseDbContext(options);
-        }
-
-        [OneTimeSetUp]
-        public void SetUpFixture()
-        {
-            context = GetContext();
-            context.Database.EnsureDeleted();
-            context.Database.Migrate();
-        }
-
-        [SetUp]
-        public void SetUp()
-        {
-            context = GetContext();
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            if (entitiesToCleanUp.Any())
-            {
-                foreach (var e in entitiesToCleanUp)
-                {
-                    e.State = EntityState.Deleted;
-                }
-                entitiesToCleanUp.Clear();
-                context.SaveChanges();
-            }
-        }
-
-        [OneTimeTearDown]
-        public void TearDownFixture()
-        {
-            context = GetContext();
-            context.Database.EnsureDeleted();
-        }
-
-        [Test]
-        public void EnsureCreated()
-        {
-            Assert.False(context.Database.EnsureCreated());
-        }
-        // CourseDbContextIntegrationTests extract to base class [end]
-
-
         [Test]
         public void InsertCourse()
         {
@@ -104,17 +43,22 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.UcasLink
         [Test]
         public void UcasController_GetUcasCourseUrl()
         {
-
             InsertCourse();
 
             var courseId = context.Courses.FromSql("SELECT *, NULL as \"Distance\" FROM \"course\"").First().Id;
 
+            var ucasSettings = new UcasSettings
+            {
+                GenerateCourseUrlFormat = @"http://search.gttr.ac.uk/cgi-bin/hsrun.hse/General/2018_gttr_search/StateId/{3}/HAHTpage/gttr_search.HsProfile.run?inst={0}&course={1}&mod={2}",
+                SearchStartUrl = "http://search.gttr.ac.uk/cgi-bin/hsrun.hse/General/2018_gttr_search/gttr_search.hjx;start=gttr_search.HsForm.run",
+                ExtractStateIdRegex = @"StateId\/([^\/]*)\/"
+            };
 
-            var subject = new UcasController(GetContext(), new HttpClient());
+            var subject = new UcasController(ucasSettings, GetContext(), new HttpClient());
 
             var actual = subject.GetUcasCourseUrl(courseId).Result as OkObjectResult;
 
-            Assert.True(actual.StatusCode == 200);
+            Assert.IsTrue(actual.StatusCode == 200);
 
             var expectedCourse = GetMinimalCourse();
             var url = actual.Value as string;
@@ -122,21 +66,15 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.UcasLink
 
             StringAssert.Contains(expectedCourse.ProgrammeCode, url);
             StringAssert.Contains(expectedCourse.Provider.ProviderCode, url);
-        }
 
+            var stateId = subject.ExtractStateId(url);
+
+            Assert.IsTrue(!string.IsNullOrWhiteSpace(stateId) && url.Length != stateId.Length);
+            StringAssert.Contains(stateId, url);
+        }
 
         private static Course GetMinimalCourse()
         {
-            var campuses = new HashSet<Campus>
-            {
-                new Campus { Name = "My Campus" }
-
-            };
-
-            var courseSubjects = new HashSet<CourseSubject>
-            {
-                new CourseSubject { Subject = new Subject {Name = "My subject"} }
-            };
             return new Course()
             {
                 Name = "My minimal course",
@@ -146,25 +84,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.UcasLink
                     Name = "My provider",
                     ProviderCode = "ProviderCode"
                 },
-                ProviderLocation = new Location
-                {
-                    Address = "123 Fake Street",
-                    Latitude = 50.0,
-                    Longitude = 0
-                },
-                Campuses = campuses,
-                CourseSubjects = courseSubjects,
                 Route = new Route
                 {
                     Name = "SCITT"
                 },
-                IsSalaried = false,
                 Fees = new Fees { Eu = 9250, Uk = 9250, International = 16340 },
-                Salary = new Salary(),
-                DescriptionSections = new HashSet<CourseDescriptionSection>
-                    {
-                        new CourseDescriptionSection { Name= "CourseDescriptionSection"}
-                    }
             };
         }
     }
