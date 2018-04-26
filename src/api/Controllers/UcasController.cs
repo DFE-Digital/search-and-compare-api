@@ -86,6 +86,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         public string ExtractStateId(string ucasHtml)
         {
             var matchCollection = Regex.Matches(ucasHtml, @"StateId\/([^\/]*)\/");
+
             var stateId = matchCollection.First().Groups.Skip(1).First().Captures.First().Value;
 
             return stateId;

@@ -7,6 +7,7 @@ using GovUk.Education.SearchAndCompare.Api.Controllers;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 using GovUk.Education.SearchAndCompare.Domain.Models.Joins;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
@@ -97,8 +98,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.UcasLink
 
                 Assert.AreEqual(1, allCourses.Count());
                 Assert.AreEqual(GetMinimalCourse().Name, allCourses.First().Name);
-                Assert.AreEqual(1, allCourses.First().Id);
-
             }
         }
 
@@ -106,17 +105,38 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.UcasLink
         public void UcasController_GetUcasCourseUrl()
         {
 
+            InsertCourse();
+
+            var courseId = context.Courses.FromSql("SELECT *, NULL as \"Distance\" FROM \"course\"").First().Id;
+
+
             var subject = new UcasController(GetContext(), new HttpClient());
 
-            var actual = subject.GetUcasCourseUrl(1).Result;
+            var actual = subject.GetUcasCourseUrl(courseId).Result as OkObjectResult;
 
+            Assert.True(actual.StatusCode == 200);
 
+            var expectedCourse = GetMinimalCourse();
+            var url = actual.Value as string;
+            Assert.NotNull(url);
 
+            StringAssert.Contains(expectedCourse.ProgrammeCode, url);
+            StringAssert.Contains(expectedCourse.Provider.ProviderCode, url);
         }
 
 
         private static Course GetMinimalCourse()
         {
+            var campuses = new HashSet<Campus>
+            {
+                new Campus { Name = "My Campus" }
+
+            };
+
+            var courseSubjects = new HashSet<CourseSubject>
+            {
+                new CourseSubject { Subject = new Subject {Name = "My subject"} }
+            };
             return new Course()
             {
                 Name = "My minimal course",
@@ -132,14 +152,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.UcasLink
                     Latitude = 50.0,
                     Longitude = 0
                 },
-                Campuses = new HashSet<Campus>
-                {
-                    new Campus { Name = "My Campus" }
-                },
-                CourseSubjects = new HashSet<CourseSubject>
-                {
-                    new CourseSubject { Subject = new Subject {Name = "My subject"} }
-                },
+                Campuses = campuses,
+                CourseSubjects = courseSubjects,
                 Route = new Route
                 {
                     Name = "SCITT"
