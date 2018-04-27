@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using GovUk.Education.SearchAndCompare.Api.Integration.Tests.DatabaseAccess;
+using Microsoft.Extensions.Options;
 
 namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.UcasLink
 {
@@ -47,12 +48,13 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.UcasLink
 
             var courseId = context.Courses.FromSql("SELECT *, NULL as \"Distance\" FROM \"course\"").First().Id;
 
-            var ucasSettings = new UcasSettings
+            var ucasSettings = Options.Create<UcasSettings>( new UcasSettings
             {
                 GenerateCourseUrlFormat = @"http://search.gttr.ac.uk/cgi-bin/hsrun.hse/General/2018_gttr_search/StateId/{3}/HAHTpage/gttr_search.HsProfile.run?inst={0}&course={1}&mod={2}",
                 SearchStartUrl = "http://search.gttr.ac.uk/cgi-bin/hsrun.hse/General/2018_gttr_search/gttr_search.hjx;start=gttr_search.HsForm.run",
                 ExtractStateIdRegex = @"StateId\/([^\/]*)\/"
-            };
+            });
+
 
             var subject = new UcasController(ucasSettings, GetContext(), new HttpClient());
 
@@ -61,7 +63,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.UcasLink
             Assert.IsTrue(actual.StatusCode == 200);
 
             var expectedCourse = GetMinimalCourse();
-            var url = actual.Value as string;
+            var url = actual.Value.GetType().GetProperty("courseUrl").GetValue(actual.Value, null) as string;
             Assert.NotNull(url);
 
             StringAssert.Contains(expectedCourse.ProgrammeCode, url);

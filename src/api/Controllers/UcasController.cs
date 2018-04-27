@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace GovUk.Education.SearchAndCompare.Api.Controllers
 {
@@ -20,9 +21,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         private readonly HttpClient _httpClient;
         private readonly UcasSettings _ucasSettings;
 
-        public UcasController(UcasSettings ucasSettings, ICourseDbContext courseDbContext, HttpClient httpClient)
+        public UcasController(IOptions<UcasSettings> ucasSettings, ICourseDbContext courseDbContext, HttpClient httpClient)
         {
-            _ucasSettings = ucasSettings;
+            _ucasSettings = ucasSettings.Value;
             _context = courseDbContext;
             _httpClient = httpClient;
         }
@@ -31,7 +32,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         /// Get a valid sessionId from the ucas site and then return a url for the course.
         /// The url will only be valid while the session is valid! (5 mins at last test)
         /// </summary>
-        [HttpGet("course-url")]
+        [HttpGet("course-url/{courseId:int}")]
         public async Task<IActionResult> GetUcasCourseUrl(int courseId)
         {
             var sessionId = await GetSessionId();
@@ -44,16 +45,15 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
             var courseUrl = GenerateCourseUrl(course, sessionId);
 
-            return Ok(courseUrl);
+            return Ok(new {courseUrl});
         }
 
-        // extract to its own class
         public string GenerateCourseUrl(Course course, string sessionId)
         {
             var inst = course.Provider.ProviderCode;
             var courseCode = course.ProgrammeCode;
             const string modifier = "";
-            // e.g. "http://search.gttr.ac.uk/cgi-bin/hsrun.hse/General/2018_gttr_search/StateId/FtZTMVzsnznHD12F9RlkEsGMDpCWs-VuyG/HAHTpage/gttr_search.HsProfile.run?inst=295&course=37T6&mod="
+
             var url = string.Format(_ucasSettings.GenerateCourseUrlFormat, inst, courseCode, modifier, sessionId);
 
             return url;
@@ -86,7 +86,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             return stateId;
         }
 
-        // Extract to its own class
         public string ExtractStateId(string ucasHtml)
         {
             var matchCollection = Regex.Matches(ucasHtml, _ucasSettings.ExtractStateIdRegex);
