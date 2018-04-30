@@ -14,7 +14,7 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
     public class CourseDbContext : DbContext, ICourseDbContext
     {
         public DbSet<Course> Courses { get; set; }
-        
+
         public DbSet<Provider> Providers { get; set; }
 
         public DbSet<Subject> Subjects { get; set; }
@@ -22,9 +22,9 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
         public DbSet<SubjectArea> SubjectAreas { get; set; }
 
         public DbSet<Campus> Campuses { get; set; }
-        
+
         public DbSet<Route> Routes { get; set; }
-        
+
         public DbSet<FeeCaps> FeeCaps { get; set; }
 
         // Join tables
@@ -46,7 +46,7 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
             modelBuilder.Entity<Course>().OwnsOne(p => p.Fees);
 
             modelBuilder.Entity<Course>().OwnsOne(p => p.Salary);
-                
+
             // Location Index
             modelBuilder.Entity<Location>()
                 .HasIndex(b => new { b.Longitude, b.Latitude });
@@ -67,30 +67,30 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
             modelBuilder.Entity<DefaultCourseDescriptionSection>();
 
-            base.OnModelCreating(modelBuilder);            
+            base.OnModelCreating(modelBuilder);
         }
 
         public IQueryable<Course> GetLocationFilteredCourses(double latitude, double longitude, double radiusInMeters)
-        {            
+        {
             return ForListing(Courses.FromSql(@"
-SELECT ""course"".*, distance.""Distance"" 
+SELECT ""course"".*, distance.""Distance""
 FROM course_distance(@lat,@lon,@rad) AS distance
-JOIN ""course"" ON ""course"".""Id"" = ""distance"".""Id""", 
+JOIN ""course"" ON ""course"".""Id"" = ""distance"".""Id""",
                     new NpgsqlParameter("@lat", latitude),
                     new NpgsqlParameter("@lon", longitude),
                     new NpgsqlParameter("@rad", radiusInMeters)));
-                
+
         }
 
         public IQueryable<Course> GetTextFilteredCourses(string searchText)
         {
-            if (string.IsNullOrWhiteSpace(searchText)) 
+            if (string.IsNullOrWhiteSpace(searchText))
             {
                 throw new ArgumentException("Cannot be null or white space", nameof(searchText));
             }
 
             return ForListing(Courses.FromSql(@"
-SELECT ""course"".*, NULL as ""Distance"" 
+SELECT ""course"".*, NULL as ""Distance""
 FROM course_matching_query(to_tsquery('english', quote_literal(@query))) AS ""ids""
 JOIN ""course"" ON ""course"".""Id"" = ""ids"".""Id""",
                     new NpgsqlParameter("@query", searchText)));
@@ -98,13 +98,13 @@ JOIN ""course"" ON ""course"".""Id"" = ""ids"".""Id""",
 
         public IQueryable<Course> GetTextAndLocationFilteredCourses(string searchText, double latitude, double longitude, double radiusInMeters)
         {
-            if (string.IsNullOrWhiteSpace(searchText)) 
+            if (string.IsNullOrWhiteSpace(searchText))
             {
                 throw new ArgumentException("Cannot be null or white space", nameof(searchText));
             }
 
             return ForListing(Courses.FromSql(@"
-SELECT ""course"".*, c2.""Distance"" 
+SELECT ""course"".*, c2.""Distance""
 FROM course_matching_query(plainto_tsquery('english', quote_literal(@query))) AS ""c1""
 JOIN course_distance(@lat,@lon,@rad) AS ""c2"" ON ""c1"".""Id"" = ""c2"".""Id""
 JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
@@ -145,7 +145,7 @@ JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
                 .ToList();
         }
 
-        public List<FeeCaps> GetFeeCaps() 
+        public List<FeeCaps> GetFeeCaps()
         {
             return FeeCaps.ToList();
         }
@@ -154,7 +154,7 @@ JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
         {
             return Providers.FromSql(@"
 SELECT * FROM (
-    SELECT ""provider"".*, COUNT(*) AS cnt 
+    SELECT ""provider"".*, COUNT(*) AS cnt
     FROM ""provider""
     JOIN ""course"" ON ""course"".""ProviderId"" = ""provider"".""Id""  OR ""course"".""AccreditingProviderId"" = ""provider"".""Id""
     WHERE to_tsvector('english', ""provider"".""Name"") @@ to_tsquery('english', quote_literal(@query) || ':*') IS TRUE
@@ -165,7 +165,7 @@ LIMIT @limit",
             new NpgsqlParameter("@limit", 5))
             .ToList();
         }
-        
+
         private IQueryable<Course> ForListing(IQueryable<Course> queryable)
         {
             return queryable.Include("Provider")

@@ -65,5 +65,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
         public DateTime? StartDate { get; set; }
 
         public string Duration { get; set; }
+
+       public string Mod { get; set; }
     }
 }
