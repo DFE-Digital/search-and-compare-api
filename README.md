@@ -8,13 +8,15 @@ This repo provides a dotnet core solution containing:
 * A client library to provide easy usage of the above API, including a shared set of domain classes.
 * Regression tests.
 
+The main client for this API and library is https://github.com/DFE-Digital/search-and-compare-ui
+
 ## Coding
 
 It can be worked on in either VSCode or Visual Studio 2017 as preferred.
 
 The domain project follows https://semver.org/ version numbering.
 
-## Running the api locally
+## Running the API locally
 
 In a windows command prompt:
 
@@ -36,8 +38,11 @@ Make sure to change the package to reflect your version number, e.g. change "0.1
 ## Using the domain nuget package locally
 
 1. Run `pack` (see above)
-2. Reference the package in the publish folder by adding a local package source in `nuget.config`
+2. Reference the package in the publish folder by adding a local package source in `nuget.config`.
+   [Example in UI project](https://github.com/DFE-Digital/search-and-compare-ui/blob/dd22365f4ae476c9a0126d6acbd60020a6a10858/Nuget.config).
 
     <configuration><packageSources><add key="local-packages" value="../search-and-compare-api/src/domain/publish" />
 
-[example in ui project](https://github.com/DFE-Digital/search-and-compare-ui/blob/dd22365f4ae476c9a0126d6acbd60020a6a10858/Nuget.config)
+3.  Run `dotnet nuget locals all --clear` to remove the stale local cache (to avoid needing to bump the version number during local development
+    of API + UI
+4. Build the referencing project (presumably the UI).
