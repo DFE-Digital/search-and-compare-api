@@ -8,10 +8,6 @@ namespace SearchAndCompare.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropIndex(
-                name: "IX_course_ContactDetailsId",
-                table: "course");
-
             migrationBuilder.DropColumn(
                 name: "Address_County",
                 table: "contact");
@@ -93,20 +89,10 @@ namespace SearchAndCompare.Migrations
                 table: "contact",
                 type: "text",
                 nullable: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_course_ContactDetailsId",
-                table: "course",
-                column: "ContactDetailsId",
-                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropIndex(
-                name: "IX_course_ContactDetailsId",
-                table: "course");
-
             migrationBuilder.DropColumn(
                 name: "ApplicationsAcceptedFrom",
                 table: "course");
@@ -187,11 +173,6 @@ namespace SearchAndCompare.Migrations
                 table: "campus",
                 nullable: false,
                 defaultValue: 0);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_course_ContactDetailsId",
-                table: "course",
-                column: "ContactDetailsId");
         }
     }
 }
