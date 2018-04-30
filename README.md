@@ -1,5 +1,7 @@
 # Search and Compare API project
 
+[<img src="https://img.shields.io/nuget/v/DFE.SearchAndCompare.Domain.svg">](https://www.nuget.org/packages/DFE.SearchAndCompare.Domain)
+
 ## About
 
 This repo provides a dotnet core solution containing:
