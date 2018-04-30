@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using GovUk.Education.SearchAndCompare.Api;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
@@ -31,17 +32,19 @@ namespace GovUk.Education.SearchAndCompare.Api
         public void ConfigureServices(IServiceCollection services)
         {
             var connectionString = new EnvConfigConnectionStringBuilder().GetConnectionString(Configuration);
-            
+
             services.AddEntityFrameworkNpgsql().AddDbContext<CourseDbContext>(options => options
                 .UseNpgsql(connectionString));
-                
+
             services.AddMvc().AddJsonOptions(
-            options => {
-                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                options.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects;
-            }
-            );;
+                options => {
+                    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                    options.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects;
+                }
+            );
             services.AddScoped<ICourseDbContext>(provider => provider.GetService<CourseDbContext>());
+            services.AddScoped(provider => new HttpClient());
+            services.Configure<UcasSettings>(Configuration.GetSection("UcasSettings"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -67,6 +70,9 @@ namespace GovUk.Education.SearchAndCompare.Api
             }
 
             app.UseMvc(routes => {});
+
+            // for reading ucas site we need 1252 available
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
         }
     }
 }

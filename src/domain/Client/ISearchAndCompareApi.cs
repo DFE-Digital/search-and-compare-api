@@ -18,5 +18,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
         List<FeeCaps> GetFeeCaps();
 
         List<Provider> GetProviderSuggestions(string query);
+
+        string GetUcasCourseUrl(int courseId);
     }
 }

@@ -7,6 +7,7 @@ using GovUk.Education.SearchAndCompare.Domain.Filters;
 using GovUk.Education.SearchAndCompare.Domain.Lists;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace GovUk.Education.SearchAndCompare.Domain.Client
 {
@@ -63,8 +64,17 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             var buider = new UriBuilder(new Uri(_apiUri));
             buider.Path += "/providers/suggest";
             buider.Query = "query=" + HttpUtility.UrlEncode(query);
-            
+
             return GetObjects<List<Provider>>(buider.Uri) ?? new List<Provider>();
+        }
+
+        public string GetUcasCourseUrl(int courseId)
+        {
+            var queryUri = GetUri(string.Format("/ucas/course-url/{0}", courseId), null);
+
+            dynamic result =  GetObjects<JObject>(queryUri);;
+
+            return result.courseUrl;
         }
 
         private T GetObjects<T>(Uri queryUri)
