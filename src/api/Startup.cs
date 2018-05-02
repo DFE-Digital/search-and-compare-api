@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
-using GovUk.Education.SearchAndCompare.Api;
+﻿using System.Net.Http;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using GovUk.Education.SearchAndCompare.Api.Ucas;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Update;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Serialization;
 
 namespace GovUk.Education.SearchAndCompare.Api
@@ -44,7 +35,7 @@ namespace GovUk.Education.SearchAndCompare.Api
             );
             services.AddScoped<ICourseDbContext>(provider => provider.GetService<CourseDbContext>());
             services.AddScoped(provider => new HttpClient());
-            services.Configure<UcasSettings>(Configuration.GetSection("UcasSettings"));
+            services.AddTransient<IUcasUrlBuilder, UcasUrlBuilder>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
