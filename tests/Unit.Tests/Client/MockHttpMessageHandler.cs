@@ -2,7 +2,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GovUk.Education.SearchAndCompare.Domain.Unit.Tests.Client
+namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
 {
     public class MockHttpMessageHandler : HttpMessageHandler
     {

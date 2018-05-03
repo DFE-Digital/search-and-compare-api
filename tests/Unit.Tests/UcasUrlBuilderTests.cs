@@ -2,7 +2,7 @@
 using GovUk.Education.SearchAndCompare.Api.Ucas;
 using NUnit.Framework;
 
-namespace GovUk.Education.SearchAndCompare.Api.Unit.Tests
+namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests
 {
     [TestFixture]
     public class UcasUrlBuilderTests

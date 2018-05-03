@@ -6,7 +6,7 @@ using FluentAssertions;
 using GovUk.Education.SearchAndCompare.Api.Ucas;
 using NUnit.Framework;
 
-namespace GovUk.Education.SearchAndCompare.Api.Integration.Tests.UcasLink
+namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.UcasLink
 {
     /// <summary>
     /// Set of tests for interacting with the live UCAS website,

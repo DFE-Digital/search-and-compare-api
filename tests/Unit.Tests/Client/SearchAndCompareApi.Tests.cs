@@ -1,9 +1,6 @@
-using System.Net.Http;
-using GovUk.Education.SearchAndCompare.Domain.Client;
-using GovUk.Education.SearchAndCompare.Domain.Filters;
 using NUnit.Framework;
 
-namespace GovUk.Education.SearchAndCompare.Domain.Unit.Tests.Client
+namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
 {
     [TestFixture]
     public class SearchAndCompareApiTests

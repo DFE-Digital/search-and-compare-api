@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using GovUk.Education.SearchAndCompare.Api.ListExtensions;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 using MockQueryable.Moq;
 using NUnit.Framework;
 
-namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit
+namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests
 {
     [TestFixture]
     public class FilteredListTests

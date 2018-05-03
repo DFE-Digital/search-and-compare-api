@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <RootNamespace>GovUk.Education.SearchAndCompare.Api</RootNamespace>
+    <RootNamespace>GovUk.Education.SearchAndCompare.Api.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

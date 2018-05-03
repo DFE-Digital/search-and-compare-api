@@ -8,6 +8,7 @@
     <Description>Domain objects for SearchAndCompare project</Description>
     <VersionPrefix>0.3.0</VersionPrefix>
     <VersionSuffix>beta</VersionSuffix>
+    <RootNamespace>GovUk.Education.SearchAndCompare.Domain</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
