@@ -25,6 +25,7 @@ deploy:
   - provider: azure_web_apps
     username: travis-deploy-user
     site: as-de-bat-api
+    verbose: true
     on:
       branch: use-travis
   - provider: azure_web_apps
