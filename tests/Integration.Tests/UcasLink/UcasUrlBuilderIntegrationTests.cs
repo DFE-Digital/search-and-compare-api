@@ -12,6 +12,10 @@ namespace GovUk.Education.SearchAndCompare.Api.Integration.Tests.UcasLink
     /// Set of tests for interacting with the live UCAS website,
     /// in increasing order of pedanticness.
     /// </summary>
+
+    [Category("Integration")]
+    [Category("Integration_Ucas")]
+    [Explicit]
     [TestFixture]
     public class UcasUrlBuilderIntegrationTests
     {
