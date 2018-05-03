@@ -21,7 +21,7 @@ $BODY$
     FROM ""course""
     LEFT OUTER JOIN ""provider"" AS ""p1"" ON ""course"".""ProviderId"" = ""p1"".""Id""
     LEFT OUTER JOIN ""provider"" AS ""p2"" ON ""course"".""AccreditingProviderId"" = ""p2"".""Id""
-    WHERE to_tsvector('english', ""p1"".""Name"") || to_tsvector('english', coalesce(""p2"".""Name"", '')) @@ query IS TRUE
+    WHERE ((to_tsvector('english', ""p1"".""Name"") || to_tsvector('english', coalesce(""p2"".""Name"", ''))) @@ query) IS TRUE
 $BODY$
 LANGUAGE SQL;
 ");
