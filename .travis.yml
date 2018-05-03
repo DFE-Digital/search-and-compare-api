@@ -24,6 +24,11 @@ deploy:
       branch: master
   - provider: azure_web_apps
     username: travis-deploy-user
+    site: as-de-bat-api
+    on:
+      branch: use-travis
+  - provider: azure_web_apps
+    username: travis-deploy-user
     site: as-te-bat-api
     on:
       branch: staging
