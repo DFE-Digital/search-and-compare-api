@@ -61,18 +61,15 @@ namespace GovUk.Education.SearchAndCompare.Api.Ucas
                 throw new Exception("UCAS website GET request failed.");
             }
 
+            /*
+                // This commented out code would allow us to actually look at the content type in the response and respect it should we wish to.
+                const string contentTypeHeader = "Content-Type";
+                if (!response.Content.Headers.Contains(contentTypeHeader)) { throw new Exception("Content type header missing in UCAS site response"); }
+                var contentType = response.Content.Headers.FirstOrDefault(header => header.Key == contentTypeHeader).Value.FirstOrDefault();
+            */
+
             // We are assuming the response is Windows-1252 encoded because that's what we've seen when working on this.
-
-            //const string contentTypeHeader = "Content-Type";
-            //if (!response.Content.Headers.Contains(contentTypeHeader))
-            //{
-            //    // todo: be more tolerant
-            //    throw new Exception("Content type header missing in UCAS site response");
-            //}
-            //var contentType = response.Content.Headers.FirstOrDefault(header => header.Key == contentTypeHeader).Value.FirstOrDefault();
-
             var ucasBytes = await response.Content.ReadAsByteArrayAsync();
-
             var enc1252 = CodePagesEncodingProvider.Instance.GetEncoding(1252);
             var ucasHtml = enc1252.GetString(ucasBytes);
             return ucasHtml;
