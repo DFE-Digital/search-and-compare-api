@@ -19,6 +19,16 @@ script:
 services:
 - postgresql: "9.4"
 deploy:
+  - provider: azure_web_apps
+    username: travis-deploy-user
+    site: as-de-bat-api
+    on:
+      branch: master
+  - provider: azure_web_apps
+    username: travis-deploy-user
+    site: as-te-bat-api
+    on:
+      branch: staging
   - provider: script
     script: bash travis-deploy.sh $OC_WEBHOOK_DEV
     on:
@@ -30,4 +40,4 @@ deploy:
   - provider: script
     script: bash travis-deploy.sh $OC_WEBHOOK_PROD
     on:
-      branch: production 
+      branch: production
