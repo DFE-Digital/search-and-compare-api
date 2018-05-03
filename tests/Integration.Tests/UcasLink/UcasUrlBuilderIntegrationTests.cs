@@ -12,7 +12,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Integration.Tests.UcasLink
     /// Set of tests for interacting with the live UCAS website,
     /// in increasing order of pedanticness.
     /// </summary>
-
     [Category("Integration")]
     [Category("Integration_Ucas")]
     [Explicit]
@@ -38,7 +37,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Integration.Tests.UcasLink
         public async Task GetSessionId_LooksLikeItDidBefore()
         {
             const string exampleSessionId = "FtxLmNzhBaBHCN1U9RNvnbHODpDM_-Ud9V";
-            // strict regex, provide example in error
             var sessionId = await _ucasUrlBuilder.GetSessionId();
             sessionId.Should().MatchRegex("[A-Za-z0-9_-]{29}-[A-Za-z0-9]{4}", "sessionIds we've seen before looked like this: " + exampleSessionId);
         }
@@ -53,7 +51,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Integration.Tests.UcasLink
             url.Should().Contain("inst=" + providerCode);
             url.Should().Contain("course=" + programmeCode);
         }
-
 
         [Test]
         public async Task UcasReturnsHttpOkAtGeneratedUrl()
