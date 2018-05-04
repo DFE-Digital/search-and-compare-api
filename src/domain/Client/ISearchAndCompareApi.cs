@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using GovUk.Education.SearchAndCompare.Domain.Data;
 using GovUk.Education.SearchAndCompare.Domain.Filters;
 using GovUk.Education.SearchAndCompare.Domain.Lists;
 using GovUk.Education.SearchAndCompare.Domain.Models;
@@ -10,6 +11,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
         Course GetCourse(int courseId);
 
         PaginatedList<Course> GetCourses(QueryFilter filter);
+        TotalCountResult GetCoursesTotalCount(QueryFilter filter);
 
         List<Subject> GetSubjects();
 
