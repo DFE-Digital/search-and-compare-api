@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using GovUk.Education.SearchAndCompare.Api.ListExtensions;
-using GovUk.Education.SearchAndCompare.Api.Tests;
 using GovUk.Education.SearchAndCompare.Domain.Lists;
 using NUnit.Framework;
 
-namespace GovUk.Education.SearchAndCompare.UI.Tests.Unit
+namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests
 {
     [TestFixture]
     public class PaginatedListTests

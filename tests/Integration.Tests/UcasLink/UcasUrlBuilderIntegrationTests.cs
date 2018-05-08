@@ -6,7 +6,7 @@ using FluentAssertions;
 using GovUk.Education.SearchAndCompare.Api.Ucas;
 using NUnit.Framework;
 
-namespace GovUk.Education.SearchAndCompare.Api.Integration.Tests.UcasLink
+namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.UcasLink
 {
     /// <summary>
     /// Set of tests for interacting with the live UCAS website,
@@ -38,7 +38,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Integration.Tests.UcasLink
         {
             const string exampleSessionId = "FtxLmNzhBaBHCN1U9RNvnbHODpDM_-Ud9V";
             var sessionId = await _ucasUrlBuilder.GetSessionId();
-            sessionId.Should().MatchRegex("[A-Za-z0-9_-]{29}-[A-Za-z0-9]{4}", "sessionIds we've seen before looked like this: " + exampleSessionId);
+            sessionId.Should().MatchRegex("[A-Za-z0-9_-]{29}-[A-Za-z0-9_-]{4}", "sessionIds we've seen before looked like this: " + exampleSessionId);
         }
 
         [Test]

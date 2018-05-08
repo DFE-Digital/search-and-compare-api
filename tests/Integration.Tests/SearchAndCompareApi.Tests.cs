@@ -3,7 +3,7 @@ using GovUk.Education.SearchAndCompare.Domain.Client;
 using GovUk.Education.SearchAndCompare.Domain.Filters;
 using NUnit.Framework;
 
-namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration
+namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests
 {
     [TestFixture]
     [Category("SacApi")]

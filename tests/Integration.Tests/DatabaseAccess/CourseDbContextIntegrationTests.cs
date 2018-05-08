@@ -1,16 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 using GovUk.Education.SearchAndCompare.Domain.Models.Joins;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 
-namespace GovUk.Education.SearchAndCompare.Api.Integration.Tests.DatabaseAccess
+namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseAccess
 {
     [TestFixture]
     [Category("Integration")]
