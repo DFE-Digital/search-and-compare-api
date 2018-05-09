@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
+using GovUk.Education.SearchAndCompare.Domain.Data;
 using GovUk.Education.SearchAndCompare.Domain.Filters;
 using GovUk.Education.SearchAndCompare.Domain.Lists;
 using GovUk.Education.SearchAndCompare.Domain.Models;
@@ -36,6 +37,13 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             var queryUri = GetUri("/courses", filter);
 
             return GetObjects<PaginatedList<Course>>(queryUri);
+        }
+
+        public TotalCountResult GetCoursesTotalCount(QueryFilter filter)
+        {
+            var queryUri = GetUri("/courses/total", filter);
+
+            return GetObjects<TotalCountResult>(queryUri);
         }
 
         public List<Subject> GetSubjects()
