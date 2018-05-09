@@ -5,6 +5,9 @@ mono: none
 dotnet: 2.0.0
 env:
   global:
+    - secure: "TonHRGIWhy5RFUzWI7k60GKfVZMWOn3oL5FEWUW4rVOUzubZlKxXAuQgn6rwPyv5zXEpuPCls/xyr3XHlmD3OR4nxG6JUwvt8Wni8ZtEe1dkqh5zpBT9hao0p2iDsqhVjdDmFAFQt9Wf8q5Wn7RUk955iA4klyZKFh1SmW4JTJvJAfVHUbbvFpA51N4/4MUUxybaNKpEJ5k6Aeqh1NURX9QXPldik4GzVV3aTdNgDRBd0zRv1BhZ1DrMvRhO0RHy0W92i8urfb6iZ2wNiJgnslLLlb/oqQ+p0UFBPqIxrcm2tN601gT74BdbPxYyiQij/1eyJVrdUFn9im2Mlcn6pF9NnY4nXqWt7rt0zO7ta/7ie0sUPwZw2fzwFhOj9XhHxqlYkyd6Ix5Bkl4TtMeUxbW7TXA03XFSFOjQfRn/4JBSG8XBFRW+SldiAMSMu4iufoJJL5V6s0keFu1XXbimk65KpXD7q1IMQaeyd3CDHVgqGNTwyF1dUjGzF5hOJCsXwQK3K3N9AFI4k5gjxacMKuaWHq/MPQD8rku1ZBzgvqEai40Or+pDVrjWNVINPMc32VBLWow7HgKxLJ1Q5kkvvnJGm4en4Gn2ClehotH8n3SRKc8ryHJmsFznXjZ0zOIly2F7jfs7upfGRcg47TYDtmohvDKRR/dLNpdKBCds508="
+    - secure: "WgGEKsivuWR52nnT9BCvB2toL+oaPL/hp8MDR7UPJPNx1HKFPqKDtgDtCS1Ijk6SJ+Y81NIuoK6f6LLNNzs278+66AmLPRIOyLv/MJi9H48EJjBp66UZJVeVXLJ2MSCFrhuLWN2FUSf/m4DadV6uXFPhVRI9Q6qGiOvXG99KdJmWs/n7TZLaUXWGH940eWgGeDPYj8CVj/p9ihfTINrKZ1fJIEvd+8vJes1RSfiZlq6HuMXwyXHFMt07D+TAzakX0ScMvyCMYAb3VDTCp17Pq/vneEP8sORhZFImaJesBZiQ7Z4OSO5AKpzrxpjQRflaVzY8g0ITOnEXw1KP7Z/Zv5TKdmhNhKdnepkLeLY7wve/eklO8RzWnQ7qol1gN+FIwRVVvvFbFmBPMX55SaTXGzcyJ8lSf82tKphISjpDTkEbjTmaThYSHxM+DrPqU1g86vtKca3I5jA2KDtxLLHcNw7Cq7TZ7Qak3G9r/VfWSTx51JtHQy5PMfureKARqSU8tdU0QuV7fQe57E3uCCUtw4mq5EhEQ31sGZ+gZL6RI6Z1lRnCnD+BwDv8z20Rh5OwsgRacl6ZJJv2HHlHnD0jkST4UcY+EJSpTTwR1H7X0SAKZiwtrGd5IO6xgS09hSBAURXyOuX+fyR2uSX2zbQ3IrCx4g6tepr3yUv/lDlrbr4="
+    - secure: "JEkcSu3zX+kFKYaR1M9CtHn+8U/0sBcSAhG345Hs4Rd0RJzfRdZ+FTHlc2OkU6JqJnZ2ccSQjySoeSbgvNMTCGus1EFMvR9fm0DI6bo8fzxVT+iFjONw8U/VSHi6ikLicVBXZPbTQm+UbGRF7EHqBy94ZGWx2HnAmuYSZkzSp8hWRK9whB/t1Z/DDyjNAMC1W0n7hf3JjPgvNJjChsc4z0pBok1UYHbTNHKHoQDeWDSNLIxtXTNAu1VMs/xrRbcEPA2D7yq00e77jsWqeB6aRqQ1ryn5WRxhHXLEwxCx4A8jO4WQLCWCAyFDxeDBz5QNzv0TTn/YRXsvUXlByaD7+F5Cr8pcPDwnTacNJRgMNQ6L9Pjed5mpwwRTU1+//iIj+JB70jepO8EBWNLEQntD8m6XiUWDlcvCbLb6YKhTnZdj+R6LNsxBStGJC2sdryZQPso5Ii4Ks4jShcKngwaqvxU8+kp1ayDqPs+Pu8gObcc4FZZ1jneDQgLmpYTmlLhegjTjzHoPrYPewNyr6jOwtmkfoD7HwFe9gaqF6+sc06sGqbjc0h1+u2LisXLYIkXBbb1umImsWM7x0bIMyJo9k77xCT8vOgee8Mb5gPPXv/5vkkx8hv9cEInKnn7w/5wnOuLYa9kmwEktOHh0Qz8YXVrMi/9lbNPsWrUf3B5vdDY="
     - secure: "SWBz9hCvvAuDdyPtBLLw54t6XYzgs9ecjilNhjWRt/Az2L4d3xpZXIrxHtXkAFi1O+WRoYVcDfd6YO0eQHqI2FYlXO/w44SDhc/lFdVhsJpstpYaXk/bwQ7FuwwbWseAuRIhClemM5v8/UMcGdcy8YKeobv7Gf/brXPkCFN+2bA8oKacmS5g7XnLGnEbVfjXBzaQeHdd17k05+PNLKLg6vVbVNT8RVaGkDiBKS3hiwuXZzZ/z0aeuhg7Vw+u+e34GCoUWwCfftdDrmXRlnPjWuPRW+DDVEU8WmJFlbwzOnzswIPUfOCb9G5IjIt2+5oF4NMm4h0u74Jl8TpB1KQWgsd6zSxeBZrTVF2BqgbSEs3TSFY6cAoA6VB2Z9fb6Mqh+ukBVOpME+N+EjC5bI639xpIF4vz1/XiiLfsxRrzeidXkCnS5pT/nlOt3AShGp1J8eaKW+Ikf/11MiDneaa04JK2Pdp+RO4upjtXxnZY6sMrSlo4U3OegR5FxzCp9SAXgWv4zRyQVneZ1I9o30wphObfV5nGaFzaDkfmH78TC/f9jbclRR1J8raH+tfHwvQVBPjxgre6lw8mb2SSLaNnumsSxQyH3uO8Kv/s9EjnhZE0hF0f9luMGMpfVxgrtz2a7BHfADlyLxRZjA6oFDpEdS8lF03ml4gSgHRCmusaePs="
     - POSTGRESQL_SERVICE_HOST=127.0.0.1
     - PG_USERNAME=postgres
@@ -32,3 +35,15 @@ deploy:
     site: as-st-bat-api
     on:
       branch: staging
+  - provider: script
+    script: bash travis-deploy.sh $OC_WEBHOOK_DEV
+    on:
+      branch: master
+  - provider: script
+    script: bash travis-deploy.sh $OC_WEBHOOK_STAG
+    on:
+      branch: staging
+  - provider: script
+    script: bash travis-deploy.sh $OC_WEBHOOK_PROD
+    on:
+      branch: production
