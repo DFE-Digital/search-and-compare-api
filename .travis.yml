@@ -47,3 +47,18 @@ deploy:
     script: bash travis-deploy.sh $OC_WEBHOOK_PROD
     on:
       branch: production
+  - provider: azure_web_apps
+    username: travis-deploy-user
+    site: as-de-bat-api
+    on:
+      branch: use-travis-and-oc
+  - provider: azure_web_apps
+    username: travis-deploy-user
+    site: as-st-bat-api
+    on:
+      branch: use-travis-and-oc
+  - provider: azure_web_apps
+    username: travis-deploy-user
+    site: as-pr-bat-api
+    on:
+      branch: use-travis-and-oc
