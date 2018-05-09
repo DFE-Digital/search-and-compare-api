@@ -24,12 +24,11 @@ deploy:
       branch: master
   - provider: azure_web_apps
     username: travis-deploy-user
-    site: as-de-bat-api
-    verbose: true
+    site: as-pr-bat-api
     on:
-      branch: use-travis
+      branch: production
   - provider: azure_web_apps
     username: travis-deploy-user
-    site: as-te-bat-api
+    site: as-st-bat-api
     on:
       branch: staging
