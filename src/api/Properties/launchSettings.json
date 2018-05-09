@@ -11,7 +11,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "/api/ucas/course-url?courseId=25",
+      "launchUrl": "api/ucas/course-url/25",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
