@@ -17,19 +17,24 @@ script:
 services:
 - postgresql: "9.6"
 deploy:
-  - provider: azure_web_apps
-    username: travis-deploy-user
-    site: as-de-bat-api
-    on:
-      branch: master
-  - provider: azure_web_apps
-    username: travis-deploy-user
-    site: as-de-bat-api
-    verbose: true
-    on:
-      branch: use-travis
-  - provider: azure_web_apps
-    username: travis-deploy-user
-    site: as-te-bat-api
-    on:
-      branch: staging
+- provider: azure_web_apps
+  username: govuk-dfe-bat-deployment-user
+  password: 
+    secure: "Ns1NRYSz0iq8v7lctNOEjNHpBvHC3mPQQPOBCtX8BqwrEsHMLtf+O5Xl9UAVhHMBeMQ6E61wgcvEf5DYjqo/xMlL2Oobi9zTIFxyNQ3a7S6HKH/ebmiYyTitaghFTPSCNrmwqByl+CnuJLjbSwFQhQY8f8lWjO2jtSONPl/9MlstLS79jP6hLRkh1dj2BHbuKibcLrzWknsdECQx6G9QAyUxfZXFD+Mg6l8LjPqsgslAbUwHSAlQHCekDt9z2qjv06yrBTmbHmDRTwoXE6fRsKis196Te8jOFNvri893RT9iq2Cml/GrqB9oCEG6WXenCGuPz5YSD8qqW3pBG513l+qeP1kk+ahWhOOZnBZpPfhiC0VHmKM8iq5h/i249cV/v7uM8myO1oOVqfJlqhRq2EvV2UhPjxxI67PxeEUD2t/e+4UlgZltuzaysISZOe8UMbe66urEh+RXsv4Up+/scEwdPVQfjY1iAWv10rVwr9LWijy4malJuOruZFwM6nr6rtnS0HsZqVPWPC0EUv96DAbwMnAFTz96qJEeUqhUnXWKEBjH8KTfkKjYs4QSTIdbdTaEsHhE/YTQebm7wEfUl8a3YeLCja+TnwlsEz+8UqUBB51z4hbguUsMlalNeXdGs68LiIaGAZMkt73FZHi9Mm5d0tHBLlistFefjXhYgRU="
+  site: bat-dev-search-and-compare-api-app
+  on:
+    branch: master
+- provider: azure_web_apps
+  username: govuk-dfe-bat-deployment-user
+  password: 
+    secure: "Ns1NRYSz0iq8v7lctNOEjNHpBvHC3mPQQPOBCtX8BqwrEsHMLtf+O5Xl9UAVhHMBeMQ6E61wgcvEf5DYjqo/xMlL2Oobi9zTIFxyNQ3a7S6HKH/ebmiYyTitaghFTPSCNrmwqByl+CnuJLjbSwFQhQY8f8lWjO2jtSONPl/9MlstLS79jP6hLRkh1dj2BHbuKibcLrzWknsdECQx6G9QAyUxfZXFD+Mg6l8LjPqsgslAbUwHSAlQHCekDt9z2qjv06yrBTmbHmDRTwoXE6fRsKis196Te8jOFNvri893RT9iq2Cml/GrqB9oCEG6WXenCGuPz5YSD8qqW3pBG513l+qeP1kk+ahWhOOZnBZpPfhiC0VHmKM8iq5h/i249cV/v7uM8myO1oOVqfJlqhRq2EvV2UhPjxxI67PxeEUD2t/e+4UlgZltuzaysISZOe8UMbe66urEh+RXsv4Up+/scEwdPVQfjY1iAWv10rVwr9LWijy4malJuOruZFwM6nr6rtnS0HsZqVPWPC0EUv96DAbwMnAFTz96qJEeUqhUnXWKEBjH8KTfkKjYs4QSTIdbdTaEsHhE/YTQebm7wEfUl8a3YeLCja+TnwlsEz+8UqUBB51z4hbguUsMlalNeXdGs68LiIaGAZMkt73FZHi9Mm5d0tHBLlistFefjXhYgRU="
+  site: bat-staging-search-and-compare-api-app
+  on:
+    branch: staging
+- provider: azure_web_apps
+  username: govuk-dfe-bat-deployment-user
+  password: 
+    secure: "Ns1NRYSz0iq8v7lctNOEjNHpBvHC3mPQQPOBCtX8BqwrEsHMLtf+O5Xl9UAVhHMBeMQ6E61wgcvEf5DYjqo/xMlL2Oobi9zTIFxyNQ3a7S6HKH/ebmiYyTitaghFTPSCNrmwqByl+CnuJLjbSwFQhQY8f8lWjO2jtSONPl/9MlstLS79jP6hLRkh1dj2BHbuKibcLrzWknsdECQx6G9QAyUxfZXFD+Mg6l8LjPqsgslAbUwHSAlQHCekDt9z2qjv06yrBTmbHmDRTwoXE6fRsKis196Te8jOFNvri893RT9iq2Cml/GrqB9oCEG6WXenCGuPz5YSD8qqW3pBG513l+qeP1kk+ahWhOOZnBZpPfhiC0VHmKM8iq5h/i249cV/v7uM8myO1oOVqfJlqhRq2EvV2UhPjxxI67PxeEUD2t/e+4UlgZltuzaysISZOe8UMbe66urEh+RXsv4Up+/scEwdPVQfjY1iAWv10rVwr9LWijy4malJuOruZFwM6nr6rtnS0HsZqVPWPC0EUv96DAbwMnAFTz96qJEeUqhUnXWKEBjH8KTfkKjYs4QSTIdbdTaEsHhE/YTQebm7wEfUl8a3YeLCja+TnwlsEz+8UqUBB51z4hbguUsMlalNeXdGs68LiIaGAZMkt73FZHi9Mm5d0tHBLlistFefjXhYgRU="
+  site: bat-prod-search-and-compare-api-app
+  on:
+    branch: production
