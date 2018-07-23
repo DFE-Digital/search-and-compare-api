@@ -5,36 +5,29 @@ mono: none
 dotnet: 2.0.0
 env:
   global:
-    - secure: "SWBz9hCvvAuDdyPtBLLw54t6XYzgs9ecjilNhjWRt/Az2L4d3xpZXIrxHtXkAFi1O+WRoYVcDfd6YO0eQHqI2FYlXO/w44SDhc/lFdVhsJpstpYaXk/bwQ7FuwwbWseAuRIhClemM5v8/UMcGdcy8YKeobv7Gf/brXPkCFN+2bA8oKacmS5g7XnLGnEbVfjXBzaQeHdd17k05+PNLKLg6vVbVNT8RVaGkDiBKS3hiwuXZzZ/z0aeuhg7Vw+u+e34GCoUWwCfftdDrmXRlnPjWuPRW+DDVEU8WmJFlbwzOnzswIPUfOCb9G5IjIt2+5oF4NMm4h0u74Jl8TpB1KQWgsd6zSxeBZrTVF2BqgbSEs3TSFY6cAoA6VB2Z9fb6Mqh+ukBVOpME+N+EjC5bI639xpIF4vz1/XiiLfsxRrzeidXkCnS5pT/nlOt3AShGp1J8eaKW+Ikf/11MiDneaa04JK2Pdp+RO4upjtXxnZY6sMrSlo4U3OegR5FxzCp9SAXgWv4zRyQVneZ1I9o30wphObfV5nGaFzaDkfmH78TC/f9jbclRR1J8raH+tfHwvQVBPjxgre6lw8mb2SSLaNnumsSxQyH3uO8Kv/s9EjnhZE0hF0f9luMGMpfVxgrtz2a7BHfADlyLxRZjA6oFDpEdS8lF03ml4gSgHRCmusaePs="
-    - POSTGRESQL_SERVICE_HOST=127.0.0.1
-    - PG_USERNAME=postgres
-    - PG_PASSWORD=
-    - PG_DATABASE=travis_ci_test
+  - secure: SWBz9hCvvAuDdyPtBLLw54t6XYzgs9ecjilNhjWRt/Az2L4d3xpZXIrxHtXkAFi1O+WRoYVcDfd6YO0eQHqI2FYlXO/w44SDhc/lFdVhsJpstpYaXk/bwQ7FuwwbWseAuRIhClemM5v8/UMcGdcy8YKeobv7Gf/brXPkCFN+2bA8oKacmS5g7XnLGnEbVfjXBzaQeHdd17k05+PNLKLg6vVbVNT8RVaGkDiBKS3hiwuXZzZ/z0aeuhg7Vw+u+e34GCoUWwCfftdDrmXRlnPjWuPRW+DDVEU8WmJFlbwzOnzswIPUfOCb9G5IjIt2+5oF4NMm4h0u74Jl8TpB1KQWgsd6zSxeBZrTVF2BqgbSEs3TSFY6cAoA6VB2Z9fb6Mqh+ukBVOpME+N+EjC5bI639xpIF4vz1/XiiLfsxRrzeidXkCnS5pT/nlOt3AShGp1J8eaKW+Ikf/11MiDneaa04JK2Pdp+RO4upjtXxnZY6sMrSlo4U3OegR5FxzCp9SAXgWv4zRyQVneZ1I9o30wphObfV5nGaFzaDkfmH78TC/f9jbclRR1J8raH+tfHwvQVBPjxgre6lw8mb2SSLaNnumsSxQyH3uO8Kv/s9EjnhZE0hF0f9luMGMpfVxgrtz2a7BHfADlyLxRZjA6oFDpEdS8lF03ml4gSgHRCmusaePs=
+  - POSTGRESQL_SERVICE_HOST=127.0.0.1
+  - PG_USERNAME=postgres
+  - PG_PASSWORD=
+  - PG_DATABASE=travis_ci_test
+  # AZURE_WA_PASSWORD
+  - secure: medztQFAUUW8pBWDVl4na4/wMKaN2cT0TzPDO+BHRAd8BVTB705qVd9R1SqjTuvIVOKZqSJ37w2BCMRFQrbXsbR2gRsUNC+4pcs3GIfHMPAGk4Ck301HEsg7LKNeY9Nae+4GDjbRq2+7SDbbdjfpdkQOf9L9e1WL0pqeC2a/VCvgPBCHLBrAJhBhO/xZlLfvR7gZ6CZmpC64OPW1YmnDYCReE5ZbIDJ5x64uDUfZIkM1QYsAXgRva0Nk/OLLJdnlKyMPxw3i61wQK/nCBpd1w6/zonM9x/Wr1FOg/CrHYFxh1gwiEharryjgHkPcu7I7HYqcEN9WaMBk8BQGPZxagOoBuJYnqNILas48K6pZM6XdNSy1z3OniYTtSupagpd7FiH408k86Gvd8C+sr8m228IxQa0qgQ3wCC7gjMTtWG+dznEDvufBdyUAW+t6XbqF17Lnu0e61uKrrbn60tOYK3gqlGBSGoNZu7Jz3GOk291BlkNB/5gJ1mcTdFqecJ9Alu+cgAVtvpSAN4Yr5KAxUuyvYZwYllcdqezdL54mMp7UBdPhQnprQObATOoMIS+RaUaI6gb/XnqhasQQ09t7QMoNkbFD5ioLzhQGweoB5sp8XumR+OOdeLVE30rEUwbpeLH+1320bBaLPEgibwtTgjmJY0035jTxQJtumP0rlco=
 before_script:
 - psql -c 'create database travis_ci_test;' -U postgres
 script:
 - "./travis-build.sh --quiet verify"
 services:
-- postgresql: "9.6"
+- postgresql: '9.6'
 deploy:
 - provider: azure_web_apps
   username: govuk-dfe-bat-deployment-user
-  password: 
-    secure: "Ns1NRYSz0iq8v7lctNOEjNHpBvHC3mPQQPOBCtX8BqwrEsHMLtf+O5Xl9UAVhHMBeMQ6E61wgcvEf5DYjqo/xMlL2Oobi9zTIFxyNQ3a7S6HKH/ebmiYyTitaghFTPSCNrmwqByl+CnuJLjbSwFQhQY8f8lWjO2jtSONPl/9MlstLS79jP6hLRkh1dj2BHbuKibcLrzWknsdECQx6G9QAyUxfZXFD+Mg6l8LjPqsgslAbUwHSAlQHCekDt9z2qjv06yrBTmbHmDRTwoXE6fRsKis196Te8jOFNvri893RT9iq2Cml/GrqB9oCEG6WXenCGuPz5YSD8qqW3pBG513l+qeP1kk+ahWhOOZnBZpPfhiC0VHmKM8iq5h/i249cV/v7uM8myO1oOVqfJlqhRq2EvV2UhPjxxI67PxeEUD2t/e+4UlgZltuzaysISZOe8UMbe66urEh+RXsv4Up+/scEwdPVQfjY1iAWv10rVwr9LWijy4malJuOruZFwM6nr6rtnS0HsZqVPWPC0EUv96DAbwMnAFTz96qJEeUqhUnXWKEBjH8KTfkKjYs4QSTIdbdTaEsHhE/YTQebm7wEfUl8a3YeLCja+TnwlsEz+8UqUBB51z4hbguUsMlalNeXdGs68LiIaGAZMkt73FZHi9Mm5d0tHBLlistFefjXhYgRU="
-  site: bat-dev-search-and-compare-api-app
-  on:
-    branch: master
+  site: bat-dev-search-and-compare-api-app	
+  on: master	   
 - provider: azure_web_apps
   username: govuk-dfe-bat-deployment-user
-  password: 
-    secure: "Ns1NRYSz0iq8v7lctNOEjNHpBvHC3mPQQPOBCtX8BqwrEsHMLtf+O5Xl9UAVhHMBeMQ6E61wgcvEf5DYjqo/xMlL2Oobi9zTIFxyNQ3a7S6HKH/ebmiYyTitaghFTPSCNrmwqByl+CnuJLjbSwFQhQY8f8lWjO2jtSONPl/9MlstLS79jP6hLRkh1dj2BHbuKibcLrzWknsdECQx6G9QAyUxfZXFD+Mg6l8LjPqsgslAbUwHSAlQHCekDt9z2qjv06yrBTmbHmDRTwoXE6fRsKis196Te8jOFNvri893RT9iq2Cml/GrqB9oCEG6WXenCGuPz5YSD8qqW3pBG513l+qeP1kk+ahWhOOZnBZpPfhiC0VHmKM8iq5h/i249cV/v7uM8myO1oOVqfJlqhRq2EvV2UhPjxxI67PxeEUD2t/e+4UlgZltuzaysISZOe8UMbe66urEh+RXsv4Up+/scEwdPVQfjY1iAWv10rVwr9LWijy4malJuOruZFwM6nr6rtnS0HsZqVPWPC0EUv96DAbwMnAFTz96qJEeUqhUnXWKEBjH8KTfkKjYs4QSTIdbdTaEsHhE/YTQebm7wEfUl8a3YeLCja+TnwlsEz+8UqUBB51z4hbguUsMlalNeXdGs68LiIaGAZMkt73FZHi9Mm5d0tHBLlistFefjXhYgRU="
-  site: bat-staging-search-and-compare-api-app
-  on:
-    branch: staging
+  site: bat-staging-search-and-compare-api-app	
+  on: staging	   
 - provider: azure_web_apps
   username: govuk-dfe-bat-deployment-user
-  password: 
-    secure: "Ns1NRYSz0iq8v7lctNOEjNHpBvHC3mPQQPOBCtX8BqwrEsHMLtf+O5Xl9UAVhHMBeMQ6E61wgcvEf5DYjqo/xMlL2Oobi9zTIFxyNQ3a7S6HKH/ebmiYyTitaghFTPSCNrmwqByl+CnuJLjbSwFQhQY8f8lWjO2jtSONPl/9MlstLS79jP6hLRkh1dj2BHbuKibcLrzWknsdECQx6G9QAyUxfZXFD+Mg6l8LjPqsgslAbUwHSAlQHCekDt9z2qjv06yrBTmbHmDRTwoXE6fRsKis196Te8jOFNvri893RT9iq2Cml/GrqB9oCEG6WXenCGuPz5YSD8qqW3pBG513l+qeP1kk+ahWhOOZnBZpPfhiC0VHmKM8iq5h/i249cV/v7uM8myO1oOVqfJlqhRq2EvV2UhPjxxI67PxeEUD2t/e+4UlgZltuzaysISZOe8UMbe66urEh+RXsv4Up+/scEwdPVQfjY1iAWv10rVwr9LWijy4malJuOruZFwM6nr6rtnS0HsZqVPWPC0EUv96DAbwMnAFTz96qJEeUqhUnXWKEBjH8KTfkKjYs4QSTIdbdTaEsHhE/YTQebm7wEfUl8a3YeLCja+TnwlsEz+8UqUBB51z4hbguUsMlalNeXdGs68LiIaGAZMkt73FZHi9Mm5d0tHBLlistFefjXhYgRU="
-  site: bat-prod-search-and-compare-api-app
-  on:
-    branch: production
+  site: bat-prod-search-and-compare-api-app	
+  on: production
