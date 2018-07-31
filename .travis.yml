@@ -17,19 +17,16 @@ script:
 services:
 - postgresql: "9.6"
 deploy:
-  - provider: azure_web_apps
-    username: travis-deploy-user
-    site: as-de-bat-api
-    on:
-      branch: master
-  - provider: azure_web_apps
-    username: travis-deploy-user
-    site: as-de-bat-api
-    verbose: true
-    on:
-      branch: use-travis
-  - provider: azure_web_apps
-    username: travis-deploy-user
-    site: as-te-bat-api
-    on:
-      branch: staging
+- provider: script
+  script: git fetch --unshallow && git push https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-dev-search-and-compare-api-app.scm.azurewebsites.net:443/bat-dev-search-and-compare-api-app.git HEAD:refs/heads/master
+  on: master
+- provider: script
+  script: git fetch --unshallow && git push https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-staging-search-and-compare-api-app.scm.azurewebsites.net:443/bat-staging-search-and-compare-api-app.git HEAD:refs/heads/master
+  on: staging
+- provider: script
+  script: git fetch --unshallow && git push https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-prod-search-and-compare-api-app.scm.azurewebsites.net:443/bat-prod-search-and-compare-api-app.git HEAD:refs/heads/master
+  on: production
+  on: staging
+- provider: script
+  script: git fetch --unshallow && git push https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-prod-2018-search-and-compare-api-app.scm.azurewebsites.net:443/bat-prod-2018-search-and-compare-api-app.git HEAD:refs/heads/master
+  on: production-2018
