@@ -5,17 +5,19 @@ mono: none
 dotnet: 2.0.0
 env:
   global:
-    - secure: "SWBz9hCvvAuDdyPtBLLw54t6XYzgs9ecjilNhjWRt/Az2L4d3xpZXIrxHtXkAFi1O+WRoYVcDfd6YO0eQHqI2FYlXO/w44SDhc/lFdVhsJpstpYaXk/bwQ7FuwwbWseAuRIhClemM5v8/UMcGdcy8YKeobv7Gf/brXPkCFN+2bA8oKacmS5g7XnLGnEbVfjXBzaQeHdd17k05+PNLKLg6vVbVNT8RVaGkDiBKS3hiwuXZzZ/z0aeuhg7Vw+u+e34GCoUWwCfftdDrmXRlnPjWuPRW+DDVEU8WmJFlbwzOnzswIPUfOCb9G5IjIt2+5oF4NMm4h0u74Jl8TpB1KQWgsd6zSxeBZrTVF2BqgbSEs3TSFY6cAoA6VB2Z9fb6Mqh+ukBVOpME+N+EjC5bI639xpIF4vz1/XiiLfsxRrzeidXkCnS5pT/nlOt3AShGp1J8eaKW+Ikf/11MiDneaa04JK2Pdp+RO4upjtXxnZY6sMrSlo4U3OegR5FxzCp9SAXgWv4zRyQVneZ1I9o30wphObfV5nGaFzaDkfmH78TC/f9jbclRR1J8raH+tfHwvQVBPjxgre6lw8mb2SSLaNnumsSxQyH3uO8Kv/s9EjnhZE0hF0f9luMGMpfVxgrtz2a7BHfADlyLxRZjA6oFDpEdS8lF03ml4gSgHRCmusaePs="
-    - POSTGRESQL_SERVICE_HOST=127.0.0.1
-    - PG_USERNAME=postgres
-    - PG_PASSWORD=
-    - PG_DATABASE=travis_ci_test
+  - secure: SWBz9hCvvAuDdyPtBLLw54t6XYzgs9ecjilNhjWRt/Az2L4d3xpZXIrxHtXkAFi1O+WRoYVcDfd6YO0eQHqI2FYlXO/w44SDhc/lFdVhsJpstpYaXk/bwQ7FuwwbWseAuRIhClemM5v8/UMcGdcy8YKeobv7Gf/brXPkCFN+2bA8oKacmS5g7XnLGnEbVfjXBzaQeHdd17k05+PNLKLg6vVbVNT8RVaGkDiBKS3hiwuXZzZ/z0aeuhg7Vw+u+e34GCoUWwCfftdDrmXRlnPjWuPRW+DDVEU8WmJFlbwzOnzswIPUfOCb9G5IjIt2+5oF4NMm4h0u74Jl8TpB1KQWgsd6zSxeBZrTVF2BqgbSEs3TSFY6cAoA6VB2Z9fb6Mqh+ukBVOpME+N+EjC5bI639xpIF4vz1/XiiLfsxRrzeidXkCnS5pT/nlOt3AShGp1J8eaKW+Ikf/11MiDneaa04JK2Pdp+RO4upjtXxnZY6sMrSlo4U3OegR5FxzCp9SAXgWv4zRyQVneZ1I9o30wphObfV5nGaFzaDkfmH78TC/f9jbclRR1J8raH+tfHwvQVBPjxgre6lw8mb2SSLaNnumsSxQyH3uO8Kv/s9EjnhZE0hF0f9luMGMpfVxgrtz2a7BHfADlyLxRZjA6oFDpEdS8lF03ml4gSgHRCmusaePs=
+  - POSTGRESQL_SERVICE_HOST=127.0.0.1
+  - PG_USERNAME=postgres
+  - PG_PASSWORD=
+  - PG_DATABASE=travis_ci_test
+  # $AZURE_WA_PASSWORD
+  - secure: ZGQJvekxdyubK6WbfzTCZS54kTV/f9z/KJM1CzfsxeqDxz2rT9k5ubERbaTi2NgrL1JtECVN0zdmO5vUtj7wqbMQldeA9fF2C+bXD8Q1I17SU/o0q9RGZbdNbz43KWYLWp9/SgG4rMM+mqV63aCt6M7UbB5lkDhMrdxJjYDJTGIgf29K21ZDrJlPkSFg0ajA/AduqiZpUipWm8k12TcvvvbjcqjJlMZ9s0/4/kfNvFknKE8PtIYI3C+1HmnP6oTmIOEGrlOQwoEjejxyJwsR8OnS7cxFxPDKts87oLMgouR8qJIwycAZkMqZa+PoBrOD1njoQJ2Vv2XScW+TJMX+inwLh6mj6WWDWGfgOrLzQ3rVfJiX+1RczyN3Q1vZn8Q53c6Zxrbt8OocGw7t5x56QhzclIWUB96l6WBDO66ISJt1kWK8feVVrwo7MZ7slgpxvgJReb10uheXsu77DrTrBWRC7Lp18OpDp+rJEgzq33msVxk69pnoYWHT1uDd1tqrp0IF7Dv8H0IOhSgN/YJyOYhbAIZGsSUqteQP6elqjvEPbfIflBZVZbzIGy3isXj4l+PHsgh84hSS6jxGiZoMTmrebxeFPqcNrE7aKvvWwKvtNd0XU/bYDvpUAwU3lj00v2Ksv1JehIUbS3UlKYpni5wZk1wCe/bxpeos5+B+KbM=
 before_script:
 - psql -c 'create database travis_ci_test;' -U postgres
 script:
 - "./travis-build.sh --quiet verify"
 services:
-- postgresql: "9.6"
+- postgresql: '9.6'
 deploy:
 - provider: script
   script: git fetch --unshallow && git push https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-dev-search-and-compare-api-app.scm.azurewebsites.net:443/bat-dev-search-and-compare-api-app.git HEAD:refs/heads/master
@@ -26,7 +28,6 @@ deploy:
 - provider: script
   script: git fetch --unshallow && git push https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-prod-search-and-compare-api-app.scm.azurewebsites.net:443/bat-prod-search-and-compare-api-app.git HEAD:refs/heads/master
   on: production
-  on: staging
 - provider: script
   script: git fetch --unshallow && git push https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-prod-2018-search-and-compare-api-app.scm.azurewebsites.net:443/bat-prod-2018-search-and-compare-api-app.git HEAD:refs/heads/master
   on: production-2018
