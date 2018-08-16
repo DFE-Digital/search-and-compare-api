@@ -31,7 +31,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
 
         public Course GetCourse(string providerCode, string courseCode)
         {
-            var queryUri = GetUri(string.Format("/courses/{0}/{1}", providerCode), null);
+            var queryUri = GetUri(string.Format("/courses/{0}/{1}", providerCode, courseCode), null);
 
             return GetObjects<Course>(queryUri);
         }
