@@ -8,7 +8,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
 {
     public interface ISearchAndCompareApi
     {
-        Course GetCourse(string courseCode);
+        Course GetCourse(string providerCode, string courseCode);
 
         PaginatedList<Course> GetCourses(QueryFilter filter);
         TotalCountResult GetCoursesTotalCount(QueryFilter filter);
@@ -21,6 +21,6 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
 
         List<Provider> GetProviderSuggestions(string query);
 
-        string GetUcasCourseUrl(string courseCode);
+        string GetUcasCourseUrl(string providerCode, string courseCode);
     }
 }

@@ -33,7 +33,7 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
         IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses();
 
-        Task<Course> GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(string courseCode);
+        Task<Course> GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(string providerCode, string courseCode);
 
         IQueryable<Subject> GetSubjects();
 

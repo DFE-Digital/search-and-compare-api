@@ -116,22 +116,38 @@ JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
 
         public IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses()
         {
-            return GetCoursesWithProviderSubjectsRouteAndCampuses(null);
+            return GetCoursesWithProviderSubjectsRouteAndCampuses(null, null);
         }
         
-        public async Task<Course> GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(string courseCode)
+        public async Task<Course> GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(string providerCode, string courseCode)
         {
-            return await GetCoursesWithProviderSubjectsRouteAndCampuses(courseCode)
+            return await GetCoursesWithProviderSubjectsRouteAndCampuses(providerCode, courseCode)
                 .Include(x => x.DescriptionSections).FirstAsync();
         }
         
-        private IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses(string courseCode)
+        private IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses(string providerCode, string courseCode)
         {
-            var whereClause = string.IsNullOrWhiteSpace(courseCode)
-                ? ""
-                : " WHERE lower(\"ProgrammeCode\") = lower(@coursecode)";
+            var whereClauses = new List<string>();
+            if (!string.IsNullOrWhiteSpace(providerCode))
+            {
+                whereClauses.Add("lower(\"course\".\"ProgrammeCode\") = lower(@coursecode)");
+            }
 
-            return ForListing(Courses.FromSql("SELECT *, NULL as \"Distance\" FROM \"course\"" + whereClause, new NpgsqlParameter("@coursecode", courseCode)));
+            if (!string.IsNullOrWhiteSpace(courseCode))
+            {
+                whereClauses.Add("lower(\"provider\".\"ProviderCode\") = lower(@providercode)");
+            }
+
+            var whereClause = whereClauses.Any()
+                ? " WHERE " + string.Join(" AND ", whereClauses)
+                : "";
+
+            return ForListing(Courses.FromSql(
+                "SELECT \"course\".*, NULL as \"Distance\" FROM \"course\" " + 
+                "LEFT OUTER JOIN \"provider\" ON \"course\".\"ProviderId\" = \"provider\".\"Id\"" + 
+                whereClause, 
+                new NpgsqlParameter("@coursecode", courseCode),
+                new NpgsqlParameter("@providercode", providerCode)));
         }
 
         public IQueryable<Subject> GetSubjects()

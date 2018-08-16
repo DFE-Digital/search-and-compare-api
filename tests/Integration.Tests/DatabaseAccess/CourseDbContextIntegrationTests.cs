@@ -148,7 +148,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
 
             using (var context2 = GetContext())
             {
-                var course = context2.GetCourseWithProviderSubjectsRouteCampusesAndDescriptions("1aB").Result;
+                var course = context2.GetCourseWithProviderSubjectsRouteCampusesAndDescriptions("xYz", "1aB").Result;
                 Assert.AreEqual("1AB", course.ProgrammeCode, "course code is retrieved");
                 Assert.AreEqual("My first course", course.Name, "course name is retrieved");
 
@@ -161,7 +161,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
                 Assert.AreEqual("Content", course.DescriptionSections.Single().Text, "description content is retrieved");
             }
         }
-        
+
         private static Course GetSimpleCourse()
         {
             return new Course()
@@ -172,6 +172,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
 
                 Provider = new Provider
                 {
+                    ProviderCode = "XYZ",
                     Name = "My provider"
                 },
                 ProviderLocation = new Location

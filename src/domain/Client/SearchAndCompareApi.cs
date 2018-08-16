@@ -29,9 +29,9 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             if (_apiUri.EndsWith('/')) { _apiUri = _apiUri.Remove(_apiUri.Length - 1); }
         }
 
-        public Course GetCourse(string courseCode)
+        public Course GetCourse(string providerCode, string courseCode)
         {
-            var queryUri = GetUri(string.Format("/courses/{0}", courseCode), null);
+            var queryUri = GetUri(string.Format("/courses/{0}/{1}", providerCode), null);
 
             return GetObjects<Course>(queryUri);
         }
@@ -80,9 +80,9 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             return GetObjects<List<Provider>>(buider.Uri) ?? new List<Provider>();
         }
 
-        public string GetUcasCourseUrl(string courseCode)
+        public string GetUcasCourseUrl(string providerCode, string courseCode)
         {
-            var queryUri = GetUri(string.Format("/ucas/course-url/{0}", courseCode), null);
+            var queryUri = GetUri(string.Format("/ucas/course-url/{0}/{1}", providerCode, courseCode), null);
 
             dynamic result =  GetObjects<JObject>(queryUri);;
 
