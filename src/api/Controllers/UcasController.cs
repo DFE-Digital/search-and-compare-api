@@ -24,10 +24,10 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         /// Get a valid sessionId from the ucas site and then return a url for the course.
         /// The url will only be valid while the session is valid! (5 mins at last test)
         /// </summary>
-        [HttpGet("course-url/{courseId:int}")]
-        public async Task<IActionResult> GetUcasCourseUrl(int courseId)
+        [HttpGet("course-url/{courseCode:string}")]
+        public async Task<IActionResult> GetUcasCourseUrl(string courseCode)
         {
-            var course =  await _context.GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(courseId);
+            var course =  await _context.GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(courseCode);
 
             if (course == null){
                 return NotFound();

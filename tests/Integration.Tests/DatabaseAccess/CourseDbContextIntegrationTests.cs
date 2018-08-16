@@ -135,13 +135,41 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
                 Assert.AreEqual(1, context2.SuggestProviders("provider my").Count(), "multiwords good");
                 Assert.AreEqual(1, context2.SuggestProviders("prov my").Count(), "multiwords good incomplete");
             }
-
         }
+
+        [Test]
+        public void RetrieveByIdCaseInsenstive()
+        {
+            Assert.AreEqual(0, context.Courses.Count());
+
+            var entity = context.Courses.Add(GetSimpleCourse());
+            context.SaveChanges();
+            entitiesToCleanUp.Add(entity);
+
+            using (var context2 = GetContext())
+            {
+                var course = context2.GetCourseWithProviderSubjectsRouteCampusesAndDescriptions("1aB").Result;
+                Assert.AreEqual("1AB", course.ProgrammeCode, "course code is retrieved");
+                Assert.AreEqual("My first course", course.Name, "course name is retrieved");
+
+                Assert.AreEqual("My Campus", course.Campuses.Single().Name, "campus data is retrieved");
+                Assert.AreEqual("SCITT", course.Route.Name, "route data is retrieved");
+                Assert.AreEqual("My subject", course.CourseSubjects.Single().Subject.Name, "subject data is retrieved");
+                Assert.AreEqual("My Campus", course.Campuses.Single().Name, "campus data is retrieved");
+
+                Assert.AreEqual("Title", course.DescriptionSections.Single().Name, "description title is retrieved");
+                Assert.AreEqual("Content", course.DescriptionSections.Single().Text, "description content is retrieved");
+            }
+        }
+        
         private static Course GetSimpleCourse()
         {
             return new Course()
             {
                 Name = "My first course",
+
+                ProgrammeCode = "1AB",
+
                 Provider = new Provider
                 {
                     Name = "My provider"
@@ -166,7 +194,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
                 },
                 IsSalaried = false,
                 Fees = new Fees { Eu = 9250, Uk = 9250, International = 16340 },
-                Salary = new Salary()
+                Salary = new Salary(),
+                DescriptionSections = new HashSet<CourseDescriptionSection>
+                {
+                    new CourseDescriptionSection { Id = 1, Name = "Title", Text = "Content" }
+                }
             };
         }
     }

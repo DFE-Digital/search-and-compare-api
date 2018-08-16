@@ -80,10 +80,10 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         }
 
         // GET api/courses/{id}
-        [HttpGet("{courseId:int}")]
-        public async Task<IActionResult> GetById(int courseId)
+        [HttpGet("{courseCode:string}")]
+        public async Task<IActionResult> GetByCourseCode(string courseCode)
         {
-            var course = await _context.GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(courseId);
+            var course = await _context.GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(courseCode);
 
             return Ok(course);
         }

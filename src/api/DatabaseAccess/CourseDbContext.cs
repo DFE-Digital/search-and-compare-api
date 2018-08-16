@@ -116,19 +116,22 @@ JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
 
         public IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses()
         {
-            return ForListing(Courses.FromSql("SELECT *, NULL as \"Distance\" FROM \"course\""));
+            return GetCoursesWithProviderSubjectsRouteAndCampuses(null);
         }
-
-        public IQueryable<Course> GetCoursesWithProviderSubjectsRouteCampusesAndDescriptions()
+        
+        public async Task<Course> GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(string courseCode)
         {
-            return GetCoursesWithProviderSubjectsRouteAndCampuses()
-                .Include(x => x.DescriptionSections);
+            return await GetCoursesWithProviderSubjectsRouteAndCampuses(courseCode)
+                .Include(x => x.DescriptionSections).FirstAsync();
         }
-
-        public async Task<Course> GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(int courseId)
+        
+        private IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses(string courseCode)
         {
-            return await GetCoursesWithProviderSubjectsRouteCampusesAndDescriptions()
-                .Where(c => c.Id == courseId).FirstAsync();
+            var whereClause = string.IsNullOrWhiteSpace(courseCode)
+                ? ""
+                : " WHERE lower(\"ProgrammeCode\") = lower(@coursecode)";
+
+            return ForListing(Courses.FromSql("SELECT *, NULL as \"Distance\" FROM \"course\"" + whereClause, new NpgsqlParameter("@coursecode", courseCode)));
         }
 
         public IQueryable<Subject> GetSubjects()
