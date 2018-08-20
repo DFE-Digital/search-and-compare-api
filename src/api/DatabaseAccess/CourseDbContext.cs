@@ -127,15 +127,20 @@ JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
         
         private IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses(string providerCode, string courseCode)
         {
+            var sqlParams = new List<NpgsqlParameter>();
             var whereClauses = new List<string>();
-            if (!string.IsNullOrWhiteSpace(providerCode))
-            {
-                whereClauses.Add("lower(\"course\".\"ProgrammeCode\") = lower(@coursecode)");
-            }
+           
 
             if (!string.IsNullOrWhiteSpace(courseCode))
             {
+                whereClauses.Add("lower(\"course\".\"ProgrammeCode\") = lower(@coursecode)");
+                sqlParams.Add(new NpgsqlParameter("@coursecode", courseCode));
+            }
+
+            if (!string.IsNullOrWhiteSpace(providerCode))
+            {
                 whereClauses.Add("lower(\"provider\".\"ProviderCode\") = lower(@providercode)");
+                sqlParams.Add(new NpgsqlParameter("@providercode", providerCode));
             }
 
             var whereClause = whereClauses.Any()
@@ -145,9 +150,8 @@ JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
             return ForListing(Courses.FromSql(
                 "SELECT \"course\".*, NULL as \"Distance\" FROM \"course\" " + 
                 "LEFT OUTER JOIN \"provider\" ON \"course\".\"ProviderId\" = \"provider\".\"Id\"" + 
-                whereClause, 
-                new NpgsqlParameter("@coursecode", courseCode),
-                new NpgsqlParameter("@providercode", providerCode)));
+                whereClause,
+                sqlParams.ToArray()));
         }
 
         public IQueryable<Subject> GetSubjects()
