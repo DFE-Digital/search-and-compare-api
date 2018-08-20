@@ -14,20 +14,24 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
 {
     public class SearchAndCompareApi : ISearchAndCompareApi
     {
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClient _httpClient;
 
         private readonly string _apiUri;
 
-        public SearchAndCompareApi(HttpClient httpClient, string apiUri)
+        public SearchAndCompareApi(HttpClient httpClient, string apiUri) : this (new HttpClientWrapper(httpClient), apiUri)
+        {
+        }
+
+        public SearchAndCompareApi(IHttpClient httpClient, string apiUri)
         {
             _httpClient = httpClient;
             _apiUri = apiUri;
             if (_apiUri.EndsWith('/')) { _apiUri = _apiUri.Remove(_apiUri.Length - 1); }
         }
 
-        public Course GetCourse(int courseId)
+        public Course GetCourse(string providerCode, string courseCode)
         {
-            var queryUri = GetUri(string.Format("/courses/{0}", courseId), null);
+            var queryUri = GetUri(string.Format("/courses/{0}/{1}", providerCode, courseCode), null);
 
             return GetObjects<Course>(queryUri);
         }
@@ -76,9 +80,9 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             return GetObjects<List<Provider>>(buider.Uri) ?? new List<Provider>();
         }
 
-        public string GetUcasCourseUrl(int courseId)
+        public string GetUcasCourseUrl(string providerCode, string courseCode)
         {
-            var queryUri = GetUri(string.Format("/ucas/course-url/{0}", courseId), null);
+            var queryUri = GetUri(string.Format("/ucas/course-url/{0}/{1}", providerCode, courseCode), null);
 
             dynamic result =  GetObjects<JObject>(queryUri);;
 
@@ -101,7 +105,8 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
         {
             var uri = new Uri(_apiUri);
             var builder = new UriBuilder(uri);
-            if (!apiPath.StartsWith('/')) { builder.Path += '/'; }
+            if (!builder.Path.EndsWith('/') && !apiPath.StartsWith('/')) { builder.Path += '/'; }
+            else if (builder.Path.EndsWith('/') && apiPath.StartsWith('/')) { apiPath = apiPath.Substring(1); }
             builder.Path += apiPath;
             if (filter != null) { builder.Query = filter.AsQueryString(); }
             return builder.Uri;

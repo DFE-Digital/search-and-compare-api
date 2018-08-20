@@ -116,19 +116,38 @@ JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
 
         public IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses()
         {
-            return ForListing(Courses.FromSql("SELECT *, NULL as \"Distance\" FROM \"course\""));
+            return GetCoursesWithProviderSubjectsRouteAndCampuses(null, null);
         }
-
-        public IQueryable<Course> GetCoursesWithProviderSubjectsRouteCampusesAndDescriptions()
+        
+        public async Task<Course> GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(string providerCode, string courseCode)
         {
-            return GetCoursesWithProviderSubjectsRouteAndCampuses()
-                .Include(x => x.DescriptionSections);
+            return await GetCoursesWithProviderSubjectsRouteAndCampuses(providerCode, courseCode)
+                .Include(x => x.DescriptionSections).FirstAsync();
         }
-
-        public async Task<Course> GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(int courseId)
+        
+        private IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses(string providerCode, string courseCode)
         {
-            return await GetCoursesWithProviderSubjectsRouteCampusesAndDescriptions()
-                .Where(c => c.Id == courseId).FirstAsync();
+            var whereClauses = new List<string>();
+            if (!string.IsNullOrWhiteSpace(providerCode))
+            {
+                whereClauses.Add("lower(\"course\".\"ProgrammeCode\") = lower(@coursecode)");
+            }
+
+            if (!string.IsNullOrWhiteSpace(courseCode))
+            {
+                whereClauses.Add("lower(\"provider\".\"ProviderCode\") = lower(@providercode)");
+            }
+
+            var whereClause = whereClauses.Any()
+                ? " WHERE " + string.Join(" AND ", whereClauses)
+                : "";
+
+            return ForListing(Courses.FromSql(
+                "SELECT \"course\".*, NULL as \"Distance\" FROM \"course\" " + 
+                "LEFT OUTER JOIN \"provider\" ON \"course\".\"ProviderId\" = \"provider\".\"Id\"" + 
+                whereClause, 
+                new NpgsqlParameter("@coursecode", courseCode),
+                new NpgsqlParameter("@providercode", providerCode)));
         }
 
         public IQueryable<Subject> GetSubjects()
