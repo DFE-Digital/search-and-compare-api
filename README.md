@@ -39,7 +39,7 @@ Make sure to change the package to reflect your version number, e.g. change "0.1
 
 ## Using the domain nuget package locally
 
-1. Run `pack` (see above)
+1. Run `pack` (See above)
 2. Reference the package in the publish folder by adding a local package source in `nuget.config`.
    [Example in UI project](https://github.com/DFE-Digital/search-and-compare-ui/blob/dd22365f4ae476c9a0126d6acbd60020a6a10858/Nuget.config).
 
