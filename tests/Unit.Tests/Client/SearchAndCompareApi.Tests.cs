@@ -36,21 +36,5 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
             Assert.AreEqual("My first course", result.Name);
             mockHttp.VerifyAll();
         }
-                
-        [Test]
-        public void GetUcasCourseUrl_CallsCorrectUrl()
-        {
-            mockHttp.Setup(x => x.GetAsync(It.Is<Uri>(y => y.AbsoluteUri == "https://api.example.com/ucas/course-url/XYZ/1AB"))).ReturnsAsync(
-                new HttpResponseMessage() {
-                    StatusCode = HttpStatusCode.OK,
-                    Content = new ByteArrayContent(Encoding.UTF8.GetBytes(@"{""courseUrl"": ""http://ucas.com""}"))
-                }
-            ).Verifiable();
-
-            var result = sut.GetUcasCourseUrl("XYZ", "1AB");
-
-            Assert.AreEqual("http://ucas.com", result);
-            mockHttp.VerifyAll();
-        }
     }
 }
