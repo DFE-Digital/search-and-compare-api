@@ -31,7 +31,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
 
         public Course GetCourse(string providerCode, string courseCode)
         {
-            var queryUri = GetUri(string.Format("/courses/{0}/{1}", providerCode, courseCode), null);
+            var queryUri = GetUri($"/courses/{providerCode}/{courseCode}");
 
             return GetObjects<Course>(queryUri);
         }
@@ -52,21 +52,21 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
 
         public List<Subject> GetSubjects()
         {
-            var queryUri = GetUri("/subjects", null);
+            var queryUri = GetUri("/subjects");
 
             return GetObjects<List<Subject>>(queryUri);
         }
 
         public List<SubjectArea> GetSubjectAreas()
         {
-            var queryUri = GetUri("/subjectareas", null);
+            var queryUri = GetUri("/subjectareas");
 
             return GetObjects<List<SubjectArea>>(queryUri);
         }
 
         public List<FeeCaps> GetFeeCaps()
         {
-            var queryUri = GetUri("/feecaps", null);
+            var queryUri = GetUri("/feecaps");
 
             return GetObjects<List<FeeCaps>>(queryUri);
         }
@@ -78,15 +78,6 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             buider.Query = "query=" + HttpUtility.UrlEncode(query);
 
             return GetObjects<List<Provider>>(buider.Uri) ?? new List<Provider>();
-        }
-
-        public string GetUcasCourseUrl(string providerCode, string courseCode)
-        {
-            var queryUri = GetUri(string.Format("/ucas/course-url/{0}/{1}", providerCode, courseCode), null);
-
-            dynamic result =  GetObjects<JObject>(queryUri);;
-
-            return result.courseUrl;
         }
 
         private T GetObjects<T>(Uri queryUri)
@@ -101,7 +92,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             return objects;
         }
 
-        private Uri GetUri(string apiPath, QueryFilter filter)
+        private Uri GetUri(string apiPath, QueryFilter filter = null)
         {
             var uri = new Uri(_apiUri);
             var builder = new UriBuilder(uri);
