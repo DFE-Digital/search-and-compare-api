@@ -39,6 +39,7 @@ namespace GovUk.Education.SearchAndCompare.Api
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .UseApplicationInsights()
                 .UseKestrel(options =>
                 {
                     options.AddServerHeader = false;
