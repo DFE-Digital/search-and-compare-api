@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using System.Reflection;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
 using GovUk.Education.SearchAndCompare.Api.Ucas;
 using Microsoft.AspNetCore.Builder;
@@ -7,6 +8,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
+using NJsonSchema;
+using NSwag;
+using NSwag.AspNetCore;
+using NSwag.SwaggerGeneration.Processors.Security;
 
 namespace GovUk.Education.SearchAndCompare.Api
 {
@@ -61,6 +66,20 @@ namespace GovUk.Education.SearchAndCompare.Api
             }
 
             app.UseMvc(routes => {});
+
+            // Enable the Swagger UI middleware and the Swagger generator
+            app.UseSwaggerUi3(typeof(Startup).GetTypeInfo().Assembly, settings =>
+            {
+                settings.GeneratorSettings.DefaultPropertyNameHandling =
+                    PropertyNameHandling.CamelCase;
+
+                settings.PostProcess = document =>
+                {
+                    document.Info.Version = "v1";
+                    document.Info.Title = "Search API";
+                    document.Info.Description = "An API for searching course data";
+                };
+            });
 
             // for reading ucas site we need 1252 available
             System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
