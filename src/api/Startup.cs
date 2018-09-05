@@ -9,9 +9,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 using NJsonSchema;
-using NSwag;
 using NSwag.AspNetCore;
-using NSwag.SwaggerGeneration.Processors.Security;
+using Serilog;
 
 namespace GovUk.Education.SearchAndCompare.Api
 {
@@ -27,13 +26,16 @@ namespace GovUk.Education.SearchAndCompare.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
+
             var connectionString = new EnvConfigConnectionStringBuilder().GetConnectionString(Configuration);
 
             services.AddEntityFrameworkNpgsql().AddDbContext<CourseDbContext>(options => options
                 .UseNpgsql(connectionString));
 
             services.AddMvc().AddJsonOptions(
-                options => {
+                options =>
+                {
                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                     options.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects;
                 }
@@ -46,14 +48,15 @@ namespace GovUk.Education.SearchAndCompare.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, CourseDbContext dbContext)
         {
-             app.SeedSchema(dbContext);
+            app.SeedSchema(dbContext);
 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseStaticFiles(new StaticFileOptions
                 {
-                    OnPrepareResponse = context => {
+                    OnPrepareResponse = context =>
+                    {
                         context.Context.Response.Headers.Add("Cache-Control", "no-cache");
                         context.Context.Response.Headers.Add("Expires", "-1");
                     }
@@ -65,7 +68,7 @@ namespace GovUk.Education.SearchAndCompare.Api
                 app.UseStaticFiles();
             }
 
-            app.UseMvc(routes => {});
+            app.UseMvc(routes => { });
 
             // Enable the Swagger UI middleware and the Swagger generator
             app.UseSwaggerUi3(typeof(Startup).GetTypeInfo().Assembly, settings =>
