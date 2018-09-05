@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 using NJsonSchema;
 using NSwag.AspNetCore;
+using Serilog;
 
 namespace GovUk.Education.SearchAndCompare.Api
 {
@@ -25,6 +26,8 @@ namespace GovUk.Education.SearchAndCompare.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(dispose: true));
+
             var connectionString = new EnvConfigConnectionStringBuilder().GetConnectionString(Configuration);
 
             services.AddEntityFrameworkNpgsql().AddDbContext<CourseDbContext>(options => options
