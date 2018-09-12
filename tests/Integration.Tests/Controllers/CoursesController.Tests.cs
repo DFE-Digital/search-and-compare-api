@@ -91,6 +91,25 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             Assert.AreEqual(2, context.Contacts.Count());            
         }
 
+        [Test]
+        public void GeocodingIsPreservedAcrossImports()
+        {
+            // initial import
+            subject.Index(GetCourses(1));
+
+            // set some coordinates
+            context.Locations.Single().Latitude = 51.0;
+            context.Locations.Single().Longitude = 13.7;
+            context.Save();
+
+            // second import, with equivalent addresses
+            subject.Index(GetCourses(1));
+
+            // coordinates previously set are still there
+            Assert.AreEqual(51.0, context.Locations.Single().Latitude);
+            Assert.AreEqual(13.7, context.Locations.Single().Longitude);
+        }
+
         private List<Course> GetCourses(int count)
         {
             var courses = new List<Course>();
