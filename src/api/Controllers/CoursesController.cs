@@ -46,12 +46,13 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
                 _context.Save();
 
-                AssociateWithLocations(ref courses);
-
                 MakeProvidersDistinctReferences(ref courses);
                 MakeRoutesDistinctReferences(ref courses);
                 MakeSubjectsDistinctReferences(ref courses); // todo: change when subjects are reference data
 
+                AssociateWithLocations(ref courses);
+                
+                _context.Courses.AddRange(courses);
                 _context.Save();
 
                 return Ok();
@@ -135,8 +136,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             {
                 courseSubject.Subject = distinctSubjects[courseSubject.Subject.Name];
             }
-
-            _context.Courses.AddRange(courses);
         }
 
         [HttpGet("total")]
