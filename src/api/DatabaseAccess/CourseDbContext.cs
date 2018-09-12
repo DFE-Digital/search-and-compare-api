@@ -34,6 +34,11 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
         public CourseDbContext(DbContextOptions<CourseDbContext> options) : base(options) { }
 
+       public void Save() 
+       {
+            SaveChanges();
+       }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Distance is not a real column (except when TVF "course_distance" is used)

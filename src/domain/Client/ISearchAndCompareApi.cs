@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using GovUk.Education.SearchAndCompare.Domain.Data;
 using GovUk.Education.SearchAndCompare.Domain.Filters;
@@ -9,6 +10,8 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
     public interface ISearchAndCompareApi
     {
         Course GetCourse(string providerCode, string courseCode);
+
+        Task<bool> SaveCoursesAsync(IList<Course> courses);
 
         PaginatedList<Course> GetCourses(QueryFilter filter);
         TotalCountResult GetCoursesTotalCount(QueryFilter filter);

@@ -26,6 +26,47 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             _context = courseDbContext;
         }
 
+        private void MakeReferencesDistinct<T, TKey>(ref IList<Course> courses, Expression<Func<Course, T>> propSelector, Expression<Func<T, TKey>> keySelector)
+        {
+            var propGetter = propSelector.Compile();
+            var keyGetter = keySelector.Compile();
+
+            var member = (MemberExpression)propSelector.Body;
+            var param = Expression.Parameter(typeof(T), "value");
+            var propertySetter = Expression.Lambda<Action<Course, T>>(Expression.Assign(member, param), propSelector.Parameters[0], param).Compile();
+
+            var distinctProps = courses.Select(propGetter).ToLookup(keyGetter).ToDictionary(x => x.Key, x => x.First());
+
+            foreach (var course in courses)
+            {
+                var key = keyGetter(propGetter(course));
+                propertySetter(course, distinctProps[key]);
+            }
+        }
+
+        [HttpPost]
+        public IActionResult Index([FromBody]IList<Course> courses)
+        {
+            // try {
+                _context.Courses.RemoveRange(_context.GetCoursesWithProviderSubjectsRouteAndCampuses());
+                _context.Providers.RemoveRange(_context.Providers);
+                _context.Save();
+
+
+                MakeReferencesDistinct(ref courses, x=>x.Provider, x => x.ProviderCode);
+                
+                _context.Courses.AddRange(courses);
+
+                _context.Save();
+
+                return Ok();
+            // }
+            // catch(Exception ex)
+            // {
+            //     return BadRequest();
+            // }
+        }
+
         [HttpGet("total")]
         public IActionResult GetCoursesTotal(QueryFilter filter)
         {
