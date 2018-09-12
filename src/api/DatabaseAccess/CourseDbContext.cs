@@ -29,6 +29,10 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
         public DbSet<FeeCaps> FeeCaps { get; set; }
 
+        public DbSet<Contact> Contacts { get; set; }
+
+        public DbSet<Location> Locations { get; set; }
+
         // Join tables
         public DbSet<CourseSubject> CourseSubjects { get; set; }
 

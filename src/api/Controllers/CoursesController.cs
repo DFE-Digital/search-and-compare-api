@@ -26,45 +26,117 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             _context = courseDbContext;
         }
 
-        private void MakeReferencesDistinct<T, TKey>(ref IList<Course> courses, Expression<Func<Course, T>> propSelector, Expression<Func<T, TKey>> keySelector)
-        {
-            var propGetter = propSelector.Compile();
-            var keyGetter = keySelector.Compile();
-
-            var member = (MemberExpression)propSelector.Body;
-            var param = Expression.Parameter(typeof(T), "value");
-            var propertySetter = Expression.Lambda<Action<Course, T>>(Expression.Assign(member, param), propSelector.Parameters[0], param).Compile();
-
-            var distinctProps = courses.Select(propGetter).ToLookup(keyGetter).ToDictionary(x => x.Key, x => x.First());
-
-            foreach (var course in courses)
-            {
-                var key = keyGetter(propGetter(course));
-                propertySetter(course, distinctProps[key]);
-            }
-        }
-
         [HttpPost]
         public IActionResult Index([FromBody]IList<Course> courses)
         {
-            // try {
+            //
+            // TODO:
+            //   Match up subjects to an exisiting list (currently pulled from the list of distinct subjects in the importer)
+            //   This includes matching those existing subjects to a subject-area and to subject-funding.
+            //
+
+            try 
+            {
+                _context.Campuses.RemoveRange(_context.Campuses);
                 _context.Courses.RemoveRange(_context.GetCoursesWithProviderSubjectsRouteAndCampuses());
                 _context.Providers.RemoveRange(_context.Providers);
+                _context.Contacts.RemoveRange(_context.Contacts);
+                _context.Routes.RemoveRange(_context.Routes); 
+                _context.Subjects.RemoveRange(_context.Subjects); // todo: remove this when subjects are reference data
+
                 _context.Save();
 
+                AssociateWithLocations(ref courses);
 
-                MakeReferencesDistinct(ref courses, x=>x.Provider, x => x.ProviderCode);
-                
-                _context.Courses.AddRange(courses);
+                MakeProvidersDistinctReferences(ref courses);
+                MakeRoutesDistinctReferences(ref courses);
+                MakeSubjectsDistinctReferences(ref courses); // todo: change when subjects are reference data
 
                 _context.Save();
 
                 return Ok();
-            // }
-            // catch(Exception ex)
-            // {
-            //     return BadRequest();
-            // }
+            }
+            catch(Exception)
+            {
+                return BadRequest();
+            }
+        }
+
+        private void AssociateWithLocations(ref IList<Course> courses)
+        {
+            var allAddressesAsLocations = new List<string>()
+                .Concat(courses.Select(x => x.ContactDetails?.Address))
+                .Concat(courses.SelectMany(x => x.Campuses.Select(y => y.Location?.Address)))
+                .Concat(courses.Select(x=>x.ProviderLocation?.Address))
+                .Where(x =>  !string.IsNullOrWhiteSpace(x))
+                .Distinct()
+                .ToDictionary(x => x, x => new Location { Address = x });
+
+            var allExistingLocations = _context.Locations.ToList().ToLookup(x => x.Address).ToDictionary(x => x.Key, x => x.First());
+
+            foreach(var course in courses)
+            {
+                var courseAddress = course.ProviderLocation?.Address ?? course.ContactDetails?.Address;
+
+                if (!string.IsNullOrWhiteSpace(courseAddress))
+                {
+                    course.ProviderLocation = allExistingLocations.TryGetValue(courseAddress, out Location existing)
+                        ? existing
+                        : allAddressesAsLocations[course.ProviderLocation.Address];
+                }
+
+                foreach (var campus in course.Campuses)
+                {
+                    if(!string.IsNullOrWhiteSpace(campus.Location?.Address))
+                    {
+                        campus.Location = allExistingLocations.TryGetValue(campus.Location?.Address, out Location existing)
+                        ? existing
+                        : allAddressesAsLocations[campus.Location?.Address];
+                    }
+                }
+            }
+        }
+
+        private static void MakeProvidersDistinctReferences(ref IList<Course> courses)
+        {
+            var distinctProviders = courses.Select(x => x.Provider).Concat(courses.Select(x => x.AccreditingProvider))
+                                .Distinct().ToLookup(x => x.ProviderCode).ToDictionary(x => x.Key, x => x.First());
+
+            foreach (var course in courses)
+            {
+                if (course.AccreditingProvider != null)
+                {
+                    course.AccreditingProvider = distinctProviders[course.AccreditingProvider.ProviderCode];
+                }
+                course.Provider = distinctProviders[course.Provider.ProviderCode];
+            }
+        }
+
+        private static void MakeRoutesDistinctReferences(ref IList<Course> courses)
+        {
+            var distinctRoutes = courses.Select(x => x.Route)
+                            .Distinct().ToLookup(x => x.Name).ToDictionary(x => x.Key, x => x.First());
+
+            foreach (var course in courses)
+            {
+                if (course.Route != null)
+                {
+                    course.Route = distinctRoutes[course.Route.Name];
+                }
+            }
+        }
+
+        private void MakeSubjectsDistinctReferences(ref IList<Course> courses)
+        {
+            var distinctSubjects = courses.SelectMany(x => x.CourseSubjects.Select(y => y.Subject))
+                            .Distinct().ToLookup(x => x.Name).ToDictionary(x => x.Key, x => x.First());
+
+            foreach (var courseSubject in courses.SelectMany(x => x.CourseSubjects).ToList())
+            {
+                courseSubject.Subject = distinctSubjects[courseSubject.Subject.Name];
+            }
+
+            _context.Courses.AddRange(courses);
         }
 
         [HttpGet("total")]

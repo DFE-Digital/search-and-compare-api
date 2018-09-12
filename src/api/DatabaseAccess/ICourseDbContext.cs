@@ -25,6 +25,8 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
         DbSet<CourseSubject> CourseSubjects { get; set; }
 
+        DbSet<Contact> Contacts { get; set; }
+
         DbSet<Location> Locations { get; set; }
 
         IQueryable<Course> GetLocationFilteredCourses(double latitude, double longitude, double radiusInMeters);
