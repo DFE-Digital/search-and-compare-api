@@ -23,6 +23,8 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
         public DbSet<Campus> Campuses { get; set; }
 
+        public DbSet<Location> Locations { get; set; }
+
         public DbSet<Route> Routes { get; set; }
 
         public DbSet<FeeCaps> FeeCaps { get; set; }
