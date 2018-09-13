@@ -16,6 +16,7 @@ using GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseAcces
 using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 
 namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controllers
 {
@@ -27,7 +28,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         [SetUp]
         public void Setup()
         {
-            subject = new CoursesController(context);
+            var loggerMock = new Mock<ILogger<CoursesController>>();
+            subject = new CoursesController(context, loggerMock.Object);
         }
 
         [Test]
@@ -93,7 +95,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             resultingProviders.Count.Should().Be(1);
             context.Routes.Count().Should().Be(1);
             context.Subjects.Count().Should().Be(1);
-            context.Locations.Count().Should().Be(1);            
+            context.Locations.Count().Should().Be(1);
             object.ReferenceEquals(resultingCourses[0].Provider, resultingCourses[1].Provider).Should().BeTrue();
 
             // non-deduplicated

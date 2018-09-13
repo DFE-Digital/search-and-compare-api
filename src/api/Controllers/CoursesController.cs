@@ -13,6 +13,8 @@ using GovUk.Education.SearchAndCompare.Domain.Filters.Enums;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 using GovUk.Education.SearchAndCompare.Domain.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+
 
 namespace GovUk.Education.SearchAndCompare.Api.Controllers
 {
@@ -21,11 +23,13 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
     {
         private readonly ICourseDbContext _context;
 
+        private readonly ILogger _logger;
         private int defaultPageSize = 10;
 
-        public CoursesController(ICourseDbContext courseDbContext)
+        public CoursesController(ICourseDbContext courseDbContext, ILogger<CoursesController> logger)
         {
             _context = courseDbContext;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -61,8 +65,10 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
                     return Ok();
                 }
-                catch(Exception)
+                catch(Exception ex)
                 {
+                    _logger.LogWarning(ex, "Failed to save the course");
+
                     return BadRequest();
                 }
             }
