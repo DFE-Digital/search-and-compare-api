@@ -73,7 +73,7 @@ namespace GovUk.Education.SearchAndCompare.Geocoder
                 var coordinates = await locationQueries[location.Id];
                 if (coordinates != null)
                 {
-                    location.Address = coordinates.FormattedLocation;
+                    location.FormattedAddress = coordinates.FormattedLocation;
                     location.Longitude = coordinates.Longitude;
                     location.Latitude = coordinates.Latitude;
                 }
