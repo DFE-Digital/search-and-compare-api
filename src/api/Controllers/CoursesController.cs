@@ -48,7 +48,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     _context.Routes.RemoveRange(_context.Routes);
                     _context.Subjects.RemoveRange(_context.Subjects); // todo: remove this when subjects are reference data
 
-                    _context.Save();
+                    _context.SaveChanges();
 
                     MakeProvidersDistinctReferences(ref courses);
                     MakeRoutesDistinctReferences(ref courses);
@@ -57,7 +57,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     AssociateWithLocations(ref courses);
 
                     _context.Courses.AddRange(courses);
-                    _context.Save();
+                    _context.SaveChanges();
 
                     return Ok();
                 }

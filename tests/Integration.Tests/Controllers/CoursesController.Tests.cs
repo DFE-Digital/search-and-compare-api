@@ -117,7 +117,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             // set some coordinates
             context.Locations.Single().Latitude = 51.0;
             context.Locations.Single().Longitude = 13.7;
-            context.Save();
+            context.SaveChanges();
 
             // second import, with equivalent addresses
             subject.Index(GetCourses(1));

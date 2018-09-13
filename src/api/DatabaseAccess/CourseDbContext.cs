@@ -31,17 +31,10 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
         public DbSet<Contact> Contacts { get; set; }
 
-        public DbSet<Location> Locations { get; set; }
-
         // Join tables
         public DbSet<CourseSubject> CourseSubjects { get; set; }
 
         public CourseDbContext(DbContextOptions<CourseDbContext> options) : base(options) { }
-
-       public void Save() 
-       {
-            SaveChanges();
-       }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -134,18 +127,18 @@ JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
         {
             return GetCoursesWithProviderSubjectsRouteAndCampuses(null, null);
         }
-        
+
         public async Task<Course> GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(string providerCode, string courseCode)
         {
             return await GetCoursesWithProviderSubjectsRouteAndCampuses(providerCode, courseCode)
                 .Include(x => x.DescriptionSections).FirstAsync();
         }
-        
+
         private IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses(string providerCode, string courseCode)
         {
             var sqlParams = new List<NpgsqlParameter>();
             var whereClauses = new List<string>();
-           
+
 
             if (!string.IsNullOrWhiteSpace(courseCode))
             {
@@ -164,8 +157,8 @@ JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
                 : "";
 
             return ForListing(Courses.FromSql(
-                "SELECT \"course\".*, NULL as \"Distance\" FROM \"course\" " + 
-                "LEFT OUTER JOIN \"provider\" ON \"course\".\"ProviderId\" = \"provider\".\"Id\"" + 
+                "SELECT \"course\".*, NULL as \"Distance\" FROM \"course\" " +
+                "LEFT OUTER JOIN \"provider\" ON \"course\".\"ProviderId\" = \"provider\".\"Id\"" +
                 whereClause,
                 sqlParams.ToArray()));
         }

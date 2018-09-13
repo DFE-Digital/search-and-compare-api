@@ -47,8 +47,6 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
         List<Provider> SuggestProviders(string query);
         void SaveChanges();
-
-        void Save();
     }
 
 }
