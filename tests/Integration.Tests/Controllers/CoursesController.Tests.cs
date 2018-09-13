@@ -35,7 +35,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var courses = GetCourses(1);
             var result = subject.Index(courses);
 
-            Assert.IsNotNull(result);
+            AssertOkay(result);
         }
 
         [Test]
@@ -43,6 +43,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         {
             var courses = GetCourses(2);
             var result = subject.Index(courses);
+
+            AssertOkay(result);
 
             var resultingCourses = context.GetCoursesWithProviderSubjectsRouteAndCampuses()
                 .Include(x => x.DescriptionSections)
@@ -70,7 +72,10 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         public void ImportTwoCoursesTwice()
         {
             var result1 = subject.Index(GetCourses(20));
+            AssertOkay(result1);
+
             var result2 = subject.Index(GetCourses(2));
+            AssertOkay(result2);
 
             var resultingCourses = context.GetCoursesWithProviderSubjectsRouteAndCampuses().ToList();
             var resultingProviders = context.Providers.ToList();
@@ -94,7 +99,12 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         public void GeocodingIsPreservedAcrossImports()
         {
             // initial import
-            subject.Index(GetCourses(1));
+            var result = subject.Index(GetCourses(1));
+
+            AssertOkay(result);
+
+            Assert.AreNotEqual(51.0, context.Locations.Single().Latitude);
+            Assert.AreNotEqual(13.7, context.Locations.Single().Longitude);
 
             // set some coordinates
             context.Locations.Single().Latitude = 51.0;
@@ -109,6 +119,16 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             Assert.AreEqual(13.7, context.Locations.Single().Longitude);
         }
 
+        private void AssertOkay(IActionResult result)
+        {
+            Assert.IsNotNull(result);
+
+            var okResult  = result as OkResult;
+
+            Assert.IsNotNull(okResult);
+            Assert.AreEqual(200, okResult.StatusCode);
+        }
+
         private List<Course> GetCourses(int count)
         {
             var courses = new List<Course>();
@@ -119,13 +139,15 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
                 {
                     Name = "Name" + i,
                     ProviderId = 42,
-                    Provider = new Provider {
+                    Provider = new Provider
+                    {
                         Id = 24 + i,
                         Name = "Name",
                         ProviderCode = "ProviderCode"
                     },
 
-                    AccreditingProvider = new Provider {
+                    AccreditingProvider = new Provider
+                    {
                         Id = 124 + i,
                         Name = "Name (accrediting)",
                         ProviderCode = "ProviderCode"
