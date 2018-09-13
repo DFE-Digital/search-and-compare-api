@@ -30,6 +30,14 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         }
 
         [Test]
+        public void ImportNullCourse()
+        {
+            var result = subject.Index(null);
+
+            AssertBad(result);
+        }
+
+        [Test]
         public void ImportOneCourse()
         {
             var courses = GetCourses(1);
@@ -119,14 +127,24 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             Assert.AreEqual(13.7, context.Locations.Single().Longitude);
         }
 
+        private void AssertBad(IActionResult result)
+        {
+            AssertStatusCode(result, 400);
+        }
+
         private void AssertOkay(IActionResult result)
+        {
+            AssertStatusCode(result, 200);
+        }
+
+        private void AssertStatusCode(IActionResult result, int statusCode)
         {
             Assert.IsNotNull(result);
 
-            var okResult  = result as OkResult;
+            var statusCodeResult  = result as StatusCodeResult;
 
-            Assert.IsNotNull(okResult);
-            Assert.AreEqual(200, okResult.StatusCode);
+            Assert.IsNotNull(statusCodeResult);
+            Assert.AreEqual(statusCode, statusCodeResult.StatusCode);
         }
 
         private List<Course> GetCourses(int count)
