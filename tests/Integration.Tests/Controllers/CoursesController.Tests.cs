@@ -21,17 +21,16 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
     [TestFixture]
     public class CoursesControllerTests : CourseDbContextIntegrationBase
     {
-
         CoursesController subject;
 
         [SetUp]
-        public void Setup() 
+        public void Setup()
         {
             subject = new CoursesController(context);
         }
 
         [Test]
-        public void ImportOneCourse() 
+        public void ImportOneCourse()
         {
             var courses = GetCourses(1);
             var result = subject.Index(courses);
@@ -40,7 +39,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         }
 
         [Test]
-        public void ImportTwoCourses() 
+        public void ImportTwoCourses()
         {
             var courses = GetCourses(2);
             var result = subject.Index(courses);
@@ -51,11 +50,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             var resultingProviders = context.Providers.ToList();
 
-            // deduplicated             
+            // deduplicated
             Assert.AreEqual(1, resultingProviders.Count);
             Assert.AreEqual(1, context.Routes.Count());
-            Assert.AreEqual(1, context.Subjects.Count());            
-            Assert.AreEqual(1, context.Locations.Count());  
+            Assert.AreEqual(1, context.Subjects.Count());
+            Assert.AreEqual(1, context.Locations.Count());
 
             // non-deduplicated
             Assert.AreEqual(2, resultingCourses.Count);
@@ -76,19 +75,19 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var resultingCourses = context.GetCoursesWithProviderSubjectsRouteAndCampuses().ToList();
             var resultingProviders = context.Providers.ToList();
 
-            // deduplicated             
-            Assert.AreEqual(1, resultingProviders.Count);            
-            Assert.True(object.ReferenceEquals(resultingCourses[0].Provider, resultingCourses[1].Provider));            
+            // deduplicated
+            Assert.AreEqual(1, resultingProviders.Count);
+            Assert.True(object.ReferenceEquals(resultingCourses[0].Provider, resultingCourses[1].Provider));
             Assert.AreEqual(1, context.Routes.Count());
             Assert.AreEqual(1, context.Subjects.Count());
-            Assert.AreEqual(1, context.Locations.Count());  
+            Assert.AreEqual(1, context.Locations.Count());
 
             // non-deduplicated
             Assert.AreEqual(2, resultingCourses.Count);
             Assert.AreEqual(2, resultingCourses.SelectMany(x => x.DescriptionSections).Distinct().Count());
             Assert.AreEqual(4, context.Campuses.Count());
             Assert.AreEqual(2, context.CourseSubjects.Count());
-            Assert.AreEqual(2, context.Contacts.Count());            
+            Assert.AreEqual(2, context.Contacts.Count());
         }
 
         [Test]
@@ -116,7 +115,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             for (int i = 0; i < count; i++)
             {
-                var course = new Course 
+                var course = new Course
                 {
                     Name = "Name" + i,
                     ProviderId = 42,
@@ -133,7 +132,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
                     },
 
                     AgeRange = AgeRange.Secondary,
-                    Route = new Route 
+                    Route = new Route
                     {
                         Name = "Scitt",
                         IsSalaried = true
