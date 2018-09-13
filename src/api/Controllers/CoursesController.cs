@@ -79,7 +79,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 .Distinct()
                 .ToDictionary(x => x, x => new Location { Address = x });
 
-            var allExistingLocations = _context.Locations.ToList().ToLookup(x => x.Address).ToDictionary(x => x.Key, x => x.First());
+            var allExistingLocations = _context.Locations.ToList()
+                .ToLookup(x => x.Address)
+                .ToDictionary(x => x.Key, x => x.First());
 
             foreach(var course in courses)
             {
@@ -106,8 +108,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
         private static void MakeProvidersDistinctReferences(ref IList<Course> courses)
         {
-            var distinctProviders = courses.Select(x => x.Provider).Concat(courses.Select(x => x.AccreditingProvider))
-                                .Distinct().ToLookup(x => x.ProviderCode).ToDictionary(x => x.Key, x => x.First());
+            var distinctProviders = courses.Select(x => x.Provider)
+                .Concat(courses.Select(x => x.AccreditingProvider))
+                .Distinct()
+                .ToLookup(x => x.ProviderCode)
+                .ToDictionary(x => x.Key, x => x.First());
 
             foreach (var course in courses)
             {
@@ -115,6 +120,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 {
                     course.AccreditingProvider = distinctProviders[course.AccreditingProvider.ProviderCode];
                 }
+
                 course.Provider = distinctProviders[course.Provider.ProviderCode];
             }
         }
@@ -122,7 +128,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         private static void MakeRoutesDistinctReferences(ref IList<Course> courses)
         {
             var distinctRoutes = courses.Select(x => x.Route)
-                            .Distinct().ToLookup(x => x.Name).ToDictionary(x => x.Key, x => x.First());
+                .Distinct()
+                .ToLookup(x => x.Name)
+                .ToDictionary(x => x.Key, x => x.First());
 
             foreach (var course in courses)
             {
@@ -136,9 +144,14 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         private void MakeSubjectsDistinctReferences(ref IList<Course> courses)
         {
             var distinctSubjects = courses.SelectMany(x => x.CourseSubjects.Select(y => y.Subject))
-                            .Distinct().ToLookup(x => x.Name).ToDictionary(x => x.Key, x => x.First());
+                .Distinct()
+                .ToLookup(x => x.Name)
+                .ToDictionary(x => x.Key, x => x.First());
 
-            foreach (var courseSubject in courses.SelectMany(x => x.CourseSubjects).ToList())
+            var courseSubjects = courses.SelectMany(x => x.CourseSubjects)
+                .ToList();
+
+            foreach (var courseSubject in courseSubjects)
             {
                 courseSubject.Subject = distinctSubjects[courseSubject.Subject.Name];
             }
