@@ -1,6 +1,7 @@
 ﻿using System.Net.Http;
 using System.Reflection;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
+using GovUk.Education.SearchAndCompare.Api.Middleware;
 using GovUk.Education.SearchAndCompare.Api.Ucas;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -43,6 +44,15 @@ namespace GovUk.Education.SearchAndCompare.Api
             services.AddScoped<ICourseDbContext>(provider => provider.GetService<CourseDbContext>());
             services.AddScoped(provider => new HttpClient());
             services.AddTransient<IUcasUrlBuilder, UcasUrlBuilder>();
+
+            // No default auth method has been set here because each action must explicitly be decorated with
+            // ApiTokenAuthAttribute.
+            services.AddAuthentication()
+                .AddBearerTokenApiKey(options =>
+                {
+                    options.ApiKey = Configuration["api:key"];
+                });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

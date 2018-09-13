@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.ComponentModel.DataAnnotations;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
 using GovUk.Education.SearchAndCompare.Api.ListExtensions;
+using GovUk.Education.SearchAndCompare.Api.Middleware;
 using GovUk.Education.SearchAndCompare.Domain.Data;
 using GovUk.Education.SearchAndCompare.Domain.Filters;
 using GovUk.Education.SearchAndCompare.Domain.Filters.Enums;
@@ -28,6 +29,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         }
 
         [HttpPost]
+        [ApiTokenAuth]
         public IActionResult Index([FromBody]IList<Course> courses)
         {
             //
