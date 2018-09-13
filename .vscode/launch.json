@@ -38,6 +38,18 @@
             }
         },
         {
+            "name": ".NET Core Launch (Geocoder)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-geocoder",
+            // If you have changed target frameworks, make sure to update the program path.
+            "program": "${workspaceFolder}/src/geocoder/bin/Debug/netcoreapp2.0/SearchAndCompareGeocoder.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/geocoder",
+            "stopAtEntry": false,
+            "internalConsoleOptions": "openOnSessionStart",
+        },
+        {
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach",

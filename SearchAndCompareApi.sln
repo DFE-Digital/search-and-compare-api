@@ -8,6 +8,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SearchAndCompareApi", "src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SearchAndCompareDomain", "src\domain\SearchAndCompareDomain.csproj", "{B8FAC89F-C87D-4664-8757-803B6907240E}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SearchAndCompareGeocoder", "src\geocoder\SearchAndCompareGeocoder.csproj", "{B8FAC89F-C87D-4664-8757-803B6907240D}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SearchAndCompareApi.Tests", "tests\SearchAndCompareApi.Tests.csproj", "{A1371B3C-E6A9-4179-81D7-A895A6648CC7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{873456DB-6DFB-45EA-A00C-E596CC073E60}"

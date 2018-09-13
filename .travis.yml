@@ -28,3 +28,13 @@ deploy:
 - provider: script
   script: git fetch --unshallow && git push https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-prod-search-and-compare-api-app.scm.azurewebsites.net:443/bat-prod-search-and-compare-api-app.git HEAD:refs/heads/master
   on: production
+
+- provider: script
+  script: "./travis-deploy-geocoder.sh govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD bat-dev-search-and-compare-api-app"
+  on: master
+- provider: script
+  script: "./travis-deploy-geocoder.sh govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD bat-staging-search-and-compare-api-app"
+  on: staging
+- provider: script
+  script: "./travis-deploy-geocoder.sh govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD bat-prod-search-and-compare-api-app"
+  on: production

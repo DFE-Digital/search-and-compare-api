@@ -23,6 +23,8 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
         public DbSet<Campus> Campuses { get; set; }
 
+        public DbSet<Location> Locations { get; set; }
+
         public DbSet<Route> Routes { get; set; }
 
         public DbSet<FeeCaps> FeeCaps { get; set; }
@@ -68,6 +70,11 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
             modelBuilder.Entity<DefaultCourseDescriptionSection>();
 
             base.OnModelCreating(modelBuilder);
+        }
+
+        public void SaveChanges()
+        {
+            base.SaveChanges();
         }
 
         public IQueryable<Course> GetLocationFilteredCourses(double latitude, double longitude, double radiusInMeters)

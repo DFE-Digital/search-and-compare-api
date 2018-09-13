@@ -12,6 +12,16 @@
             "problemMatcher": "$msCompile"
         },
         {
+            "label": "build-geocoder",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/geocoder/SearchAndCompareGeocoder.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
             "label": "build-tests",
             "command": "dotnet",
             "type": "process",
