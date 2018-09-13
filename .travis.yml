@@ -10,7 +10,6 @@ env:
   - PG_USERNAME=postgres
   - PG_PASSWORD=
   - PG_DATABASE=travis_ci_test
-  # AZURE_WA_PASSWORD
   - secure: medztQFAUUW8pBWDVl4na4/wMKaN2cT0TzPDO+BHRAd8BVTB705qVd9R1SqjTuvIVOKZqSJ37w2BCMRFQrbXsbR2gRsUNC+4pcs3GIfHMPAGk4Ck301HEsg7LKNeY9Nae+4GDjbRq2+7SDbbdjfpdkQOf9L9e1WL0pqeC2a/VCvgPBCHLBrAJhBhO/xZlLfvR7gZ6CZmpC64OPW1YmnDYCReE5ZbIDJ5x64uDUfZIkM1QYsAXgRva0Nk/OLLJdnlKyMPxw3i61wQK/nCBpd1w6/zonM9x/Wr1FOg/CrHYFxh1gwiEharryjgHkPcu7I7HYqcEN9WaMBk8BQGPZxagOoBuJYnqNILas48K6pZM6XdNSy1z3OniYTtSupagpd7FiH408k86Gvd8C+sr8m228IxQa0qgQ3wCC7gjMTtWG+dznEDvufBdyUAW+t6XbqF17Lnu0e61uKrrbn60tOYK3gqlGBSGoNZu7Jz3GOk291BlkNB/5gJ1mcTdFqecJ9Alu+cgAVtvpSAN4Yr5KAxUuyvYZwYllcdqezdL54mMp7UBdPhQnprQObATOoMIS+RaUaI6gb/XnqhasQQ09t7QMoNkbFD5ioLzhQGweoB5sp8XumR+OOdeLVE30rEUwbpeLH+1320bBaLPEgibwtTgjmJY0035jTxQJtumP0rlco=
 before_script:
 - psql -c 'create database travis_ci_test;' -U postgres
@@ -20,21 +19,31 @@ services:
 - postgresql: '9.6'
 deploy:
 - provider: script
-  script: git fetch --unshallow && git push https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-dev-search-and-compare-api-app.scm.azurewebsites.net:443/bat-dev-search-and-compare-api-app.git HEAD:refs/heads/master
+  script: git fetch --unshallow && git push https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-dev-search-and-compare-api-app.scm.azurewebsites.net:443/bat-dev-search-and-compare-api-app.git
+    HEAD:refs/heads/master
   on: master
 - provider: script
-  script: git fetch --unshallow && git push https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-staging-search-and-compare-api-app.scm.azurewebsites.net:443/bat-staging-search-and-compare-api-app.git HEAD:refs/heads/master
+  script: git fetch --unshallow && git push https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-staging-search-and-compare-api-app.scm.azurewebsites.net:443/bat-staging-search-and-compare-api-app.git
+    HEAD:refs/heads/master
   on: staging
 - provider: script
-  script: git fetch --unshallow && git push https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-prod-search-and-compare-api-app.scm.azurewebsites.net:443/bat-prod-search-and-compare-api-app.git HEAD:refs/heads/master
+  script: git fetch --unshallow && git push https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-prod-search-and-compare-api-app.scm.azurewebsites.net:443/bat-prod-search-and-compare-api-app.git
+    HEAD:refs/heads/master
   on: production
-
 - provider: script
-  script: "./travis-deploy-geocoder.sh govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD bat-dev-search-and-compare-api-app"
+  script: "./travis-deploy-geocoder.sh govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD
+    bat-dev-search-and-compare-api-app"
   on: master
 - provider: script
-  script: "./travis-deploy-geocoder.sh govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD bat-staging-search-and-compare-api-app"
+  script: "./travis-deploy-geocoder.sh govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD
+    bat-staging-search-and-compare-api-app"
   on: staging
 - provider: script
-  script: "./travis-deploy-geocoder.sh govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD bat-prod-search-and-compare-api-app"
+  script: "./travis-deploy-geocoder.sh govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD
+    bat-prod-search-and-compare-api-app"
   on: production
+notifications:
+  slack:
+    secure: LV9uQYUL169TE5cC5TpdbWqnSrz9SU4eMUTe1aRrLD3V0F3iSOFe+tW1wzjBiqGnZLzSnEpa2jZDnBdDUVf7XDFsE2goivoYp0RAfR+PHrzU9Ov2GTgyf7zztF7lJ3gUkiKQSr/PWg4tVIsc6tJb7sXEMkpdXklw4USmcR6pwMSEh8C/Lf1/prRD0kTnWjMoH9ZieSi3r32QY5SKaOS9CN8sVC1bCe1mQE/oAKHuc3BgE4TaD9rZ5VENkuP8mR4RhHtPhB9AfTWlSVDezfq+luHdIy6xjs/QxizzjyK0nwkbEw18BP3n0rgO/FRa2B/w8zkOHDuLXqPD5NmgZg8AMTRwJsyCUE7lrI9xlj5PpjpIAOk7oIDNgn1MgxjAwfX7Ht6IHOUn2vpA7QyPUNZueFm194myq2qmAYGdgwPnx0lslQ2YaymzP5nUh82F1TbfEaw3cXZ2wXa7VXK2NxXccvTrhA/niHVZ7YAh3QlvJsj/9DrBGxMrtRLvdx4fdqt7AAvR9fYcWjzwcjGM9bH3Vz5frxOX9E+mpt9Y2k4EodcZ3MrfYTDTfxBygi1pI+DNirMQ02orLLS6P6rFXfyMcraAo1c1NyzvpROXuFejSm1oJKVljsFuDzReFpjS7fch8rBwfqdTFrOM7HMhC+eT3Bzun5kTOI2i9jJ1j+ReBKo=
+  on_success: change
+  on_failure: always
