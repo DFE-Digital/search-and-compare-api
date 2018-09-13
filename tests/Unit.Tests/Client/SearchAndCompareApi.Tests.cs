@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using GovUk.Education.SearchAndCompare.Domain.Client;
 using Moq;
 using NUnit.Framework;
@@ -35,6 +36,21 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
 
             Assert.AreEqual("My first course", result.Name);
             mockHttp.VerifyAll();
-        }             
+        }
+
+        [Test]
+        public async Task SaveCourses_CallsCorrectUrl()
+        {
+            mockHttp.Setup(x => x.PostAsync(It.Is<Uri>(y => y.AbsoluteUri == "https://api.example.com/courses"), It.IsAny<StringContent>())).ReturnsAsync(
+                new HttpResponseMessage() {
+                    StatusCode = HttpStatusCode.OK
+                }
+            ).Verifiable();
+
+            var result = await sut.SaveCoursesAsync(null);
+
+            Assert.IsTrue(result);
+            mockHttp.VerifyAll();
+        }
     }
 }

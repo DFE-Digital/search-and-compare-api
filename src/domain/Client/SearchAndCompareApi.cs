@@ -52,8 +52,6 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             return response.IsSuccessStatusCode;
         }
 
-
-
         public PaginatedList<Course> GetCourses(QueryFilter filter)
         {
             var queryUri = GetUri("/courses", filter);
