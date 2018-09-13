@@ -15,6 +15,7 @@ using NUnit;
 using GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseAccess;
 using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
+using FluentAssertions;
 
 namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controllers
 {
@@ -61,19 +62,19 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var resultingProviders = context.Providers.ToList();
 
             // deduplicated
-            Assert.AreEqual(1, resultingProviders.Count);
-            Assert.AreEqual(1, context.Routes.Count());
-            Assert.AreEqual(1, context.Subjects.Count());
-            Assert.AreEqual(1, context.Locations.Count());
+            resultingProviders.Count.Should().Be(1);
+            context.Routes.Count().Should().Be(1);
+            context.Subjects.Count().Should().Be(1);
+            context.Locations.Count().Should().Be(1);
 
             // non-deduplicated
-            Assert.AreEqual(2, resultingCourses.Count);
-            Assert.AreEqual(2, resultingCourses.SelectMany(x => x.DescriptionSections).Distinct().Count());
-            Assert.AreEqual(4, context.Campuses.Count());
-            Assert.AreEqual(2, context.CourseSubjects.Count());
-            Assert.AreEqual(2, context.Contacts.Count());
+            resultingCourses.Count.Should().Be(2);
+            resultingCourses.SelectMany(x => x.DescriptionSections).Distinct().Count().Should().Be(2);
+            context.Campuses.Count().Should().Be(4);
+            context.CourseSubjects.Count().Should().Be(2);
+            context.Contacts.Count().Should().Be(2);
 
-            Assert.True(object.ReferenceEquals(resultingCourses[0].Provider, resultingCourses[1].Provider));
+            object.ReferenceEquals(resultingCourses[0].Provider, resultingCourses[1].Provider).Should().BeTrue();
         }
 
         [Test]
@@ -89,18 +90,18 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var resultingProviders = context.Providers.ToList();
 
             // deduplicated
-            Assert.AreEqual(1, resultingProviders.Count);
-            Assert.True(object.ReferenceEquals(resultingCourses[0].Provider, resultingCourses[1].Provider));
-            Assert.AreEqual(1, context.Routes.Count());
-            Assert.AreEqual(1, context.Subjects.Count());
-            Assert.AreEqual(1, context.Locations.Count());
+            resultingProviders.Count.Should().Be(1);
+            context.Routes.Count().Should().Be(1);
+            context.Subjects.Count().Should().Be(1);
+            context.Locations.Count().Should().Be(1);            
+            object.ReferenceEquals(resultingCourses[0].Provider, resultingCourses[1].Provider).Should().BeTrue();
 
             // non-deduplicated
-            Assert.AreEqual(2, resultingCourses.Count);
-            Assert.AreEqual(2, resultingCourses.SelectMany(x => x.DescriptionSections).Distinct().Count());
-            Assert.AreEqual(4, context.Campuses.Count());
-            Assert.AreEqual(2, context.CourseSubjects.Count());
-            Assert.AreEqual(2, context.Contacts.Count());
+            resultingCourses.Count.Should().Be(2);
+            resultingCourses.SelectMany(x => x.DescriptionSections).Distinct().Count().Should().Be(2);
+            context.Campuses.Count().Should().Be(4);
+            context.CourseSubjects.Count().Should().Be(2);
+            context.Contacts.Count().Should().Be(2);
         }
 
         [Test]
@@ -111,8 +112,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             AssertOkay(result);
 
-            Assert.AreNotEqual(51.0, context.Locations.Single().Latitude);
-            Assert.AreNotEqual(13.7, context.Locations.Single().Longitude);
+            context.Locations.Single().Latitude.Should().NotBe(51.0);
+            context.Locations.Single().Longitude.Should().NotBe(13.7);
 
             // set some coordinates
             context.Locations.Single().Latitude = 51.0;
@@ -123,8 +124,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             subject.Index(GetCourses(1));
 
             // coordinates previously set are still there
-            Assert.AreEqual(51.0, context.Locations.Single().Latitude);
-            Assert.AreEqual(13.7, context.Locations.Single().Longitude);
+            context.Locations.Single().Latitude.Should().Be(51.0);
+            context.Locations.Single().Longitude.Should().Be(13.7);
         }
 
         private void AssertBad(IActionResult result)
@@ -139,12 +140,12 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
         private void AssertStatusCode(IActionResult result, int statusCode)
         {
-            Assert.IsNotNull(result);
+            result.Should().NotBeNull();
 
             var statusCodeResult  = result as StatusCodeResult;
 
-            Assert.IsNotNull(statusCodeResult);
-            Assert.AreEqual(statusCode, statusCodeResult.StatusCode);
+            statusCodeResult.Should().NotBeNull();
+            statusCodeResult.StatusCode.Should().Be(statusCode);
         }
 
         private List<Course> GetCourses(int count)

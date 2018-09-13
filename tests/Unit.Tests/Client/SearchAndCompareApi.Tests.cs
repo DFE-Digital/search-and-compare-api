@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using FluentAssertions;
 using GovUk.Education.SearchAndCompare.Domain.Client;
 using Moq;
 using NUnit.Framework;
@@ -34,7 +35,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
 
             var result = sut.GetCourse("XYZ", "1AB");
 
-            Assert.AreEqual("My first course", result.Name);
+            result.Name.Should().Be("My first course");
             mockHttp.VerifyAll();
         }
 
@@ -49,7 +50,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
 
             var result = await sut.SaveCoursesAsync(null);
 
-            Assert.IsTrue(result);
+            result.Should().BeTrue();
             mockHttp.VerifyAll();
         }
     }
