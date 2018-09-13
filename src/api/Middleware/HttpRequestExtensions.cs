@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace GovUk.Education.ManageCourses.Api.Middleware
+namespace GovUk.Education.SearchAndCompare.Api.Middleware
 {
     public static class HttpRequestExtensions
     {
