@@ -10,7 +10,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 using NJsonSchema;
+using NSwag;
 using NSwag.AspNetCore;
+using NSwag.SwaggerGeneration.Processors.Security;
 using Serilog;
 
 namespace GovUk.Education.SearchAndCompare.Api
@@ -92,6 +94,15 @@ namespace GovUk.Education.SearchAndCompare.Api
                     document.Info.Title = "Search API";
                     document.Info.Description = "An API for searching course data";
                 };
+                settings.GeneratorSettings.DocumentProcessors.Add(new SecurityDefinitionAppender(BearerTokenApiKeyDefaults.AuthenticationScheme, new SwaggerSecurityScheme
+                {
+                    Type = SwaggerSecuritySchemeType.ApiKey,
+                    Description = "In order to interactive with the api please input `Bearer {code}`",
+                    In = SwaggerSecurityApiKeyLocation.Header,
+                    Name = "Authorization"
+                }));
+
+                settings.GeneratorSettings.OperationProcessors.Add(new OperationSecurityScopeProcessor(BearerTokenApiKeyDefaults.AuthenticationScheme));
             });
 
             // for reading ucas site we need 1252 available
