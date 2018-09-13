@@ -72,6 +72,11 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
             base.OnModelCreating(modelBuilder);
         }
 
+        public void SaveChanges()
+        {
+            base.SaveChanges();
+        }
+
         public IQueryable<Course> GetLocationFilteredCourses(double latitude, double longitude, double radiusInMeters)
         {
             return ForListing(Courses.FromSql(@"
