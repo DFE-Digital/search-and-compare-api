@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
 using GovUk.Education.SearchAndCompare.Api.ListExtensions;
 using GovUk.Education.SearchAndCompare.Domain.Data;
@@ -34,31 +35,36 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             //   Match up subjects to an exisiting list (currently pulled from the list of distinct subjects in the importer)
             //   This includes matching those existing subjects to a subject-area and to subject-funding.
             //
-
-            try 
+            if(ModelState.IsValid && courses != null && courses.Any())
             {
-                _context.Campuses.RemoveRange(_context.Campuses);
-                _context.Courses.RemoveRange(_context.GetCoursesWithProviderSubjectsRouteAndCampuses());
-                _context.Providers.RemoveRange(_context.Providers);
-                _context.Contacts.RemoveRange(_context.Contacts);
-                _context.Routes.RemoveRange(_context.Routes); 
-                _context.Subjects.RemoveRange(_context.Subjects); // todo: remove this when subjects are reference data
+                try
+                {
+                    _context.Campuses.RemoveRange(_context.Campuses);
+                    _context.Courses.RemoveRange(_context.GetCoursesWithProviderSubjectsRouteAndCampuses());
+                    _context.Providers.RemoveRange(_context.Providers);
+                    _context.Contacts.RemoveRange(_context.Contacts);
+                    _context.Routes.RemoveRange(_context.Routes);
+                    _context.Subjects.RemoveRange(_context.Subjects); // todo: remove this when subjects are reference data
 
-                _context.Save();
+                    _context.Save();
 
-                MakeProvidersDistinctReferences(ref courses);
-                MakeRoutesDistinctReferences(ref courses);
-                MakeSubjectsDistinctReferences(ref courses); // todo: change when subjects are reference data
+                    MakeProvidersDistinctReferences(ref courses);
+                    MakeRoutesDistinctReferences(ref courses);
+                    MakeSubjectsDistinctReferences(ref courses); // todo: change when subjects are reference data
 
-                AssociateWithLocations(ref courses);
-                
-                _context.Courses.AddRange(courses);
-                _context.Save();
+                    AssociateWithLocations(ref courses);
 
-                return Ok();
+                    _context.Courses.AddRange(courses);
+                    _context.Save();
+
+                    return Ok();
+                }
+                catch(Exception)
+                {
+                    return BadRequest();
+                }
             }
-            catch(Exception)
-            {
+            else{
                 return BadRequest();
             }
         }
