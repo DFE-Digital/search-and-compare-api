@@ -9,6 +9,7 @@ using GovUk.Education.SearchAndCompare.Domain.Lists;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Text;
 
 namespace GovUk.Education.SearchAndCompare.Domain.Client
 {
@@ -34,6 +35,21 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             var queryUri = GetUri($"/courses/{providerCode}/{courseCode}");
 
             return GetObjects<Course>(queryUri);
+        }
+
+        public async Task<bool> SaveCoursesAsync(IList<Course> courses)
+        {
+            var queryUri = GetUri($"/courses");
+
+            var coursesJson = JsonConvert.SerializeObject(courses, new JsonSerializerSettings
+            {
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            });
+
+            var coursesStringContent = new StringContent(coursesJson, Encoding.UTF8, "application/json" );
+            var response = await _httpClient.PostAsync(queryUri, coursesStringContent);
+
+            return response.IsSuccessStatusCode;
         }
 
         public PaginatedList<Course> GetCourses(QueryFilter filter)

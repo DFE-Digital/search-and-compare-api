@@ -73,3 +73,27 @@ Serilog has been configured to spit logs out to both the console
 (for `dotnet run` testing & development locally) and Application Insights.
 
 Set the `APPINSIGHTS_INSTRUMENTATIONKEY` environment variable to tell Serilog the application insights key.
+
+## Importing/Publishing courses
+
+### Add the api key
+
+```bash
+# from .\src\api>
+dotnet user-secrets set api:key the-api-key
+```
+### Client consumption
+
+```csharp
+var httpClient = new HttpClient();
+httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", "the-api-key");
+
+var api = SearchAndCompareApi(httpClient, "http://localhost:5001");
+
+var courses = new List<Course>()
+{
+    // course1
+};
+bool result = api.SaveCoursesAsync(courses);
+```
+

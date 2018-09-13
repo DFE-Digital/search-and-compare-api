@@ -18,12 +18,14 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
         DbSet<Campus> Campuses { get; set; }
 
-        
+
         DbSet<Route> Routes { get; set; }
-        
+
         DbSet<FeeCaps> FeeCaps { get; set; }
 
         DbSet<CourseSubject> CourseSubjects { get; set; }
+
+        DbSet<Contact> Contacts { get; set; }
 
         DbSet<Location> Locations { get; set; }
 
@@ -40,7 +42,7 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
         IQueryable<Subject> GetSubjects();
 
         List<SubjectArea> GetOrderedSubjectsByArea();
-        
+
         List<FeeCaps> GetFeeCaps();
 
         List<Provider> SuggestProviders(string query);

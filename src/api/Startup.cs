@@ -1,6 +1,7 @@
 ﻿using System.Net.Http;
 using System.Reflection;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
+using GovUk.Education.SearchAndCompare.Api.Middleware;
 using GovUk.Education.SearchAndCompare.Api.Ucas;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -9,7 +10,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Serialization;
 using NJsonSchema;
+using NSwag;
 using NSwag.AspNetCore;
+using NSwag.SwaggerGeneration.Processors.Security;
 using Serilog;
 
 namespace GovUk.Education.SearchAndCompare.Api
@@ -43,6 +46,15 @@ namespace GovUk.Education.SearchAndCompare.Api
             services.AddScoped<ICourseDbContext>(provider => provider.GetService<CourseDbContext>());
             services.AddScoped(provider => new HttpClient());
             services.AddTransient<IUcasUrlBuilder, UcasUrlBuilder>();
+
+            // No default auth method has been set here because each action must explicitly be decorated with
+            // ApiTokenAuthAttribute.
+            services.AddAuthentication()
+                .AddBearerTokenApiKey(options =>
+                {
+                    options.ApiKey = Configuration["api:key"];
+                });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -82,6 +94,15 @@ namespace GovUk.Education.SearchAndCompare.Api
                     document.Info.Title = "Search API";
                     document.Info.Description = "An API for searching course data";
                 };
+                settings.GeneratorSettings.DocumentProcessors.Add(new SecurityDefinitionAppender(BearerTokenApiKeyDefaults.AuthenticationScheme, new SwaggerSecurityScheme
+                {
+                    Type = SwaggerSecuritySchemeType.ApiKey,
+                    Description = "In order to interactive with the api please input `Bearer {code}`",
+                    In = SwaggerSecurityApiKeyLocation.Header,
+                    Name = "Authorization"
+                }));
+
+                settings.GeneratorSettings.OperationProcessors.Add(new OperationSecurityScopeProcessor(BearerTokenApiKeyDefaults.AuthenticationScheme));
             });
 
             // for reading ucas site we need 1252 available
