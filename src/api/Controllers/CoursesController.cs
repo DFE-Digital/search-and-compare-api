@@ -69,94 +69,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             }
         }
 
-        private void AssociateWithLocations(ref IList<Course> courses)
-        {
-            var allAddressesAsLocations = new List<string>()
-                .Concat(courses.Select(x => x.ContactDetails?.Address))
-                .Concat(courses.SelectMany(x => x.Campuses.Select(y => y.Location?.Address)))
-                .Concat(courses.Select(x=>x.ProviderLocation?.Address))
-                .Where(x =>  !string.IsNullOrWhiteSpace(x))
-                .Distinct()
-                .ToDictionary(x => x, x => new Location { Address = x });
-
-            var allExistingLocations = _context.Locations.ToList()
-                .ToLookup(x => x.Address)
-                .ToDictionary(x => x.Key, x => x.First());
-
-            foreach(var course in courses)
-            {
-                var courseAddress = course.ProviderLocation?.Address ?? course.ContactDetails?.Address;
-
-                if (!string.IsNullOrWhiteSpace(courseAddress))
-                {
-                    course.ProviderLocation = allExistingLocations.TryGetValue(courseAddress, out Location existing)
-                        ? existing
-                        : allAddressesAsLocations[course.ProviderLocation.Address];
-                }
-
-                foreach (var campus in course.Campuses)
-                {
-                    if(!string.IsNullOrWhiteSpace(campus.Location?.Address))
-                    {
-                        campus.Location = allExistingLocations.TryGetValue(campus.Location?.Address, out Location existing)
-                        ? existing
-                        : allAddressesAsLocations[campus.Location?.Address];
-                    }
-                }
-            }
-        }
-
-        private static void MakeProvidersDistinctReferences(ref IList<Course> courses)
-        {
-            var distinctProviders = courses.Select(x => x.Provider)
-                .Concat(courses.Select(x => x.AccreditingProvider))
-                .Distinct()
-                .ToLookup(x => x.ProviderCode)
-                .ToDictionary(x => x.Key, x => x.First());
-
-            foreach (var course in courses)
-            {
-                if (course.AccreditingProvider != null)
-                {
-                    course.AccreditingProvider = distinctProviders[course.AccreditingProvider.ProviderCode];
-                }
-
-                course.Provider = distinctProviders[course.Provider.ProviderCode];
-            }
-        }
-
-        private static void MakeRoutesDistinctReferences(ref IList<Course> courses)
-        {
-            var distinctRoutes = courses.Select(x => x.Route)
-                .Distinct()
-                .ToLookup(x => x.Name)
-                .ToDictionary(x => x.Key, x => x.First());
-
-            foreach (var course in courses)
-            {
-                if (course.Route != null)
-                {
-                    course.Route = distinctRoutes[course.Route.Name];
-                }
-            }
-        }
-
-        private void MakeSubjectsDistinctReferences(ref IList<Course> courses)
-        {
-            var distinctSubjects = courses.SelectMany(x => x.CourseSubjects.Select(y => y.Subject))
-                .Distinct()
-                .ToLookup(x => x.Name)
-                .ToDictionary(x => x.Key, x => x.First());
-
-            var courseSubjects = courses.SelectMany(x => x.CourseSubjects)
-                .ToList();
-
-            foreach (var courseSubject in courseSubjects)
-            {
-                courseSubject.Subject = distinctSubjects[courseSubject.Subject.Name];
-            }
-        }
-
         [HttpGet("total")]
         public IActionResult GetCoursesTotal(QueryFilter filter)
         {
@@ -326,6 +238,94 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             }
 
             return courses;
+        }
+
+        private void AssociateWithLocations(ref IList<Course> courses)
+        {
+            var allAddressesAsLocations = new List<string>()
+                .Concat(courses.Select(x => x.ContactDetails?.Address))
+                .Concat(courses.SelectMany(x => x.Campuses.Select(y => y.Location?.Address)))
+                .Concat(courses.Select(x=>x.ProviderLocation?.Address))
+                .Where(x =>  !string.IsNullOrWhiteSpace(x))
+                .Distinct()
+                .ToDictionary(x => x, x => new Location { Address = x });
+
+            var allExistingLocations = _context.Locations.ToList()
+                .ToLookup(x => x.Address)
+                .ToDictionary(x => x.Key, x => x.First());
+
+            foreach(var course in courses)
+            {
+                var courseAddress = course.ProviderLocation?.Address ?? course.ContactDetails?.Address;
+
+                if (!string.IsNullOrWhiteSpace(courseAddress))
+                {
+                    course.ProviderLocation = allExistingLocations.TryGetValue(courseAddress, out Location existing)
+                        ? existing
+                        : allAddressesAsLocations[course.ProviderLocation.Address];
+                }
+
+                foreach (var campus in course.Campuses)
+                {
+                    if(!string.IsNullOrWhiteSpace(campus.Location?.Address))
+                    {
+                        campus.Location = allExistingLocations.TryGetValue(campus.Location?.Address, out Location existing)
+                        ? existing
+                        : allAddressesAsLocations[campus.Location?.Address];
+                    }
+                }
+            }
+        }
+
+        private static void MakeProvidersDistinctReferences(ref IList<Course> courses)
+        {
+            var distinctProviders = courses.Select(x => x.Provider)
+                .Concat(courses.Select(x => x.AccreditingProvider))
+                .Distinct()
+                .ToLookup(x => x.ProviderCode)
+                .ToDictionary(x => x.Key, x => x.First());
+
+            foreach (var course in courses)
+            {
+                if (course.AccreditingProvider != null)
+                {
+                    course.AccreditingProvider = distinctProviders[course.AccreditingProvider.ProviderCode];
+                }
+
+                course.Provider = distinctProviders[course.Provider.ProviderCode];
+            }
+        }
+
+        private static void MakeRoutesDistinctReferences(ref IList<Course> courses)
+        {
+            var distinctRoutes = courses.Select(x => x.Route)
+                .Distinct()
+                .ToLookup(x => x.Name)
+                .ToDictionary(x => x.Key, x => x.First());
+
+            foreach (var course in courses)
+            {
+                if (course.Route != null)
+                {
+                    course.Route = distinctRoutes[course.Route.Name];
+                }
+            }
+        }
+
+        private void MakeSubjectsDistinctReferences(ref IList<Course> courses)
+        {
+            var distinctSubjects = courses.SelectMany(x => x.CourseSubjects.Select(y => y.Subject))
+                .Distinct()
+                .ToLookup(x => x.Name)
+                .ToDictionary(x => x.Key, x => x.First());
+
+            var courseSubjects = courses.SelectMany(x => x.CourseSubjects)
+                .ToList();
+
+            foreach (var courseSubject in courseSubjects)
+            {
+                courseSubject.Subject = distinctSubjects[courseSubject.Subject.Name];
+            }
         }
     }
 }
