@@ -287,8 +287,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
         private static void MakeProvidersDistinctReferences(ref IList<Course> courses)
         {
-            var distinctProviders = courses.Select(x => x.Provider)
-                .Concat(courses.Select(x => x.AccreditingProvider))
+            var distinctProviders = courses.Where(x => x.Provider != null).Select(x => x.Provider)
+                .Concat(courses.Where(x => x.AccreditingProvider != null).Select(x => x.AccreditingProvider))
                 .Distinct()
                 .ToLookup(x => x.ProviderCode)
                 .ToDictionary(x => x.Key, x => x.First());
@@ -300,7 +300,10 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     course.AccreditingProvider = distinctProviders[course.AccreditingProvider.ProviderCode];
                 }
 
-                course.Provider = distinctProviders[course.Provider.ProviderCode];
+                if(course.Provider != null)
+                {
+                    course.Provider = distinctProviders[course.Provider.ProviderCode];
+                }
             }
         }
 
