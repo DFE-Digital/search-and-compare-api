@@ -335,7 +335,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
             var courseSubjects = courses.SelectMany(x => x.CourseSubjects)
                 .Select(x => {
-                    x.Subject.SubjectArea = subjectArea;
+
+                    x.Subject.SubjectArea = x.Subject.SubjectArea ?? subjectArea;
 
                     return x;
                     }
