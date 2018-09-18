@@ -207,6 +207,7 @@ LIMIT @limit",
                 .Include(course => course.ContactDetails)
                 .Include(course => course.ProviderLocation)
                 .Include(course => course.Route)
+                .Include(x => x.DescriptionSections)
                 .Include(course => course.Campuses)
                     .ThenInclude(campus => campus.Location);
         }
