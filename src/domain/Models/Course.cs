@@ -54,6 +54,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
 
         public Location ProviderLocation { get; set; }
 
+        [Newtonsoft.Json.JsonIgnore]
         public double? Distance { get; set; }
 
         [Newtonsoft.Json.JsonIgnore]
