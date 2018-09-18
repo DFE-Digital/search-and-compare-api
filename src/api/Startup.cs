@@ -41,6 +41,7 @@ namespace GovUk.Education.SearchAndCompare.Api
                 {
                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                     options.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects;
+                    options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Include;
                 }
             );
             services.AddScoped<ICourseDbContext>(provider => provider.GetService<CourseDbContext>());
