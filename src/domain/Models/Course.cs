@@ -10,6 +10,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
     [Table("course")]
     public class Course
     {
+        [Newtonsoft.Json.JsonIgnore]
         public int Id { get; set; }
 
         public string Name { get; set; }
@@ -18,10 +19,12 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
 
         public string ProviderCodeName { get; set; }
 
+        [Newtonsoft.Json.JsonIgnore]
         public int ProviderId { get; set; }
 
         public Provider Provider { get; set; }
 
+        [Newtonsoft.Json.JsonIgnore]
         public int? AccreditingProviderId { get; set; }
 
         public Provider AccreditingProvider { get; set; }
@@ -46,12 +49,14 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
 
         public Salary Salary { get; set; }
 
+        [Newtonsoft.Json.JsonIgnore]
         public int? ProviderLocationId { get; set; }
 
         public Location ProviderLocation { get; set; }
 
         public double? Distance { get; set; }
 
+        [Newtonsoft.Json.JsonIgnore]
         public int? ContactDetailsId { get; set; }
 
         public Contact ContactDetails { get; set; }

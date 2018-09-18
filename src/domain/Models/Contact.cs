@@ -5,6 +5,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
     [Table("contact")]
     public class Contact
     {
+                [Newtonsoft.Json.JsonIgnore]
         public int Id { get; set; }
 
         public string Phone { get; set; }
@@ -17,6 +18,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
 
         public string Address { get; set; }
 
+        [Newtonsoft.Json.JsonIgnore]
         public Course Course { get; set; }
     }
 }

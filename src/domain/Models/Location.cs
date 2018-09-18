@@ -11,6 +11,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
             LastGeocodedUtc = DateTime.MinValue;
         }
 
+        [Newtonsoft.Json.JsonIgnore]
         public int Id { get; set; }
 
         public string Address { get; set; }

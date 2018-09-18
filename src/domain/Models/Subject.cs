@@ -7,6 +7,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
     [Table("subject")]
     public class Subject
     {
+                [Newtonsoft.Json.JsonIgnore]
         public int Id { get; set; }
 
         public SubjectArea SubjectArea { get; set; }
