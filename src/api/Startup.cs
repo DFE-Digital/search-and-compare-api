@@ -3,6 +3,7 @@ using System.Reflection;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
 using GovUk.Education.SearchAndCompare.Api.Middleware;
 using GovUk.Education.SearchAndCompare.Api.Ucas;
+using GovUk.Education.SearchAndCompare.UI.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -78,6 +79,7 @@ namespace GovUk.Education.SearchAndCompare.Api
             {
                 app.UseExceptionHandler("/Home/Error");
                 app.UseStaticFiles();
+                app.SetSecurityHeaders();
             }
 
             app.UseMvc(routes => { });
