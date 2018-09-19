@@ -50,15 +50,14 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     _context.Providers.RemoveRange(_context.Providers);
                     _context.Contacts.RemoveRange(_context.Contacts);
                     _context.Routes.RemoveRange(_context.Routes);
-                    _context.Subjects.RemoveRange(_context.Subjects); // todo: remove this when subjects are reference data
 
                     _context.SaveChanges();
 
                     MakeProvidersDistinctReferences(ref courses);
                     MakeRoutesDistinctReferences(ref courses);
-                    MakeSubjectsDistinctReferences(ref courses); // todo: change when subjects are reference data
 
                     AssociateWithLocations(ref courses);
+                    AssociateWithSubjects(ref courses);
 
                     _context.Courses.AddRange(courses);
                     _context.SaveChanges();
@@ -284,6 +283,26 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 }
             }
         }
+        private void AssociateWithSubjects(ref IList<Course> courses)
+        {
+            var allSubjects = courses.SelectMany(x => x.CourseSubjects.Select(y => y.Subject.Name))
+                .Distinct()
+                .ToDictionary(x => x, x => new Subject { Name = x });
+            
+            var allExistingSubjects = _context.Subjects
+                .ToLookup(x => x.Name)
+                .ToDictionary(x => x.Key, x => x.First());
+
+            foreach (var c in courses)
+            {
+                foreach (var cSub in c.CourseSubjects)
+                {
+                    var subjectName = cSub.Subject.Name;
+                    cSub.Subject = allExistingSubjects.GetValueOrDefault(subjectName) ?? allSubjects.GetValueOrDefault(subjectName);
+                }
+            }
+        }
+
 
         private static void MakeProvidersDistinctReferences(ref IList<Course> courses)
         {
@@ -306,7 +325,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 }
             }
         }
-
+        
         private static void MakeRoutesDistinctReferences(ref IList<Course> courses)
         {
             var distinctRoutes = courses.Select(x => x.Route)
@@ -320,32 +339,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 {
                     course.Route = distinctRoutes[course.Route.Name];
                 }
-            }
-        }
-
-        private void MakeSubjectsDistinctReferences(ref IList<Course> courses)
-        {
-            var distinctSubjects = courses.SelectMany(x => x.CourseSubjects.Select(y => y.Subject))
-                .Distinct()
-                .ToLookup(x => x.Name)
-                .ToDictionary(x => x.Key, x => x.First());
-
-            // Hardcore it "Secondary" else whatever first
-            var subjectArea = _context.SubjectAreas.FirstOrDefault(x => x.Name == "Secondary") ?? _context.SubjectAreas.FirstOrDefault();
-
-            var courseSubjects = courses.SelectMany(x => x.CourseSubjects)
-                .Select(x => {
-
-                    x.Subject.SubjectArea = x.Subject.SubjectArea ?? subjectArea;
-
-                    return x;
-                    }
-                )
-                .ToList();
-
-            foreach (var courseSubject in courseSubjects)
-            {
-                courseSubject.Subject = distinctSubjects[courseSubject.Subject.Name];
             }
         }
     }
