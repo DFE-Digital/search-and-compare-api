@@ -330,7 +330,17 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 .ToLookup(x => x.Name)
                 .ToDictionary(x => x.Key, x => x.First());
 
+            // Hardcore it "Secondary" else whatever first
+            var subjectArea = _context.SubjectAreas.FirstOrDefault(x => x.Name == "Secondary") ?? _context.SubjectAreas.FirstOrDefault();
+
             var courseSubjects = courses.SelectMany(x => x.CourseSubjects)
+                .Select(x => {
+
+                    x.Subject.SubjectArea = x.Subject.SubjectArea ?? subjectArea;
+
+                    return x;
+                    }
+                )
                 .ToList();
 
             foreach (var courseSubject in courseSubjects)
