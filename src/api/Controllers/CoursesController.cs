@@ -66,6 +66,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 }
                 catch(Exception ex)
                 {
+                    // Note: notice that ef core dont respect id generation for some reason.
                     _logger.LogWarning(ex, "Failed to save the course");
 
                     return BadRequest();
@@ -255,11 +256,16 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 .Concat(courses.Select(x=>x.ProviderLocation?.Address))
                 .Where(x =>  !string.IsNullOrWhiteSpace(x))
                 .Distinct()
-                .ToDictionary(x => x, x => new Location { Address = x });
+                .ToDictionary(x => x, x => {
+                    var location = _context.Locations.FirstOrDefault(l => l.Address == x);
 
-            var allExistingLocations = _context.Locations.ToList()
-                .ToLookup(x => x.Address)
-                .ToDictionary(x => x.Key, x => x.First());
+                    if (location == null) {
+                        location = new Location { Address = x };
+                        _context.Locations.Add(location);
+                    }
+
+                    return location;
+                });
 
             foreach(var course in courses)
             {
@@ -267,18 +273,14 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
                 if (!string.IsNullOrWhiteSpace(courseAddress))
                 {
-                    course.ProviderLocation = allExistingLocations.TryGetValue(courseAddress, out Location existing)
-                        ? existing
-                        : allAddressesAsLocations[course.ProviderLocation.Address];
+                    course.ProviderLocation = allAddressesAsLocations[courseAddress];
                 }
 
                 foreach (var campus in course.Campuses)
                 {
                     if(!string.IsNullOrWhiteSpace(campus.Location?.Address))
                     {
-                        campus.Location = allExistingLocations.TryGetValue(campus.Location?.Address, out Location existing)
-                        ? existing
-                        : allAddressesAsLocations[campus.Location?.Address];
+                        campus.Location = allAddressesAsLocations[campus.Location?.Address];
                     }
                 }
             }
