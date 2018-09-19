@@ -153,17 +153,17 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             context.Subjects.Single().SubjectArea.Name.Should().Be("Primary");
         }
 
-        private void AssertBad(IActionResult result)
+        internal void AssertBad(IActionResult result)
         {
             AssertStatusCode(result, 400);
         }
 
-        private void AssertOkay(IActionResult result)
+        internal static void AssertOkay(IActionResult result)
         {
             AssertStatusCode(result, 200);
         }
 
-        private void AssertStatusCode(IActionResult result, int statusCode)
+        internal static void AssertStatusCode(IActionResult result, int statusCode)
         {
             result.Should().NotBeNull();
 
@@ -173,7 +173,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             statusCodeResult.StatusCode.Should().Be(statusCode);
         }
 
-        private List<Course> GetCourses(int count)
+        internal static List<Course> GetCourses(int count)
         {
             var courses = new List<Course>();
 
