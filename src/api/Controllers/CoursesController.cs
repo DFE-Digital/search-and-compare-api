@@ -250,6 +250,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
         private void AssociateWithLocations(ref IList<Course> courses)
         {
+            var existingLocations = _context.Locations.ToList();
+
             var allAddressesAsLocations = new List<string>()
                 .Concat(courses.Select(x => x.ContactDetails?.Address))
                 .Concat(courses.SelectMany(x => x.Campuses.Select(y => y.Location?.Address)))
@@ -257,7 +259,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 .Where(x =>  !string.IsNullOrWhiteSpace(x))
                 .Distinct()
                 .ToDictionary(x => x, x => {
-                    var location = _context.Locations.FirstOrDefault(l => l.Address == x);
+                    var location = existingLocations.FirstOrDefault(l => l.Address == x);
 
                     if (location == null) {
                         location = new Location { Address = x };
@@ -278,9 +280,10 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
                 foreach (var campus in course.Campuses)
                 {
-                    if(!string.IsNullOrWhiteSpace(campus.Location?.Address))
+                    var address = campus.Location?.Address;
+                    if(!string.IsNullOrWhiteSpace(address))
                     {
-                        campus.Location = allAddressesAsLocations[campus.Location?.Address];
+                        campus.Location = allAddressesAsLocations[address];
                     }
                 }
             }
@@ -290,7 +293,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             var allSubjects = courses.SelectMany(x => x.CourseSubjects.Select(y => y.Subject.Name))
                 .Distinct()
                 .ToDictionary(x => x, x => new Subject { Name = x });
-            
+
             var allExistingSubjects = _context.Subjects
                 .ToLookup(x => x.Name)
                 .ToDictionary(x => x.Key, x => x.First());
@@ -327,7 +330,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 }
             }
         }
-        
+
         private static void MakeRoutesDistinctReferences(ref IList<Course> courses)
         {
             var distinctRoutes = courses.Select(x => x.Route)
