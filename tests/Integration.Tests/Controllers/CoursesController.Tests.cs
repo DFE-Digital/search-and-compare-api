@@ -130,6 +130,29 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             context.Locations.Single().Longitude.Should().Be(13.7);
         }
 
+        [Test]
+        public void SubjectsArePreservedAcrossImports()
+        {
+            // initial import
+            var result = subject.Index(GetCourses(1));
+
+            AssertOkay(result);
+
+            // associate with a subject area
+            context.Subjects.Single().SubjectArea.Should().BeNull();
+            context.Subjects.Single().SubjectArea = new SubjectArea {
+                Name = "Primary"
+            };
+            context.SaveChanges();
+
+            // second import, with equivalent subject
+            subject.Index(GetCourses(1));
+
+            // subject area previously set is still there
+            context.Subjects.Single().SubjectArea.Should().NotBeNull();
+            context.Subjects.Single().SubjectArea.Name.Should().Be("Primary");
+        }
+
         private void AssertBad(IActionResult result)
         {
             AssertStatusCode(result, 400);
