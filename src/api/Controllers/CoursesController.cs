@@ -48,6 +48,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             {
                 try
                 {
+                    Preconditions(courses);
                     _context.Campuses.RemoveRange(_context.Campuses);
                     _context.Courses.RemoveRange(_context.GetCoursesWithProviderSubjectsRouteAndCampuses());
                     _context.Providers.RemoveRange(_context.Providers);
@@ -66,7 +67,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     _context.SaveChanges();
 
                     result = Ok();
-
                 }
                 catch(DbUpdateException ex)
                 {
@@ -289,13 +289,10 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
                 if(course.Campuses != null && course.Campuses.Any())
                 {
-                    var address = campus.Location?.Address;
-                    if(!string.IsNullOrWhiteSpace(address))
-                    {
-                        campus.Location = allAddressesAsLocations[address];
                     foreach (var campus in course.Campuses)
                     {
-                        if(!string.IsNullOrWhiteSpace(campus.Location?.Address))
+                        var address = campus.Location?.Address;
+                        if(!string.IsNullOrWhiteSpace(address))
                         {
                             campus.Location = allAddressesAsLocations[campus.Location?.Address];
                         }
@@ -303,26 +300,42 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 }
             }
         }
+
         private void AssociateWithSubjects(ref IList<Course> courses)
         {
-            var allSubjects = courses.SelectMany(x => x.CourseSubjects.Select(y => y.Subject.Name))
-                .Distinct()
-                .ToDictionary(x => x, x => new Subject { Name = x });
+            var allSubjectCourses = courses.Where(x => x.CourseSubjects != null && x.CourseSubjects.Any())
+                .SelectMany(x => x.CourseSubjects)
+                .Where(cs => cs.Subject != null) ?? new List<CourseSubject>();
 
-            var allExistingSubjects = _context.Subjects
+            var allSubjects = allSubjectCourses
+                    .Select(y => y.Subject) ??
+                new List<Subject>();
+
+            var allExistingSubjects = _context.Subjects.ToList();
+
+            var distinctSubjects = allSubjects
+                .Distinct()
+                .Select(x => {
+                    var subject = allExistingSubjects.FirstOrDefault(sub => sub.Name == x.Name) ?? x;
+                    return subject;})
                 .ToLookup(x => x.Name)
                 .ToDictionary(x => x.Key, x => x.First());
 
             foreach (var c in courses)
             {
-                foreach (var cSub in c.CourseSubjects)
+                if(c.CourseSubjects != null)
                 {
-                    var subjectName = cSub.Subject.Name;
-                    cSub.Subject = allExistingSubjects.GetValueOrDefault(subjectName) ?? allSubjects.GetValueOrDefault(subjectName);
+                    foreach (var cSub in c.CourseSubjects)
+                    {
+                        var subjectName = cSub.Subject?.Name;
+                        if(!string.IsNullOrWhiteSpace(subjectName))
+                        {
+                            cSub.Subject = distinctSubjects[subjectName];
+                        }
+                    }
                 }
             }
         }
-
 
         private static void MakeProvidersDistinctReferences(ref IList<Course> courses)
         {
@@ -369,37 +382,17 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             }
         }
 
-        private void MakeSubjectsDistinctReferences(ref IList<Course> courses)
+        private void Preconditions(IList<Course> courses)
         {
-            var allSubjectCourses = courses.Where(x => x.CourseSubjects != null && x.CourseSubjects.Any())
-                .SelectMany(x => x.CourseSubjects)
-                .Where(cs => cs.Subject != null) ?? new List<CourseSubject>();
+            var noProvider = courses.Any(x => x.Provider == null);
+            var noRoute = courses.Any(x => x.Route == null);
+            var badSubject = courses.Any(x => (x.CourseSubjects ?? new List<CourseSubject>()) .Any(cs => cs.Subject == null));
 
-            var allSubjects = allSubjectCourses
-
-                    .Select(y => y.Subject) ??
-                new List<Subject>();
-            var distinctSubjects = allSubjects
-                .Distinct()
-                .ToLookup(x => x.Name)
-                .ToDictionary(x => x.Key, x => x.First());
-
-            // Hardcore it "Secondary" else whatever first
-            var subjectArea = _context.SubjectAreas.FirstOrDefault(x => x.Name == "Secondary") ?? _context.SubjectAreas.FirstOrDefault();
-
-            var courseSubjects = allSubjectCourses
-                .Select(x => {
-
-                    x.Subject.SubjectArea = x.Subject.SubjectArea ?? subjectArea;
-
-                    return x;
-                    }
-                )
-                .ToList();
-
-            foreach (var courseSubject in courseSubjects)
+            // If this is true then its a no ops, as it will either throw DbUpdateException or InvalidOperationException.
+            if(noProvider || noRoute || badSubject)
             {
-                courseSubject.Subject = distinctSubjects[courseSubject.Subject.Name];
+                var reason = $"noProvider : {noProvider}, noRoute : {noRoute},  badSubject : {badSubject}";
+                throw new InvalidOperationException($"Failed precondition reason: [{reason}] ");
             }
         }
     }

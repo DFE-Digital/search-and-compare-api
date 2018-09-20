@@ -70,7 +70,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         }
 
         [Test]
-        public void ImportCourse_Null_Routes()
+        public void ImportCourse_Null_Route()
         {
             var courses = GetCourses(1);
             foreach (var item in courses)
@@ -132,6 +132,23 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             foreach (var item in courses)
             {
                 item.Campuses = null;
+            }
+
+            var result = subject.Index(courses);
+
+            AssertOkay(result);
+        }
+
+        [Test]
+        public void ImportCourse_Null_Campuses_Location()
+        {
+            var courses = GetCourses(1);
+            foreach (var item in courses)
+            {
+                item.Campuses = new List<Campus>()
+                {
+                    new Campus {Location = null}
+                };
             }
 
             var result = subject.Index(courses);
