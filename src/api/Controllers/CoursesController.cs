@@ -66,6 +66,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 }
                 catch(Exception ex)
                 {
+                    // Note: notice that ef core dont respect id generation for some reason.
                     _logger.LogWarning(ex, "Failed to save the course");
 
                     return BadRequest();
@@ -249,17 +250,24 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
         private void AssociateWithLocations(ref IList<Course> courses)
         {
+            var existingLocations = _context.Locations.ToList();
+
             var allAddressesAsLocations = new List<string>()
                 .Concat(courses.Select(x => x.ContactDetails?.Address))
                 .Concat(courses.SelectMany(x => x.Campuses.Select(y => y.Location?.Address)))
                 .Concat(courses.Select(x=>x.ProviderLocation?.Address))
                 .Where(x =>  !string.IsNullOrWhiteSpace(x))
                 .Distinct()
-                .ToDictionary(x => x, x => new Location { Address = x });
+                .ToDictionary(x => x, x => {
+                    var location = existingLocations.FirstOrDefault(l => l.Address == x);
 
-            var allExistingLocations = _context.Locations.ToList()
-                .ToLookup(x => x.Address)
-                .ToDictionary(x => x.Key, x => x.First());
+                    if (location == null) {
+                        location = new Location { Address = x };
+                        _context.Locations.Add(location);
+                    }
+
+                    return location;
+                });
 
             foreach(var course in courses)
             {
@@ -267,18 +275,15 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
                 if (!string.IsNullOrWhiteSpace(courseAddress))
                 {
-                    course.ProviderLocation = allExistingLocations.TryGetValue(courseAddress, out Location existing)
-                        ? existing
-                        : allAddressesAsLocations[course.ProviderLocation.Address];
+                    course.ProviderLocation = allAddressesAsLocations[courseAddress];
                 }
 
                 foreach (var campus in course.Campuses)
                 {
-                    if(!string.IsNullOrWhiteSpace(campus.Location?.Address))
+                    var address = campus.Location?.Address;
+                    if(!string.IsNullOrWhiteSpace(address))
                     {
-                        campus.Location = allExistingLocations.TryGetValue(campus.Location?.Address, out Location existing)
-                        ? existing
-                        : allAddressesAsLocations[campus.Location?.Address];
+                        campus.Location = allAddressesAsLocations[address];
                     }
                 }
             }
@@ -288,7 +293,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             var allSubjects = courses.SelectMany(x => x.CourseSubjects.Select(y => y.Subject.Name))
                 .Distinct()
                 .ToDictionary(x => x, x => new Subject { Name = x });
-            
+
             var allExistingSubjects = _context.Subjects
                 .ToLookup(x => x.Name)
                 .ToDictionary(x => x.Key, x => x.First());
@@ -325,7 +330,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 }
             }
         }
-        
+
         private static void MakeRoutesDistinctReferences(ref IList<Course> courses)
         {
             var distinctRoutes = courses.Select(x => x.Route)
