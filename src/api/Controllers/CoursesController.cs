@@ -12,9 +12,10 @@ using GovUk.Education.SearchAndCompare.Domain.Filters;
 using GovUk.Education.SearchAndCompare.Domain.Filters.Enums;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 using GovUk.Education.SearchAndCompare.Domain.Models.Enums;
+using GovUk.Education.SearchAndCompare.Domain.Models.Joins;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace GovUk.Education.SearchAndCompare.Api.Controllers
 {
@@ -41,6 +42,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             //   Match up subjects to an exisiting list (currently pulled from the list of distinct subjects in the importer)
             //   This includes matching those existing subjects to a subject-area and to subject-funding.
             //
+            IActionResult result = BadRequest();
+
             if(ModelState.IsValid && courses != null && courses.Any())
             {
                 try
@@ -62,19 +65,21 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     _context.Courses.AddRange(courses);
                     _context.SaveChanges();
 
-                    return Ok();
+                    result = Ok();
+
+                }
+                catch(DbUpdateException ex)
+                {
+                    _logger.LogWarning(ex, "Failed to save the course to database");
                 }
                 catch(Exception ex)
                 {
                     // Note: notice that ef core dont respect id generation for some reason.
                     _logger.LogWarning(ex, "Failed to save the course");
-
-                    return BadRequest();
                 }
             }
-            else{
-                return BadRequest();
-            }
+
+            return result;
         }
 
         [HttpGet("total")]
@@ -252,10 +257,14 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         {
             var existingLocations = _context.Locations.ToList();
 
-            var allAddressesAsLocations = new List<string>()
-                .Concat(courses.Select(x => x.ContactDetails?.Address))
-                .Concat(courses.SelectMany(x => x.Campuses.Select(y => y.Location?.Address)))
-                .Concat(courses.Select(x=>x.ProviderLocation?.Address))
+            var allContactDetailsAddresses = courses.Select(x => x.ContactDetails?.Address) ?? new List<string>();
+            var allCampusesAddresses = courses.Where(x => x.Campuses != null && x.Campuses.Any())
+                .SelectMany(x => x.Campuses.Select(y => y.Location?.Address)) ?? new List<string>();
+            var allProviderLocationAddresses = courses.Select(x=>x.ProviderLocation?.Address) ?? new List<string>();
+
+            var allAddressesAsLocations = allContactDetailsAddresses
+                .Concat(allCampusesAddresses)
+                .Concat(allProviderLocationAddresses)
                 .Where(x =>  !string.IsNullOrWhiteSpace(x))
                 .Distinct()
                 .ToDictionary(x => x, x => {
@@ -278,12 +287,18 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     course.ProviderLocation = allAddressesAsLocations[courseAddress];
                 }
 
-                foreach (var campus in course.Campuses)
+                if(course.Campuses != null && course.Campuses.Any())
                 {
                     var address = campus.Location?.Address;
                     if(!string.IsNullOrWhiteSpace(address))
                     {
                         campus.Location = allAddressesAsLocations[address];
+                    foreach (var campus in course.Campuses)
+                    {
+                        if(!string.IsNullOrWhiteSpace(campus.Location?.Address))
+                        {
+                            campus.Location = allAddressesAsLocations[campus.Location?.Address];
+                        }
                     }
                 }
             }
@@ -311,8 +326,13 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
         private static void MakeProvidersDistinctReferences(ref IList<Course> courses)
         {
-            var distinctProviders = courses.Where(x => x.Provider != null).Select(x => x.Provider)
-                .Concat(courses.Where(x => x.AccreditingProvider != null).Select(x => x.AccreditingProvider))
+            var coursesProviders = courses.Where(x => x.Provider != null)
+                    .Select(x => x.Provider) ?? new List<Provider>();
+            var accreditingProviders = courses.Where(x => x.AccreditingProvider != null)
+                    .Select(x => x.AccreditingProvider) ??  new List<Provider>();
+
+            var allProviders = coursesProviders.Concat(accreditingProviders);
+            var distinctProviders = allProviders
                 .Distinct()
                 .ToLookup(x => x.ProviderCode)
                 .ToDictionary(x => x.Key, x => x.First());
@@ -333,7 +353,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
         private static void MakeRoutesDistinctReferences(ref IList<Course> courses)
         {
-            var distinctRoutes = courses.Select(x => x.Route)
+            var allRoutes = courses.Where(x => x.Route != null)
+                .Select(x => x.Route) ?? new List<Route>();
+            var distinctRoutes = allRoutes
                 .Distinct()
                 .ToLookup(x => x.Name)
                 .ToDictionary(x => x.Key, x => x.First());
@@ -344,6 +366,40 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 {
                     course.Route = distinctRoutes[course.Route.Name];
                 }
+            }
+        }
+
+        private void MakeSubjectsDistinctReferences(ref IList<Course> courses)
+        {
+            var allSubjectCourses = courses.Where(x => x.CourseSubjects != null && x.CourseSubjects.Any())
+                .SelectMany(x => x.CourseSubjects)
+                .Where(cs => cs.Subject != null) ?? new List<CourseSubject>();
+
+            var allSubjects = allSubjectCourses
+
+                    .Select(y => y.Subject) ??
+                new List<Subject>();
+            var distinctSubjects = allSubjects
+                .Distinct()
+                .ToLookup(x => x.Name)
+                .ToDictionary(x => x.Key, x => x.First());
+
+            // Hardcore it "Secondary" else whatever first
+            var subjectArea = _context.SubjectAreas.FirstOrDefault(x => x.Name == "Secondary") ?? _context.SubjectAreas.FirstOrDefault();
+
+            var courseSubjects = allSubjectCourses
+                .Select(x => {
+
+                    x.Subject.SubjectArea = x.Subject.SubjectArea ?? subjectArea;
+
+                    return x;
+                    }
+                )
+                .ToList();
+
+            foreach (var courseSubject in courseSubjects)
+            {
+                courseSubject.Subject = distinctSubjects[courseSubject.Subject.Name];
             }
         }
     }

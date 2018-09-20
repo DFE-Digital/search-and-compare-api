@@ -41,6 +41,119 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         }
 
         [Test]
+        public void ImportCourse_Null_CourseSubjects()
+        {
+            var courses = GetCourses(1);
+            foreach (var item in courses)
+            {
+                item.CourseSubjects = null;
+            }
+
+            var result = subject.Index(courses);
+
+            AssertOkay(result);
+        }
+
+        [Test]
+        public void ImportCourse_Null_CourseSubjects_Subject()
+        {
+            var courses = GetCourses(1);
+            foreach (var item in courses)
+            {
+                item.CourseSubjects = new List<CourseSubject>(){
+                    new CourseSubject(){Subject = null}};
+            }
+
+            var result = subject.Index(courses);
+
+            AssertBad(result);
+        }
+
+        [Test]
+        public void ImportCourse_Null_Routes()
+        {
+            var courses = GetCourses(1);
+            foreach (var item in courses)
+            {
+                item.Route = null;
+            }
+
+            var result = subject.Index(courses);
+
+            AssertBad(result);
+        }
+
+        [Test]
+        public void ImportCourse_Null_Provider()
+        {
+            var courses = GetCourses(1);
+            foreach (var item in courses)
+            {
+                item.Provider = null;
+            }
+
+            var result = subject.Index(courses);
+
+            AssertBad(result);
+        }
+
+        [Test]
+        public void ImportCourse_Null_AccreditingProvider()
+        {
+            var courses = GetCourses(1);
+            foreach (var item in courses)
+            {
+                item.AccreditingProvider = null;
+            }
+
+            var result = subject.Index(courses);
+
+            AssertOkay(result);
+        }
+
+        [Test]
+        public void ImportCourse_Null_ContactDetails()
+        {
+            var courses = GetCourses(1);
+            foreach (var item in courses)
+            {
+                item.ContactDetails = null;
+            }
+
+            var result = subject.Index(courses);
+
+            AssertOkay(result);
+        }
+
+        [Test]
+        public void ImportCourse_Null_Campuses()
+        {
+            var courses = GetCourses(1);
+            foreach (var item in courses)
+            {
+                item.Campuses = null;
+            }
+
+            var result = subject.Index(courses);
+
+            AssertOkay(result);
+        }
+
+        [Test]
+        public void ImportCourse_Null_ProviderLocation()
+        {
+            var courses = GetCourses(1);
+            foreach (var item in courses)
+            {
+                item.ProviderLocation = null;
+            }
+
+            var result = subject.Index(courses);
+
+            AssertOkay(result);
+        }
+
+        [Test]
         public void ImportOneCourse()
         {
             var courses = GetCourses(1);
