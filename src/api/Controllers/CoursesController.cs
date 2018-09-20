@@ -260,9 +260,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         {
             var existingLocations = _context.Locations.ToList();
 
-            var allContactDetailsAddresses = courses.Select(x => x.ContactDetails?.Address) ?? new List<string>();
-            var allCampusesAddresses = courses.Where(x => x.Campuses != null && x.Campuses.Any())
-                .SelectMany(x => x.Campuses.Select(y => y.Location?.Address)) ?? new List<string>();
+            var allContactDetailsAddresses = courses.Where(x => !string.IsNullOrWhiteSpace(x.ContactDetails?.Address)).Select(x => x.ContactDetails?.Address) ?? new List<string>();
+            var allCampusesAddresses = courses
+                .SelectMany(x => x.Campuses.Select(y => y.Location.Address)) ?? new List<string>();
             var allProviderLocationAddresses = courses.Select(x=>x.ProviderLocation?.Address) ?? new List<string>();
 
             var allAddressesAsLocations = allContactDetailsAddresses
@@ -290,23 +290,17 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     course.ProviderLocation = allAddressesAsLocations[courseAddress];
                 }
 
-                if(course.Campuses != null && course.Campuses.Any())
+                foreach (var campus in course.Campuses)
                 {
-                    foreach (var campus in course.Campuses)
-                    {
-                        var address = campus.Location?.Address;
-                        if(!string.IsNullOrWhiteSpace(address))
-                        {
-                            campus.Location = allAddressesAsLocations[campus.Location?.Address];
-                        }
-                    }
+                    var address = campus.Location.Address;
+                    campus.Location = allAddressesAsLocations[address];
                 }
             }
         }
 
         private void AssociateWithSubjects(ref IList<Course> courses)
         {
-            var allSubjectCourses = courses.Where(x => x.CourseSubjects != null && x.CourseSubjects.Any())
+            var allSubjectCourses = courses
                 .SelectMany(x => x.CourseSubjects)
                 .Where(cs => cs.Subject != null) ?? new List<CourseSubject>();
 
@@ -326,23 +320,17 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
             foreach (var c in courses)
             {
-                if(c.CourseSubjects != null)
+                foreach (var cSub in c.CourseSubjects)
                 {
-                    foreach (var cSub in c.CourseSubjects)
-                    {
-                        var subjectName = cSub.Subject?.Name;
-                        if(!string.IsNullOrWhiteSpace(subjectName))
-                        {
-                            cSub.Subject = distinctSubjects[subjectName];
-                        }
-                    }
+                    var subjectName = cSub.Subject.Name;
+                    cSub.Subject = distinctSubjects[subjectName];
                 }
             }
         }
 
         private static void MakeProvidersDistinctReferences(ref IList<Course> courses)
         {
-            var coursesProviders = courses.Where(x => x.Provider != null)
+            var coursesProviders = courses
                     .Select(x => x.Provider) ?? new List<Provider>();
             var accreditingProviders = courses.Where(x => x.AccreditingProvider != null)
                     .Select(x => x.AccreditingProvider) ??  new List<Provider>();
@@ -360,10 +348,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     course.AccreditingProvider = distinctProviders[course.AccreditingProvider.ProviderCode];
                 }
 
-                if(course.Provider != null)
-                {
                     course.Provider = distinctProviders[course.Provider.ProviderCode];
-                }
             }
         }
 
@@ -387,14 +372,57 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
         private void Preconditions(IList<Course> courses)
         {
-            var noProvider = courses.Any(x => x.Provider == null);
-            var noRoute = courses.Any(x => x.Route == null);
-            var badSubject = courses.Any(x => (x.CourseSubjects ?? new List<CourseSubject>()) .Any(cs => cs.Subject == null));
+            var noProvider = courses.Any(x => x.Provider == null || string.IsNullOrWhiteSpace(x.Provider.ProviderCode));
+            var noRoute = courses.Any(x => x.Route == null || string.IsNullOrWhiteSpace(x.Route.Name));
+            var badSubject = courses.Any(x => {
+                var result = false;
+                var courseSubjects = (x.CourseSubjects ?? new List<CourseSubject>());
+
+                if(courseSubjects.Count() > 0)
+                {
+                    result = courseSubjects.Any(cs => cs.Subject == null || string.IsNullOrWhiteSpace(cs.Subject.Name) );
+                }
+
+                return result;
+            });
+
+            var badAccreditingProvider = courses.Any(x => {
+                var result = false;
+                if(x.AccreditingProvider != null) {
+                    result = string.IsNullOrWhiteSpace(x.AccreditingProvider.ProviderCode);
+                }
+                return result;
+            });
+
+            var badCampus = courses.Any(x => {
+                var result = true;
+                var campuses = (x.Campuses ?? new List<Campus>());
+
+                if(campuses.Count() > 0)
+                {
+                    result = campuses.Any(cs => cs.Location == null || string.IsNullOrWhiteSpace(cs.Location.Address) );
+                }
+
+                return result;
+            });
+
+            var badFeesOrSalary = courses.Any(x => {
+                var result = x.Fees == null && x.Salary == null;
+
+                return result;
+            });
+
+            var badProviderLocation = courses.Any(x => x.ProviderLocation == null || string.IsNullOrWhiteSpace(x.ProviderLocation.Address) );
+
+            var badContactDetails = courses.Any(x => {
+                var cd = x.ContactDetails;
+                return cd == null;
+            });
 
             // If this is true then its a no ops, as it will either throw DbUpdateException or InvalidOperationException.
-            if(noProvider || noRoute || badSubject)
+            if(noProvider || noRoute || badSubject || badAccreditingProvider || badCampus || badFeesOrSalary || badProviderLocation || badContactDetails)
             {
-                var reason = $"noProvider : {noProvider}, noRoute : {noRoute},  badSubject : {badSubject}";
+                var reason = $"noProvider: {noProvider}, noRoute: {noRoute},  badSubject: {badSubject}, badAccreditingProvider: {badAccreditingProvider}, badCampus: {badCampus}, badFeesOrSalary: {badFeesOrSalary}, badProviderLocation: {badProviderLocation}, badContactDetails: {badContactDetails}";
                 throw new InvalidOperationException($"Failed precondition reason: [{reason}] ");
             }
         }

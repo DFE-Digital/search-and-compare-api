@@ -51,7 +51,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             var result = subject.Index(courses);
 
-            AssertOkay(result);
+            AssertBad(result);
         }
 
         [Test]
@@ -98,6 +98,20 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         }
 
         [Test]
+        public void ImportCourse_Null_AccreditingProvider_ProviderCode()
+        {
+            var courses = GetCourses(1);
+            foreach (var item in courses)
+            {
+                item.AccreditingProvider.ProviderCode = null;
+            }
+
+            var result = subject.Index(courses);
+
+            AssertBad(result);
+        }
+
+        [Test]
         public void ImportCourse_Null_AccreditingProvider()
         {
             var courses = GetCourses(1);
@@ -122,7 +136,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             var result = subject.Index(courses);
 
-            AssertOkay(result);
+            AssertBad(result);
         }
 
         [Test]
@@ -136,7 +150,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             var result = subject.Index(courses);
 
-            AssertOkay(result);
+            AssertBad(result);
         }
 
         [Test]
@@ -153,7 +167,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             var result = subject.Index(courses);
 
-            AssertOkay(result);
+            AssertBad(result);
         }
 
         [Test]
@@ -167,7 +181,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             var result = subject.Index(courses);
 
-            AssertOkay(result);
+            AssertBad(result);
         }
 
         [Test]
@@ -311,29 +325,36 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             {
                 var course = new Course
                 {
+
                     Name = "Name" + i,
+                    // UnNeed
                     ProviderId = 42,
                     Provider = new Provider
                     {
+                        // UnNeed
                         Id = 24 + i,
                         Name = "Name",
                         ProviderCode = "ProviderCode"
                     },
 
+                    // UnNeed
                     AccreditingProvider = new Provider
                     {
+                        // UnNeed
                         Id = 124 + i,
                         Name = "Name (accrediting)",
                         ProviderCode = "ProviderCode"
                     },
 
                     AgeRange = AgeRange.Secondary,
+                    // Needed
                     Route = new Route
                     {
                         Name = "Scitt",
                         IsSalaried = true
                     },
 
+                    // need instance of at least zero unenriched
                     DescriptionSections = new Collection<CourseDescriptionSection>
                     {
                         new CourseDescriptionSection
@@ -343,6 +364,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
                         }
                     },
 
+                    // need instance of at least one
                     Campuses = new Collection<Campus>
                     {
                         new Campus
@@ -365,6 +387,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
                         }
                     },
 
+                    // need instance of at least one
+
                     CourseSubjects = new Collection<CourseSubject>
                     {
                         new CourseSubject
@@ -377,10 +401,15 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
                     },
 
                     IncludesPgce = IncludesPgce.No,
+
+                    // need fee or salary
                     Fees = new Fees(),
                     Salary = new Salary(),
+
+                    // need the full object
                     ContactDetails = new Contact(),
 
+                    // need the address part
                     ProviderLocation = new Location
                     {
                         Address = "Common location"
