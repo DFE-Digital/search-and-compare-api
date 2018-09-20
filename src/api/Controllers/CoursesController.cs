@@ -48,6 +48,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             {
                 try
                 {
+                    _logger.LogInformation($"Courses to import: {courses.Count()}" );
                     Preconditions(courses);
                     _context.Campuses.RemoveRange(_context.Campuses);
                     _context.Courses.RemoveRange(_context.GetCoursesWithProviderSubjectsRouteAndCampuses());
@@ -56,6 +57,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     _context.Routes.RemoveRange(_context.Routes);
 
                     _context.SaveChanges();
+                    _logger.LogInformation($"Existing Courses Removed");
 
                     MakeProvidersDistinctReferences(ref courses);
                     MakeRoutesDistinctReferences(ref courses);
@@ -67,6 +69,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     _context.SaveChanges();
 
                     result = Ok();
+                    _logger.LogInformation($"New Courses Added");
                 }
                 catch(DbUpdateException ex)
                 {
