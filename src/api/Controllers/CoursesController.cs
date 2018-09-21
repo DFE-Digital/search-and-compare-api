@@ -42,11 +42,13 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             //   Match up subjects to an exisiting list (currently pulled from the list of distinct subjects in the importer)
             //   This includes matching those existing subjects to a subject-area and to subject-funding.
             //
+            IActionResult result = BadRequest();
             if(ModelState.IsValid && course != null && course.Provider != null && providerCode == course.Provider.ProviderCode& courseCode == course.ProgrammeCode)
             {
                 try
                 {
                     IList<Course> courses = new List<Course> {course};
+                    Preconditions(courses);
                     MakeProvidersDistinctReferences(ref courses);
                     MakeRoutesDistinctReferences(ref courses);
 
@@ -59,28 +61,34 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     if(existingCourse == null)
                     {
                         _context.Courses.Add(itemToSave);
+                        _logger.LogInformation($"New Course added");
+
                     }
                     else
                     {
                         Map(existingCourse, ref course);
+                        _logger.LogInformation($"Updated existing Course");
                     }
 
 
                     _context.SaveChanges();
+                    _logger.LogInformation($"Save Course successfully");
 
-                    return Ok();
+                    result = Ok();
+
+                }
+                catch(DbUpdateException ex)
+                {
+                    _logger.LogWarning(ex, "Failed to save the courses to database");
                 }
                 catch(Exception ex)
                 {
                     // Note: notice that ef core dont respect id generation for some reason.
                     _logger.LogWarning(ex, "Failed to save the course");
-
-                    return BadRequest();
                 }
             }
-            else{
-                return BadRequest();
-            }
+
+            return result;
         }
 
         [HttpPost]
@@ -477,37 +485,35 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         }
         private static void Map(Course existingCourse, ref Course itemToSave)
         {
-
-existingCourse.Name = itemToSave.Name;
-existingCourse.ProgrammeCode = itemToSave.ProgrammeCode;
-existingCourse.ProviderCodeName = itemToSave.ProviderCodeName;
-// existingCourse.ProviderId = itemToSave.ProviderId;
-existingCourse.Provider = itemToSave.Provider;
-// existingCourse.AccreditingProviderId = itemToSave.AccreditingProviderId;
-existingCourse.AccreditingProvider = itemToSave.AccreditingProvider;
-existingCourse.AgeRange = itemToSave.AgeRange;
-// existingCourse.RouteId = itemToSave.RouteId;
-existingCourse.Route = itemToSave.Route;
-existingCourse.IncludesPgce = itemToSave.IncludesPgce;
-existingCourse.DescriptionSections = itemToSave.DescriptionSections;
-existingCourse.Campuses = itemToSave.Campuses;
-existingCourse.CourseSubjects = itemToSave.CourseSubjects;
-existingCourse.Fees = itemToSave.Fees;
-existingCourse.IsSalaried = itemToSave.IsSalaried;
-existingCourse.Salary = itemToSave.Salary;
-// existingCourse.ProviderLocationId = itemToSave.ProviderLocationId;
-existingCourse.ProviderLocation = itemToSave.ProviderLocation;
-existingCourse.Distance = itemToSave.Distance;
-// existingCourse.ContactDetailsId = itemToSave.ContactDetailsId;
-existingCourse.ContactDetails = itemToSave.ContactDetails;
-existingCourse.FullTime = itemToSave.FullTime;
-existingCourse.PartTime = itemToSave.PartTime;
-existingCourse.ApplicationsAcceptedFrom = itemToSave.ApplicationsAcceptedFrom;
-existingCourse.StartDate = itemToSave.StartDate;
-existingCourse.Duration = itemToSave.Duration;
-existingCourse.Mod = itemToSave.Mod;
-// itemToSave.Id = existingCourse.Id;
-//                          _context.Courses.Update(itemToSave);
+            existingCourse.Name = itemToSave.Name;
+            existingCourse.ProgrammeCode = itemToSave.ProgrammeCode;
+            existingCourse.ProviderCodeName = itemToSave.ProviderCodeName;
+            // existingCourse.ProviderId = itemToSave.ProviderId;
+            existingCourse.Provider = itemToSave.Provider;
+            // existingCourse.AccreditingProviderId = itemToSave.AccreditingProviderId;
+            existingCourse.AccreditingProvider = itemToSave.AccreditingProvider;
+            existingCourse.AgeRange = itemToSave.AgeRange;
+            // existingCourse.RouteId = itemToSave.RouteId;
+            existingCourse.Route = itemToSave.Route;
+            existingCourse.IncludesPgce = itemToSave.IncludesPgce;
+            existingCourse.DescriptionSections = itemToSave.DescriptionSections;
+            existingCourse.Campuses = itemToSave.Campuses;
+            existingCourse.CourseSubjects = itemToSave.CourseSubjects;
+            existingCourse.Fees = itemToSave.Fees;
+            existingCourse.IsSalaried = itemToSave.IsSalaried;
+            existingCourse.Salary = itemToSave.Salary;
+            // existingCourse.ProviderLocationId = itemToSave.ProviderLocationId;
+            existingCourse.ProviderLocation = itemToSave.ProviderLocation;
+            existingCourse.Distance = itemToSave.Distance;
+            // existingCourse.ContactDetailsId = itemToSave.ContactDetailsId;
+            existingCourse.ContactDetails = itemToSave.ContactDetails;
+            existingCourse.FullTime = itemToSave.FullTime;
+            existingCourse.PartTime = itemToSave.PartTime;
+            existingCourse.ApplicationsAcceptedFrom = itemToSave.ApplicationsAcceptedFrom;
+            existingCourse.StartDate = itemToSave.StartDate;
+            existingCourse.Duration = itemToSave.Duration;
+            existingCourse.Mod = itemToSave.Mod;
+            // itemToSave.Id = existingCourse.Id;
         }
     }
 }
