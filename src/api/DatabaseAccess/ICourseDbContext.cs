@@ -38,6 +38,7 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
         IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses();
 
         Task<Course> GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(string providerCode, string courseCode);
+        Task<Course> GetCourseWithProviderSubjectsRouteCampusesAsNoTracking(string providerCode, string courseCode);
 
         IQueryable<Subject> GetSubjects();
 
@@ -47,6 +48,9 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
         List<Provider> SuggestProviders(string query);
         void SaveChanges();
+
+        void Update(Course course);
+
     }
 
 }

@@ -11,6 +11,8 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
     {
         Course GetCourse(string providerCode, string courseCode);
 
+        Task<bool> SaveCourseAsync(Course courses);
+
         Task<bool> SaveCoursesAsync(IList<Course> courses);
 
         PaginatedList<Course> GetCourses(QueryFilter filter);

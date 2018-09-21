@@ -74,6 +74,11 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
             base.OnModelCreating(modelBuilder);
         }
 
+
+        public void Update(Course course)
+        {
+            base.Update(course);
+        }
         public void SaveChanges()
         {
             base.SaveChanges();
@@ -126,6 +131,14 @@ JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
         public IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses()
         {
             return GetCoursesWithProviderSubjectsRouteAndCampuses(null, null);
+        }
+
+        public async Task<Course> GetCourseWithProviderSubjectsRouteCampusesAsNoTracking(string providerCode, string courseCode)
+        {
+            var result = await GetCoursesWithProviderSubjectsRouteAndCampuses(providerCode, courseCode)
+                .AsNoTracking()
+                .FirstAsync();
+            return result;
         }
 
         public async Task<Course> GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(string providerCode, string courseCode)
