@@ -54,25 +54,12 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
                     AssociateWithLocations(ref courses);
                     AssociateWithSubjects(ref courses);
-
-                    var existingCourse = await _context.GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(providerCode, courseCode);
-
                     var itemToSave = courses.First();
-                    if(existingCourse == null)
-                    {
-                        _context.Courses.Add(itemToSave);
-                        _logger.LogInformation($"New Course added");
 
-                    }
-                    else
-                    {
-                        Map(existingCourse, ref course);
-                        _logger.LogInformation($"Updated existing Course");
-                    }
-
+                    await _context.AddOrUpdateCourse(itemToSave);
 
                     _context.SaveChanges();
-                    _logger.LogInformation($"Save Course successfully");
+                    _logger.LogInformation($"Added/Updated Course successfully");
 
                     result = Ok();
 
@@ -482,38 +469,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 var reason = $"noProvider: {noProvider}, noRoute: {noRoute},  badSubject: {badSubject}, badAccreditingProvider: {badAccreditingProvider}, badCampus: {badCampus}, badFeesOrSalary: {badFeesOrSalary}, badProviderLocation: {badProviderLocation}, badContactDetails: {badContactDetails}";
                 throw new InvalidOperationException($"Failed precondition reason: [{reason}] ");
             }
-        }
-        private static void Map(Course existingCourse, ref Course itemToSave)
-        {
-            existingCourse.Name = itemToSave.Name;
-            existingCourse.ProgrammeCode = itemToSave.ProgrammeCode;
-            existingCourse.ProviderCodeName = itemToSave.ProviderCodeName;
-            // existingCourse.ProviderId = itemToSave.ProviderId;
-            existingCourse.Provider = itemToSave.Provider;
-            // existingCourse.AccreditingProviderId = itemToSave.AccreditingProviderId;
-            existingCourse.AccreditingProvider = itemToSave.AccreditingProvider;
-            existingCourse.AgeRange = itemToSave.AgeRange;
-            // existingCourse.RouteId = itemToSave.RouteId;
-            existingCourse.Route = itemToSave.Route;
-            existingCourse.IncludesPgce = itemToSave.IncludesPgce;
-            existingCourse.DescriptionSections = itemToSave.DescriptionSections;
-            existingCourse.Campuses = itemToSave.Campuses;
-            existingCourse.CourseSubjects = itemToSave.CourseSubjects;
-            existingCourse.Fees = itemToSave.Fees;
-            existingCourse.IsSalaried = itemToSave.IsSalaried;
-            existingCourse.Salary = itemToSave.Salary;
-            // existingCourse.ProviderLocationId = itemToSave.ProviderLocationId;
-            existingCourse.ProviderLocation = itemToSave.ProviderLocation;
-            existingCourse.Distance = itemToSave.Distance;
-            // existingCourse.ContactDetailsId = itemToSave.ContactDetailsId;
-            existingCourse.ContactDetails = itemToSave.ContactDetails;
-            existingCourse.FullTime = itemToSave.FullTime;
-            existingCourse.PartTime = itemToSave.PartTime;
-            existingCourse.ApplicationsAcceptedFrom = itemToSave.ApplicationsAcceptedFrom;
-            existingCourse.StartDate = itemToSave.StartDate;
-            existingCourse.Duration = itemToSave.Duration;
-            existingCourse.Mod = itemToSave.Mod;
-            // itemToSave.Id = existingCourse.Id;
         }
     }
 }

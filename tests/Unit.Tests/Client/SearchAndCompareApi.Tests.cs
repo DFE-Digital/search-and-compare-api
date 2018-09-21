@@ -53,5 +53,20 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
             result.Should().BeTrue();
             mockHttp.VerifyAll();
         }
+
+        [Test]
+        public async Task SaveCourse_CallsCorrectUrl()
+        {
+            mockHttp.Setup(x => x.PostAsync(It.Is<Uri>(y => y.AbsoluteUri == "https://api.example.com/courses/ProviderCode/ProgrammeCode"), It.IsAny<StringContent>())).ReturnsAsync(
+                new HttpResponseMessage() {
+                    StatusCode = HttpStatusCode.OK
+                }
+            ).Verifiable();
+
+            var result = await sut.SaveCourseAsync(new Domain.Models.Course(){ProgrammeCode = "ProgrammeCode", Provider = new Domain.Models.Provider {ProviderCode = "ProviderCode"}});
+
+            result.Should().BeTrue();
+            mockHttp.VerifyAll();
+        }
     }
 }

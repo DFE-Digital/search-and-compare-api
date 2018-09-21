@@ -44,7 +44,9 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
 
         public async Task<bool> SaveCourseAsync(Course course)
         {
-            var queryUri = GetUri($"/courses");
+            var programmeCode = course.ProgrammeCode;
+            var providerCode = course.Provider.ProviderCode;
+            var queryUri = GetUri($"/courses/{providerCode}/{programmeCode}");
 
             var courseJson = JsonConvert.SerializeObject(course, _serializerSettings);
 
