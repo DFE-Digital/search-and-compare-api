@@ -43,7 +43,7 @@
             "request": "launch",
             "preLaunchTask": "build-geocoder",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/geocoder/bin/Debug/netcoreapp2.0/SearchAndCompareGeocoder.dll",
+            "program": "${workspaceFolder}/src/geocoder/bin/Debug/netcoreapp2.1/SearchAndCompareGeocoder.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/geocoder",
             "stopAtEntry": false,
