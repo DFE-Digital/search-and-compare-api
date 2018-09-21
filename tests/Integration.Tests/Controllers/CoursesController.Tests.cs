@@ -126,6 +126,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         }
 
         [Test]
+        [Ignore("Need Clarification")]
         public void ImportCourse_Null_ContactDetails()
         {
             var courses = GetCourses(1);

@@ -394,17 +394,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 return result;
             });
 
-            var badCampus = false;//courses.Any(x => {
-            //     var result = true;
-            //     var campuses = (x.Campuses ?? new List<Campus>());
-
-            //     if(campuses.Count() > 0)
-            //     {
-            //         result = campuses.Any(cs => cs.Location == null || string.IsNullOrWhiteSpace(cs.Location.Address) );
-            //     }
-
-            //     return result;
-            // });
+            var badCampus = courses.Any(x => {
+                return x.Campuses == null;
+            });
 
             var badFeesOrSalary = courses.Any(x => {
                 var result = x.Fees == null && x.Salary == null;
