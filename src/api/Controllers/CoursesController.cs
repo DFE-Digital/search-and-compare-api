@@ -85,6 +85,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
         [HttpPost]
         [ApiTokenAuth]
+        [RequestSizeLimit(1_000_000_000)]
         public IActionResult Index([FromBody]IList<Course> courses)
         {
             //
@@ -99,7 +100,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 try
                 {
                     _logger.LogInformation($"Courses to import: {courses.Count()}" );
-                    Preconditions(courses);
+                    Preconditions(courses);                    
                     _context.Campuses.RemoveRange(_context.Campuses);
                     _context.Courses.RemoveRange(_context.GetCoursesWithProviderSubjectsRouteAndCampuses());
                     _context.Providers.RemoveRange(_context.Providers);
@@ -112,9 +113,12 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     MakeProvidersDistinctReferences(ref courses);
                     MakeRoutesDistinctReferences(ref courses);
 
+                    // these methods may add new locations/subjects. We need to save these changes before adding courses
+                    // otherwise we will end up with a PK constraint exception
                     AssociateWithLocations(ref courses);
                     AssociateWithSubjects(ref courses);
-
+                    _context.SaveChanges();
+                    
                     _context.Courses.AddRange(courses);
                     _context.SaveChanges();
 
@@ -339,11 +343,22 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 {
                     course.ProviderLocation = allAddressesAsLocations[courseAddress];
                 }
+                else
+                {
+                    course.ProviderLocation = null;
+                }
 
                 foreach (var campus in course.Campuses)
                 {
                     var address = campus.Location.Address;
-                    campus.Location = allAddressesAsLocations[address];
+                    if (!string.IsNullOrWhiteSpace(address))
+                    {                    
+                        campus.Location = allAddressesAsLocations[address];
+                    }
+                    else
+                    {
+                        campus.Location = null;
+                    }
                 }
             }
         }
@@ -360,13 +375,21 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
             var allExistingSubjects = _context.Subjects.ToList();
 
+            var defaultAreaOrNull = _context.SubjectAreas.FirstOrDefault(x => x.Name == "Secondary")
+                ?? _context.SubjectAreas.FirstOrDefault(); 
+
             var distinctSubjects = allSubjects
-                .Distinct()
-                .Select(x => {
-                    var subject = allExistingSubjects.FirstOrDefault(sub => sub.Name == x.Name) ?? x;
-                    return subject;})
                 .ToLookup(x => x.Name)
-                .ToDictionary(x => x.Key, x => x.First());
+                .ToDictionary(x => x.Key, x => {
+                    var subject = allExistingSubjects.FirstOrDefault(s => s.Name == x.Key);
+
+                    if (subject == null) {
+                        subject = new Subject { Name = x.Key, SubjectArea = defaultAreaOrNull };
+                        _context.Subjects.Add(subject);
+                    }
+
+                    return subject;
+                });
 
             foreach (var c in courses)
             {
@@ -461,7 +484,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 return result;
             });
 
-            var badProviderLocation = courses.Any(x => x.ProviderLocation == null || string.IsNullOrWhiteSpace(x.ProviderLocation.Address) );
+            var badProviderLocation = false; //courses.Any(x => x.ProviderLocation == null || string.IsNullOrWhiteSpace(x.ProviderLocation.Address) );
 
             var badContactDetails = false;//courses.Any(x => {
             //     var cd = x.ContactDetails;
