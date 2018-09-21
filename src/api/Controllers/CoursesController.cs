@@ -394,17 +394,17 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 return result;
             });
 
-            var badCampus = courses.Any(x => {
-                var result = true;
-                var campuses = (x.Campuses ?? new List<Campus>());
+            var badCampus = false;//courses.Any(x => {
+            //     var result = true;
+            //     var campuses = (x.Campuses ?? new List<Campus>());
 
-                if(campuses.Count() > 0)
-                {
-                    result = campuses.Any(cs => cs.Location == null || string.IsNullOrWhiteSpace(cs.Location.Address) );
-                }
+            //     if(campuses.Count() > 0)
+            //     {
+            //         result = campuses.Any(cs => cs.Location == null || string.IsNullOrWhiteSpace(cs.Location.Address) );
+            //     }
 
-                return result;
-            });
+            //     return result;
+            // });
 
             var badFeesOrSalary = courses.Any(x => {
                 var result = x.Fees == null && x.Salary == null;
@@ -414,10 +414,10 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
             var badProviderLocation = courses.Any(x => x.ProviderLocation == null || string.IsNullOrWhiteSpace(x.ProviderLocation.Address) );
 
-            var badContactDetails = courses.Any(x => {
-                var cd = x.ContactDetails;
-                return cd == null;
-            });
+            var badContactDetails = false;//courses.Any(x => {
+            //     var cd = x.ContactDetails;
+            //     return cd == null;
+            // });
 
             // If this is true then its a no ops, as it will either throw DbUpdateException or InvalidOperationException.
             if(noProvider || noRoute || badSubject || badAccreditingProvider || badCampus || badFeesOrSalary || badProviderLocation || badContactDetails)
