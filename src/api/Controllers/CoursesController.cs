@@ -43,7 +43,12 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             //   This includes matching those existing subjects to a subject-area and to subject-funding.
             //
             IActionResult result = BadRequest();
-            if(ModelState.IsValid && course != null && course.Provider != null && providerCode == course.Provider.ProviderCode& courseCode == course.ProgrammeCode)
+
+            if(ModelState.IsValid &&
+                course != null &&
+                course.Provider != null &&
+                providerCode == course.Provider.ProviderCode &&
+                courseCode == course.ProgrammeCode)
             {
                 try
                 {
