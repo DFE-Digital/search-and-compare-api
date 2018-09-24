@@ -75,7 +75,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
         ///     Route.Name
         ///     At least a Subject in CourseSubjects
         ///     An AccreditingProvider.ProviderCode if AccreditingProvider is provided
-        ///     A valid Location in Campuses if provided
+        ///     A empty list of Campuses or A valid Location in Campuses if provided
         ///     At least a Fee or a Salary
         /// </summary>
         /// <returns>

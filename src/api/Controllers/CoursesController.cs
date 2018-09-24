@@ -46,7 +46,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
             if(ModelState.IsValid &&
                 course != null &&
-                course.IsValid(false) == false)
+                course.IsValid(false) &&
+                providerCode.Equals(course.Provider.ProviderCode, StringComparison.InvariantCultureIgnoreCase))
             {
                 try
                 {
@@ -94,7 +95,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
             if(ModelState.IsValid &&
                 courses != null &&
-                courses.Any(x => x.IsValid(false) == false))
+                courses.All(x => x.IsValid(false)))
             {
                 try
                 {
@@ -310,7 +311,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
             var allContactDetailsAddresses = courses.Where(x => !string.IsNullOrWhiteSpace(x.ContactDetails?.Address)).Select(x => x.ContactDetails?.Address) ?? new List<string>();
             var allCampusesAddresses = courses
-                .SelectMany(x => x.Campuses.Select(y => y.Location.Address)) ?? new List<string>();
+                .SelectMany(x => (x.Campuses ?? new List<Campus>()).Select(y => y.Location.Address)) ?? new List<string>();
             var allProviderLocationAddresses = courses.Select(x=>x.ProviderLocation?.Address) ?? new List<string>();
 
             var allAddressesAsLocations = allContactDetailsAddresses

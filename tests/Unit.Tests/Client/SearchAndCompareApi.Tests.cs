@@ -51,7 +51,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
                 }
             ).Verifiable();
 
-            var result = await sut.SaveCoursesAsync(new List<Course>());
+            var course = CoursesControllerTests.GetCourse(1);
+            var result = await sut.SaveCoursesAsync(new List<Course>(){course});
 
             result.Should().BeTrue();
             mockHttp.VerifyAll();
@@ -60,13 +61,17 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
         [Test]
         public async Task SaveCourse_CallsCorrectUrl()
         {
-            mockHttp.Setup(x => x.PostAsync(It.Is<Uri>(y => y.AbsoluteUri == "https://api.example.com/courses/ProviderCode/ProgrammeCode"), It.IsAny<StringContent>())).ReturnsAsync(
+            var course = CoursesControllerTests.GetCourse(1);
+
+            var providerCode = course.Provider.ProviderCode;
+            var programmeCode = course.ProgrammeCode;
+
+            mockHttp.Setup(x => x.PostAsync(It.Is<Uri>(y => y.AbsoluteUri == $"https://api.example.com/courses/{providerCode}/{programmeCode}"), It.IsAny<StringContent>())).ReturnsAsync(
                 new HttpResponseMessage() {
                     StatusCode = HttpStatusCode.OK
                 }
             ).Verifiable();
 
-            var course = CoursesControllerTests.GetCourse(1);
             course.IsValid(false).Should().BeTrue();
             var result = await sut.SaveCourseAsync(course);
 

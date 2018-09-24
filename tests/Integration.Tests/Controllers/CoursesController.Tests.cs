@@ -124,7 +124,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             var result = subject.Index(courses);
-            courses.Any(x => x.IsValid(false)).Should().BeTrue();
+            courses.All(x => x.IsValid(false)).Should().BeTrue();
 
 
             AssertOkay(result);
@@ -193,7 +193,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             var result = subject.Index(courses);
 
-            courses.Any(x => x.IsValid(false)).Should().BeTrue();
+            courses.All(x => x.IsValid(false)).Should().BeTrue();
 
             AssertOkay(result);
         }
@@ -204,7 +204,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var courses = GetCourses(1);
             var result = subject.Index(courses);
 
-            courses.Any(x => x.IsValid(false)).Should().BeTrue();
+            courses.All(x => x.IsValid(false)).Should().BeTrue();
             AssertOkay(result);
         }
 

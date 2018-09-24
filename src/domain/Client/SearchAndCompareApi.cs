@@ -66,7 +66,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
 
         public async Task<bool> SaveCoursesAsync(IList<Course> courses)
         {
-            var result = courses.Any(c => c.IsValid(false) == false);
+            var result = courses.All(c => c.IsValid(false));
 
             if(result)
             {
