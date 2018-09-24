@@ -9,7 +9,7 @@ echo "running dotnet publish..."
 dotnet publish src/geocoder --configuration Release
 
 echo "creating zip..."
-zip $deployZip -r src/geocoder/bin/Release/netcoreapp2.0/publish
+zip $deployZip -r src/geocoder/bin/Release/netcoreapp2.1/publish
 
 echo "uploading to azure WebJob..."
 curl -X PUT -u "$1" --data-binary @$deployZip --header "Content-Type: application/zip" --header "Content-Disposition: attachment; filename=$deployZip" https://$2.scm.azurewebsites.net/api/triggeredwebjobs/geocoder/
