@@ -33,6 +33,56 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             _logger = logger;
         }
 
+        [HttpPost("{providerCode}/{courseCode}")]
+        [ApiTokenAuth]
+        public async Task<IActionResult> SaveCourse(string providerCode, string courseCode, [FromBody]Course course)
+        {
+            //
+            // TODO:
+            //   Match up subjects to an exisiting list (currently pulled from the list of distinct subjects in the importer)
+            //   This includes matching those existing subjects to a subject-area and to subject-funding.
+            //
+            IActionResult result = BadRequest();
+
+            if(ModelState.IsValid &&
+                course != null &&
+                course.Provider != null &&
+                providerCode == course.Provider.ProviderCode &&
+                courseCode == course.ProgrammeCode)
+            {
+                try
+                {
+                    IList<Course> courses = new List<Course> {course};
+                    Preconditions(courses);
+                    MakeProvidersDistinctReferences(ref courses);
+                    MakeRoutesDistinctReferences(ref courses);
+
+                    AssociateWithLocations(ref courses);
+                    AssociateWithSubjects(ref courses);
+                    var itemToSave = courses.First();
+
+                    await _context.AddOrUpdateCourse(itemToSave);
+
+                    _context.SaveChanges();
+                    _logger.LogInformation($"Added/Updated Course successfully");
+
+                    result = Ok();
+
+                }
+                catch(DbUpdateException ex)
+                {
+                    _logger.LogWarning(ex, "Failed to save the courses to database");
+                }
+                catch(Exception ex)
+                {
+                    // Note: notice that ef core dont respect id generation for some reason.
+                    _logger.LogWarning(ex, "Failed to save the course");
+                }
+            }
+
+            return result;
+        }
+
         [HttpPost]
         [ApiTokenAuth]
         public IActionResult Index([FromBody]IList<Course> courses)
@@ -73,12 +123,12 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 }
                 catch(DbUpdateException ex)
                 {
-                    _logger.LogWarning(ex, "Failed to save the course to database");
+                    _logger.LogWarning(ex, "Failed to save the courses to database");
                 }
                 catch(Exception ex)
                 {
                     // Note: notice that ef core dont respect id generation for some reason.
-                    _logger.LogWarning(ex, "Failed to save the course");
+                    _logger.LogWarning(ex, "Failed to save the courses");
                 }
             }
 
@@ -328,7 +378,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             }
         }
 
-        private static void MakeProvidersDistinctReferences(ref IList<Course> courses)
+        private void MakeProvidersDistinctReferences(ref IList<Course> courses)
         {
             var coursesProviders = courses
                     .Select(x => x.Provider) ?? new List<Provider>();
@@ -341,22 +391,29 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 .ToLookup(x => x.ProviderCode)
                 .ToDictionary(x => x.Key, x => x.First());
 
+
+            var existingProviders = _context.Providers.ToList()
+                .ToLookup(x => x.ProviderCode)
+                .ToDictionary(x => x.Key, x => x.First());;
+
+
             foreach (var course in courses)
             {
                 if (course.AccreditingProvider != null)
                 {
-                    course.AccreditingProvider = distinctProviders[course.AccreditingProvider.ProviderCode];
+                    course.AccreditingProvider = existingProviders.GetValueOrDefault(course.AccreditingProvider.ProviderCode) ?? distinctProviders[course.AccreditingProvider.ProviderCode];
                 }
-
-                    course.Provider = distinctProviders[course.Provider.ProviderCode];
+                    course.Provider = existingProviders.GetValueOrDefault(course.Provider.ProviderCode) ?? distinctProviders[course.Provider.ProviderCode];
             }
         }
 
-        private static void MakeRoutesDistinctReferences(ref IList<Course> courses)
+        private void MakeRoutesDistinctReferences(ref IList<Course> courses)
         {
-            var allRoutes = courses.Where(x => x.Route != null)
-                .Select(x => x.Route) ?? new List<Route>();
-            var distinctRoutes = allRoutes
+            var existing = _context.Routes.ToList()
+                .ToLookup(x => x.Name)
+                .ToDictionary(x => x.Key, x => x.First());
+
+            var distinctRoutes = courses.Select(x => x.Route)
                 .Distinct()
                 .ToLookup(x => x.Name)
                 .ToDictionary(x => x.Key, x => x.First());
@@ -365,7 +422,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             {
                 if (course.Route != null)
                 {
-                    course.Route = distinctRoutes[course.Route.Name];
+                    course.Route = existing.GetValueOrDefault(course.Route.Name) ?? distinctRoutes[course.Route.Name];
                 }
             }
         }

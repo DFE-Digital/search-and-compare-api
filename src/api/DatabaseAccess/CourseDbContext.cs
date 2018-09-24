@@ -74,6 +74,11 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
             base.OnModelCreating(modelBuilder);
         }
 
+
+        public void Update(Course course)
+        {
+            base.Update(course);
+        }
         public void SaveChanges()
         {
             base.SaveChanges();
@@ -128,13 +133,28 @@ JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
             return GetCoursesWithProviderSubjectsRouteAndCampuses(null, null);
         }
 
+        public async Task AddOrUpdateCourse(Course itemToSave)
+        {
+            var existingCourse = await GetCourses(itemToSave.Provider.ProviderCode, itemToSave.ProgrammeCode).FirstOrDefaultAsync();
+
+            if(existingCourse == null)
+            {
+                itemToSave.Id = 0;
+                Courses.Add(itemToSave);
+            }
+            else
+            {
+                Map(existingCourse, itemToSave);
+            }
+        }
+
         public async Task<Course> GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(string providerCode, string courseCode)
         {
             return await GetCoursesWithProviderSubjectsRouteAndCampuses(providerCode, courseCode)
                 .Include(x => x.DescriptionSections).FirstAsync();
         }
 
-        private IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses(string providerCode, string courseCode)
+        private IQueryable<Course> GetCourses(string providerCode, string courseCode)
         {
             var sqlParams = new List<NpgsqlParameter>();
             var whereClauses = new List<string>();
@@ -156,11 +176,16 @@ JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
                 ? " WHERE " + string.Join(" AND ", whereClauses)
                 : "";
 
-            return ForListing(Courses.FromSql(
+            return Courses.FromSql(
                 "SELECT \"course\".*, NULL as \"Distance\" FROM \"course\" " +
                 "LEFT OUTER JOIN \"provider\" ON \"course\".\"ProviderId\" = \"provider\".\"Id\"" +
                 whereClause,
-                sqlParams.ToArray()));
+                sqlParams.ToArray());
+        }
+
+        private IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses(string providerCode, string courseCode)
+        {
+            return ForListing(GetCourses(providerCode, courseCode));
         }
 
         public IQueryable<Subject> GetSubjects()
@@ -209,6 +234,39 @@ LIMIT @limit",
                 .Include(course => course.Route)
                 .Include(course => course.Campuses)
                     .ThenInclude(campus => campus.Location);
+        }
+
+        private static void Map(Course existingCourse, Course itemToSave)
+        {
+            existingCourse.Name = itemToSave.Name;
+            existingCourse.ProgrammeCode = itemToSave.ProgrammeCode;
+            existingCourse.ProviderCodeName = itemToSave.ProviderCodeName;
+            // existingCourse.ProviderId = itemToSave.ProviderId;
+            existingCourse.Provider = itemToSave.Provider;
+            // existingCourse.AccreditingProviderId = itemToSave.AccreditingProviderId;
+            existingCourse.AccreditingProvider = itemToSave.AccreditingProvider;
+            existingCourse.AgeRange = itemToSave.AgeRange;
+            // existingCourse.RouteId = itemToSave.RouteId;
+            existingCourse.Route = itemToSave.Route;
+            existingCourse.IncludesPgce = itemToSave.IncludesPgce;
+            existingCourse.DescriptionSections = itemToSave.DescriptionSections;
+            existingCourse.Campuses = itemToSave.Campuses;
+            existingCourse.CourseSubjects = itemToSave.CourseSubjects;
+            existingCourse.Fees = itemToSave.Fees;
+            existingCourse.IsSalaried = itemToSave.IsSalaried;
+            existingCourse.Salary = itemToSave.Salary;
+            // existingCourse.ProviderLocationId = itemToSave.ProviderLocationId;
+            existingCourse.ProviderLocation = itemToSave.ProviderLocation;
+            existingCourse.Distance = itemToSave.Distance;
+            // existingCourse.ContactDetailsId = itemToSave.ContactDetailsId;
+            existingCourse.ContactDetails = itemToSave.ContactDetails;
+            existingCourse.FullTime = itemToSave.FullTime;
+            existingCourse.PartTime = itemToSave.PartTime;
+            existingCourse.ApplicationsAcceptedFrom = itemToSave.ApplicationsAcceptedFrom;
+            existingCourse.StartDate = itemToSave.StartDate;
+            existingCourse.Duration = itemToSave.Duration;
+            existingCourse.Mod = itemToSave.Mod;
+            // itemToSave.Id = existingCourse.Id;
         }
     }
 }

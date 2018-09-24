@@ -19,6 +19,11 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
 
         private readonly string _apiUri;
 
+        private readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        };
+
         public SearchAndCompareApi(HttpClient httpClient, string apiUri) : this (new HttpClientWrapper(httpClient), apiUri)
         {
         }
@@ -37,14 +42,25 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             return GetObjects<Course>(queryUri);
         }
 
+        public async Task<bool> SaveCourseAsync(Course course)
+        {
+            var programmeCode = course.ProgrammeCode;
+            var providerCode = course.Provider.ProviderCode;
+            var queryUri = GetUri($"/courses/{providerCode}/{programmeCode}");
+
+            var courseJson = JsonConvert.SerializeObject(course, _serializerSettings);
+
+            var courseStringContent = new StringContent(courseJson, Encoding.UTF8, "application/json" );
+            var response = await _httpClient.PostAsync(queryUri, courseStringContent);
+
+            return response.IsSuccessStatusCode;
+        }
+
         public async Task<bool> SaveCoursesAsync(IList<Course> courses)
         {
             var queryUri = GetUri($"/courses");
 
-            var coursesJson = JsonConvert.SerializeObject(courses, new JsonSerializerSettings
-            {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            });
+            var coursesJson = JsonConvert.SerializeObject(courses, _serializerSettings);
 
             var coursesStringContent = new StringContent(coursesJson, Encoding.UTF8, "application/json" );
             var response = await _httpClient.PostAsync(queryUri, coursesStringContent);
