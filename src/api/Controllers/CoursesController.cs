@@ -112,12 +112,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
                     MakeProvidersDistinctReferences(ref courses);
                     MakeRoutesDistinctReferences(ref courses);
-
-                    // these methods may add new locations/subjects. We need to save these changes before adding courses
-                    // otherwise we will end up with a PK constraint exception
                     AssociateWithLocations(ref courses);
                     AssociateWithSubjects(ref courses);
-                    _context.SaveChanges();
                     
                     _context.Courses.AddRange(courses);
                     _context.SaveChanges();
@@ -329,7 +325,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
                     if (location == null) {
                         location = new Location { Address = x };
-                        _context.Locations.Add(location);
                     }
 
                     return location;
@@ -385,7 +380,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
                     if (subject == null) {
                         subject = new Subject { Name = x.Key, SubjectArea = defaultAreaOrNull };
-                        _context.Subjects.Add(subject);
                     }
 
                     return subject;
