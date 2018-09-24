@@ -182,7 +182,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             var result = subject.Index(courses);
 
-            AssertBad(result);
+            AssertOkay(result);
         }
 
         [Test]

@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using GovUk.Education.SearchAndCompare.Api.Controllers;
@@ -22,7 +22,7 @@ using Microsoft.Extensions.Logging;
 namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controllers
 {
     [TestFixture]
-    public class SaveCourse_CoursesControllerTests : CourseDbContextIntegrationBase
+    public class SaveSingleCourse_CoursesControllerTests : CourseDbContextIntegrationBase
     {
         CoursesController subject;
 
@@ -222,7 +222,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var course = courses.First();
             var result = await subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode, course);
 
-            AssertBad(result);
+            AssertOkay(result);
         }
 
         [Test]
