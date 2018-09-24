@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web;
@@ -44,28 +45,42 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
 
         public async Task<bool> SaveCourseAsync(Course course)
         {
-            var programmeCode = course.ProgrammeCode;
-            var providerCode = course.Provider.ProviderCode;
-            var queryUri = GetUri($"/courses/{providerCode}/{programmeCode}");
+            var result = course.IsValid(false);
 
-            var courseJson = JsonConvert.SerializeObject(course, _serializerSettings);
+            if (result)
+            {
+                var programmeCode = course.ProgrammeCode;
+                var providerCode = course.Provider.ProviderCode;
+                var queryUri = GetUri($"/courses/{providerCode}/{programmeCode}");
 
-            var courseStringContent = new StringContent(courseJson, Encoding.UTF8, "application/json" );
-            var response = await _httpClient.PostAsync(queryUri, courseStringContent);
+                var courseJson = JsonConvert.SerializeObject(course, _serializerSettings);
 
-            return response.IsSuccessStatusCode;
+                var courseStringContent = new StringContent(courseJson, Encoding.UTF8, "application/json" );
+                var response = await _httpClient.PostAsync(queryUri, courseStringContent);
+
+                result = response.IsSuccessStatusCode;
+            }
+
+            return result;
         }
 
         public async Task<bool> SaveCoursesAsync(IList<Course> courses)
         {
-            var queryUri = GetUri($"/courses");
+            var result = courses.Any(c => c.IsValid(false) == false);
 
-            var coursesJson = JsonConvert.SerializeObject(courses, _serializerSettings);
+            if(result)
+            {
+                var queryUri = GetUri($"/courses");
 
-            var coursesStringContent = new StringContent(coursesJson, Encoding.UTF8, "application/json" );
-            var response = await _httpClient.PostAsync(queryUri, coursesStringContent);
+                var coursesJson = JsonConvert.SerializeObject(courses, _serializerSettings);
 
-            return response.IsSuccessStatusCode;
+                var coursesStringContent = new StringContent(coursesJson, Encoding.UTF8, "application/json" );
+                var response = await _httpClient.PostAsync(queryUri, coursesStringContent);
+
+                result = response.IsSuccessStatusCode;
+            }
+
+            return result;
         }
 
         public PaginatedList<Course> GetCourses(QueryFilter filter)

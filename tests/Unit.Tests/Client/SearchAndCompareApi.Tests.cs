@@ -1,12 +1,15 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using GovUk.Education.SearchAndCompare.Domain.Client;
+using GovUk.Education.SearchAndCompare.Domain.Models;
 using Moq;
 using NUnit.Framework;
+using GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controllers;
 
 namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
 {
@@ -48,7 +51,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
                 }
             ).Verifiable();
 
-            var result = await sut.SaveCoursesAsync(null);
+            var result = await sut.SaveCoursesAsync(new List<Course>());
 
             result.Should().BeTrue();
             mockHttp.VerifyAll();
@@ -63,7 +66,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
                 }
             ).Verifiable();
 
-            var result = await sut.SaveCourseAsync(new Domain.Models.Course(){ProgrammeCode = "ProgrammeCode", Provider = new Domain.Models.Provider {ProviderCode = "ProviderCode"}});
+            var course = CoursesControllerTests.GetCourse(1);
+            course.IsValid(false).Should().BeTrue();
+            var result = await sut.SaveCourseAsync(course);
 
             result.Should().BeTrue();
             mockHttp.VerifyAll();

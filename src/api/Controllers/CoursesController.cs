@@ -46,14 +46,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
             if(ModelState.IsValid &&
                 course != null &&
-                course.Provider != null &&
-                providerCode == course.Provider.ProviderCode &&
-                courseCode == course.ProgrammeCode)
+                course.IsValid(false) == false)
             {
                 try
                 {
                     IList<Course> courses = new List<Course> {course};
-                    Preconditions(courses);
                     MakeProvidersDistinctReferences(ref courses);
                     MakeRoutesDistinctReferences(ref courses);
 
@@ -95,12 +92,13 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             //
             IActionResult result = BadRequest();
 
-            if(ModelState.IsValid && courses != null && courses.Any())
+            if(ModelState.IsValid &&
+                courses != null &&
+                courses.Any(x => x.IsValid(false) == false))
             {
                 try
                 {
                     _logger.LogInformation($"Courses to import: {courses.Count()}" );
-                    Preconditions(courses);                    
                     _context.Campuses.RemoveRange(_context.Campuses);
                     _context.Courses.RemoveRange(_context.GetCoursesWithProviderSubjectsRouteAndCampuses());
                     _context.Providers.RemoveRange(_context.Providers);
@@ -114,7 +112,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     MakeRoutesDistinctReferences(ref courses);
                     AssociateWithLocations(ref courses);
                     AssociateWithSubjects(ref courses);
-                    
+
                     _context.Courses.AddRange(courses);
                     _context.SaveChanges();
 
@@ -347,7 +345,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 {
                     var address = campus.Location.Address;
                     if (!string.IsNullOrWhiteSpace(address))
-                    {                    
+                    {
                         campus.Location = allAddressesAsLocations[address];
                     }
                     else
@@ -371,7 +369,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             var allExistingSubjects = _context.Subjects.ToList();
 
             var defaultAreaOrNull = _context.SubjectAreas.FirstOrDefault(x => x.Name == "Secondary")
-                ?? _context.SubjectAreas.FirstOrDefault(); 
+                ?? _context.SubjectAreas.FirstOrDefault();
 
             var distinctSubjects = allSubjects
                 .ToLookup(x => x.Name)
@@ -441,55 +439,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 {
                     course.Route = existing.GetValueOrDefault(course.Route.Name) ?? distinctRoutes[course.Route.Name];
                 }
-            }
-        }
-
-        private void Preconditions(IList<Course> courses)
-        {
-            var noProvider = courses.Any(x => x.Provider == null || string.IsNullOrWhiteSpace(x.Provider.ProviderCode));
-            var noRoute = courses.Any(x => x.Route == null || string.IsNullOrWhiteSpace(x.Route.Name));
-            var badSubject = courses.Any(x => {
-                var result = false;
-                var courseSubjects = (x.CourseSubjects ?? new List<CourseSubject>());
-
-                if(courseSubjects.Count() > 0)
-                {
-                    result = courseSubjects.Any(cs => cs.Subject == null || string.IsNullOrWhiteSpace(cs.Subject.Name) );
-                }
-
-                return result;
-            });
-
-            var badAccreditingProvider = courses.Any(x => {
-                var result = false;
-                if(x.AccreditingProvider != null) {
-                    result = string.IsNullOrWhiteSpace(x.AccreditingProvider.ProviderCode);
-                }
-                return result;
-            });
-
-            var badCampus = courses.Any(x => {
-                return x.Campuses == null;
-            });
-
-            var badFeesOrSalary = courses.Any(x => {
-                var result = x.Fees == null && x.Salary == null;
-
-                return result;
-            });
-
-            var badProviderLocation = false; //courses.Any(x => x.ProviderLocation == null || string.IsNullOrWhiteSpace(x.ProviderLocation.Address) );
-
-            var badContactDetails = false;//courses.Any(x => {
-            //     var cd = x.ContactDetails;
-            //     return cd == null;
-            // });
-
-            // If this is true then its a no ops, as it will either throw DbUpdateException or InvalidOperationException.
-            if(noProvider || noRoute || badSubject || badAccreditingProvider || badCampus || badFeesOrSalary || badProviderLocation || badContactDetails)
-            {
-                var reason = $"noProvider: {noProvider}, noRoute: {noRoute},  badSubject: {badSubject}, badAccreditingProvider: {badAccreditingProvider}, badCampus: {badCampus}, badFeesOrSalary: {badFeesOrSalary}, badProviderLocation: {badProviderLocation}, badContactDetails: {badContactDetails}";
-                throw new InvalidOperationException($"Failed precondition reason: [{reason}] ");
             }
         }
     }

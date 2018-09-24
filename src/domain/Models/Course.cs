@@ -67,5 +67,56 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
         public string Duration { get; set; }
 
         public string Mod { get; set; }
+
+        /// <summary>
+        /// A course is consider valid if it has:
+        ///     ProgrammeCode
+        ///     Provider.ProviderCode
+        ///     Route.Name
+        ///     At least a Subject in CourseSubjects
+        ///     An AccreditingProvider.ProviderCode if AccreditingProvider is provided
+        ///     A valid Location in Campuses if provided
+        ///     At least a Fee or a Salary
+        /// </summary>
+        /// <returns>
+        /// True, if it is valid, else false.
+        /// </returns>
+        public bool IsValid(bool throwException = false)
+        {
+            var noProgrammeCode = string.IsNullOrWhiteSpace(this.ProgrammeCode);
+            var noProvider = this.Provider == null || string.IsNullOrWhiteSpace(this.Provider.ProviderCode);
+            var noRoute = this.Route == null || string.IsNullOrWhiteSpace(this.Route.Name);
+
+            var badSubject =  this.CourseSubjects != null ? (this.CourseSubjects.Count() > 0 ?
+                this.CourseSubjects.Any(cs => cs.Subject == null || string.IsNullOrWhiteSpace(cs.Subject.Name) ) :
+                true) : true;
+
+            var badAccreditingProvider = this.AccreditingProvider != null ? string.IsNullOrWhiteSpace(this.AccreditingProvider.ProviderCode) : false;
+
+            var badCampus = this.Campuses != null ? this.Campuses.Any(x => x.Location == null) : false;
+
+            var badFeesOrSalary = this.Fees == null && this.Salary == null;
+
+            var badProviderLocation = false; //this.ProviderLocation == null || string.IsNullOrWhiteSpace(this.ProviderLocation.Address) );
+
+            var badContactDetails = false;//courses.Any(x => {
+            //     var cd = this.ContactDetails;
+            //     return cd == null;
+            // });
+
+            // If this is true then its a no ops, as it will either throw DbUpdateException or InvalidOperationException or NullReferenceException.
+            if(noProgrammeCode || noProvider || noRoute || badSubject || badAccreditingProvider || badCampus || badFeesOrSalary || badProviderLocation || badContactDetails)
+            {
+                if (throwException)
+                {
+                    var reason = $"noProgrammeCode: {noProgrammeCode}, noProvider: {noProvider}, noRoute: {noRoute},  badSubject: {badSubject}, badAccreditingProvider: {badAccreditingProvider}, badCampus: {badCampus}, badFeesOrSalary: {badFeesOrSalary}, badProviderLocation: {badProviderLocation}, badContactDetails: {badContactDetails}";
+
+                    throw new InvalidOperationException($"Failed precondition reason: [{reason}] ");
+                }
+            }
+
+
+            return !(noProvider || noRoute || badSubject || badAccreditingProvider || badCampus || badFeesOrSalary || badProviderLocation || badContactDetails);
+        }
     }
 }

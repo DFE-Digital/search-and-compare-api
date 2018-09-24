@@ -50,7 +50,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             var result = subject.Index(courses);
-
+            courses.Any(x => x.IsValid(false)).Should().BeFalse();
             AssertBad(result);
         }
 
@@ -65,7 +65,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             var result = subject.Index(courses);
-
+            courses.Any(x => x.IsValid(false)).Should().BeFalse();
             AssertBad(result);
         }
 
@@ -79,7 +79,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             var result = subject.Index(courses);
-
+            courses.Any(x => x.IsValid(false)).Should().BeFalse();
             AssertBad(result);
         }
 
@@ -93,6 +93,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             var result = subject.Index(courses);
+            courses.Any(x => x.IsValid(false)).Should().BeFalse();
 
             AssertBad(result);
         }
@@ -108,6 +109,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             var result = subject.Index(courses);
 
+            courses.Any(x => x.IsValid(false)).Should().BeFalse();
+
             AssertBad(result);
         }
 
@@ -121,6 +124,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             var result = subject.Index(courses);
+            courses.Any(x => x.IsValid(false)).Should().BeTrue();
+
 
             AssertOkay(result);
         }
@@ -137,6 +142,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             var result = subject.Index(courses);
 
+            courses.Any(x => x.IsValid(false)).Should().BeFalse();
+
             AssertBad(result);
         }
 
@@ -150,6 +157,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             var result = subject.Index(courses);
+
+            courses.Any(x => x.IsValid(false)).Should().BeFalse();
 
             AssertBad(result);
         }
@@ -168,6 +177,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             var result = subject.Index(courses);
 
+            courses.Any(x => x.IsValid(false)).Should().BeFalse();
+
             AssertBad(result);
         }
 
@@ -182,6 +193,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             var result = subject.Index(courses);
 
+            courses.Any(x => x.IsValid(false)).Should().BeTrue();
+
             AssertOkay(result);
         }
 
@@ -191,6 +204,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var courses = GetCourses(1);
             var result = subject.Index(courses);
 
+            courses.Any(x => x.IsValid(false)).Should().BeTrue();
             AssertOkay(result);
         }
 
@@ -324,103 +338,111 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             for (int i = 0; i < count; i++)
             {
-                var course = new Course
-                {
-
-                    Name = "Name" + i,
-                    // UnNeed
-                    ProviderId = 42,
-                    Provider = new Provider
-                    {
-                        // UnNeed
-                        Id = 24 + i,
-                        Name = "Name",
-                        ProviderCode = "ProviderCode"
-                    },
-
-                    // UnNeed
-                    AccreditingProvider = new Provider
-                    {
-                        // UnNeed
-                        Id = 124 + i,
-                        Name = "Name (accrediting)",
-                        ProviderCode = "ProviderCode"
-                    },
-
-                    AgeRange = AgeRange.Secondary,
-                    // Needed
-                    Route = new Route
-                    {
-                        Name = "Scitt",
-                        IsSalaried = true
-                    },
-
-                    // need instance of at least zero unenriched
-                    DescriptionSections = new Collection<CourseDescriptionSection>
-                    {
-                        new CourseDescriptionSection
-                        {
-                            Name = "section",
-                            Text = "Section text"
-                        }
-                    },
-
-                    // need instance of at least one
-                    Campuses = new Collection<Campus>
-                    {
-                        new Campus
-                        {
-                            CampusCode = "A",
-                            Name = "CampusA",
-                            Location = new Location
-                            {
-                                Address = "Common location"
-                            }
-                        },
-                        new Campus
-                        {
-                            CampusCode = "B",
-                            Name = "CampusB",
-                            Location = new Location
-                            {
-                                Address = "Common location"
-                            }
-                        }
-                    },
-
-                    // need instance of at least one
-
-                    CourseSubjects = new Collection<CourseSubject>
-                    {
-                        new CourseSubject
-                        {
-                            Subject = new Subject
-                            {
-                                Name = "Physics"
-                            }
-                        }
-                    },
-
-                    IncludesPgce = IncludesPgce.No,
-
-                    // need fee or salary
-                    Fees = new Fees(),
-                    Salary = new Salary(),
-
-                    // need the full object
-                    ContactDetails = new Contact(),
-
-                    // need the address part
-                    ProviderLocation = new Location
-                    {
-                        Address = "Common location"
-                    }
-                };
+                var course = GetCourse(i);
 
                 courses.Add(course);
             }
 
             return courses;
         }
+
+        internal static Course GetCourse(int i)
+        {
+            var course = new Course
+            {
+                ProgrammeCode = "ProgrammeCode" + i,
+                Name = "Name" + i,
+                // UnNeed
+                ProviderId = 42,
+                Provider = new Provider
+                {
+                    // UnNeed
+                    Id = 24 + i,
+                    Name = "Name",
+                    ProviderCode = "ProviderCode"
+                },
+
+                // UnNeed
+                AccreditingProvider = new Provider
+                {
+                    // UnNeed
+                    Id = 124 + i,
+                    Name = "Name (accrediting)",
+                    ProviderCode = "ProviderCode"
+                },
+
+                AgeRange = AgeRange.Secondary,
+                // Needed
+                Route = new Route
+                {
+                    Name = "Scitt",
+                    IsSalaried = true
+                },
+
+                // need instance of at least zero unenriched
+                DescriptionSections = new Collection<CourseDescriptionSection>
+                {
+                    new CourseDescriptionSection
+                    {
+                        Name = "section",
+                        Text = "Section text"
+                    }
+                },
+
+                // need instance of at least one
+                Campuses = new Collection<Campus>
+                {
+                    new Campus
+                    {
+                        CampusCode = "A",
+                        Name = "CampusA",
+                        Location = new Location
+                        {
+                            Address = "Common location"
+                        }
+                    },
+                    new Campus
+                    {
+                        CampusCode = "B",
+                        Name = "CampusB",
+                        Location = new Location
+                        {
+                            Address = "Common location"
+                        }
+                    }
+                },
+
+                // need instance of at least one
+
+                CourseSubjects = new Collection<CourseSubject>
+                {
+                    new CourseSubject
+                    {
+                        Subject = new Subject
+                        {
+                            Name = "Physics"
+                        }
+                    }
+                },
+
+                IncludesPgce = IncludesPgce.No,
+
+                // need fee or salary
+                Fees = new Fees(),
+                Salary = new Salary(),
+
+                // need the full object
+                ContactDetails = new Contact(),
+
+                // need the address part
+                ProviderLocation = new Location
+                {
+                    Address = "Common location"
+                }
+            };
+
+            return course;
+        }
+
     }
 }
