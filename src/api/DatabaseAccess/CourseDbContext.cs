@@ -135,7 +135,10 @@ JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
 
         public async Task AddOrUpdateCourse(Course itemToSave)
         {
-            var existingCourse = await GetCourses(itemToSave.Provider.ProviderCode, itemToSave.ProgrammeCode).FirstOrDefaultAsync();
+            var existingCourse = await GetCourses(itemToSave.Provider.ProviderCode, itemToSave.ProgrammeCode)
+            // Note: added course subjects as lack of it causes ef core tracking issues (ie added source and update with same data cause it to add course subject rather than update it)
+            .Include(x => x.CourseSubjects)
+            .FirstOrDefaultAsync();
 
             if(existingCourse == null)
             {
