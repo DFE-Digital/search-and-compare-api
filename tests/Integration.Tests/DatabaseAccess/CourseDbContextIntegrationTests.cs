@@ -159,6 +159,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
 
                 Assert.AreEqual("Title", course.DescriptionSections.Single().Name, "description title is retrieved");
                 Assert.AreEqual("Content", course.DescriptionSections.Single().Text, "description content is retrieved");
+
+                Assert.AreEqual("My accrediting provider", course.AccreditingProvider.Name, "accrediting provider name is retrieved");
+                Assert.AreEqual("WXY", course.AccreditingProvider.ProviderCode, "accrediting provider code is retrieved");
             }
         }
 
@@ -180,6 +183,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
                     Address = "123 Fake Street",
                     Latitude = 50.0,
                     Longitude = 0
+                },
+                AccreditingProvider = new Provider
+                {
+                    ProviderCode = "WXY",
+                    Name = "My accrediting provider"
                 },
                 Campuses = new HashSet<Campus>
                 {
