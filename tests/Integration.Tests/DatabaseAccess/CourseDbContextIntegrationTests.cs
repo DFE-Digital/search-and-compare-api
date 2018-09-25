@@ -126,14 +126,14 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
 
             using (var context2 = GetContext())
             {
-                Assert.AreEqual(1, context2.SuggestProviders("prov").Count(), "incomplete");
-                Assert.AreEqual(1, context2.SuggestProviders("provider").Count(), "complete");
-                Assert.AreEqual(1, context2.SuggestProviders("providers").Count(), "plural");
-                Assert.AreEqual(1, context2.SuggestProviders("provider' &!").Count(), "garbage");
+                Assert.AreEqual(2, context2.SuggestProviders("prov").Count(), "incomplete");
+                Assert.AreEqual(2, context2.SuggestProviders("provider").Count(), "complete");
+                Assert.AreEqual(2, context2.SuggestProviders("providers").Count(), "plural");
+                Assert.AreEqual(2, context2.SuggestProviders("provider' &!").Count(), "garbage");
                 Assert.AreEqual(0, context2.SuggestProviders("providerrr").Count(), "overshoot");
                 Assert.AreEqual(0, context2.SuggestProviders("provider foobar").Count(), "multiwords bad");
-                Assert.AreEqual(1, context2.SuggestProviders("provider my").Count(), "multiwords good");
-                Assert.AreEqual(1, context2.SuggestProviders("prov my").Count(), "multiwords good incomplete");
+                Assert.AreEqual(2, context2.SuggestProviders("provider my").Count(), "multiwords good");
+                Assert.AreEqual(2, context2.SuggestProviders("prov my").Count(), "multiwords good incomplete");
             }
         }
 
@@ -159,6 +159,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
 
                 Assert.AreEqual("Title", course.DescriptionSections.Single().Name, "description title is retrieved");
                 Assert.AreEqual("Content", course.DescriptionSections.Single().Text, "description content is retrieved");
+
+                Assert.AreEqual("My accrediting provider", course.AccreditingProvider.Name, "accrediting provider name is retrieved");
+                Assert.AreEqual("WXY", course.AccreditingProvider.ProviderCode, "accrediting provider code is retrieved");
             }
         }
 
@@ -180,6 +183,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
                     Address = "123 Fake Street",
                     Latitude = 50.0,
                     Longitude = 0
+                },
+                AccreditingProvider = new Provider
+                {
+                    ProviderCode = "WXY",
+                    Name = "My accrediting provider"
                 },
                 Campuses = new HashSet<Campus>
                 {
