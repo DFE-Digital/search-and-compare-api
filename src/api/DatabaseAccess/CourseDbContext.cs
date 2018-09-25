@@ -200,6 +200,7 @@ JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
         {
             return SubjectAreas
                 .Include(x => x.Subjects)
+                    .ThenInclude(y => y.Funding)
                 .OrderBy(x => x.Ordinal)
                 .AsNoTracking()
                 .ToList();
