@@ -75,7 +75,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
         ///     Route.Name
         ///     At least a Subject in CourseSubjects
         ///     An AccreditingProvider.ProviderCode if AccreditingProvider is provided
-        ///     A empty list of Campuses or A valid Location in Campuses if provided
+        ///     A empty list of Campuses or a valid Location in Campuses if provided
         ///     At least a Fee or a Salary
         /// </summary>
         /// <returns>
@@ -93,7 +93,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
 
             var badAccreditingProvider = this.AccreditingProvider != null ? string.IsNullOrWhiteSpace(this.AccreditingProvider.ProviderCode) : false;
 
-            var badCampus = this.Campuses != null ? this.Campuses.Any(x => x.Location == null) : false;
+            var badCampus = this.Campuses == null ? true : this.Campuses.Any(x => x.Location == null);
 
             var badFeesOrSalary = this.Fees == null && this.Salary == null;
 
@@ -114,7 +114,6 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
                     throw new InvalidOperationException($"Failed precondition reason: [{reason}] ");
                 }
             }
-
 
             return !(noProvider || noRoute || badSubject || badAccreditingProvider || badCampus || badFeesOrSalary || badProviderLocation || badContactDetails);
         }

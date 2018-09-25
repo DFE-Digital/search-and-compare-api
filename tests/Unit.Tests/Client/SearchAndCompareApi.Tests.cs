@@ -52,6 +52,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
             ).Verifiable();
 
             var course = CoursesControllerTests.GetCourse(1);
+            course.IsValid(false).Should().BeTrue();
+
             var result = await sut.SaveCoursesAsync(new List<Course>(){course});
 
             result.Should().BeTrue();

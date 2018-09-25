@@ -158,9 +158,10 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             var result = subject.Index(courses);
 
-            courses.Any(x => x.IsValid(false)).Should().BeFalse();
 
             AssertBad(result);
+            courses.Any(x => x.IsValid(false)).Should().BeFalse();
+
         }
 
         [Test]
