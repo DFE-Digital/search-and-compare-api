@@ -230,6 +230,7 @@ LIMIT @limit",
         private IQueryable<Course> ForListing(IQueryable<Course> queryable)
         {
             return queryable.Include("Provider")
+                .Include(course => course.AccreditingProvider)
                 .Include(course => course.CourseSubjects)
                     .ThenInclude(courseSubject => courseSubject.Subject)
                         .ThenInclude(subject => subject.Funding)
