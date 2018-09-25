@@ -68,6 +68,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     result = Ok();
 
                 }
+                // Note: if any exception is catch it course.IsValid() needs to be revisited
                 catch(DbUpdateException ex)
                 {
                     _logger.LogWarning(ex, "Failed to save the courses to database");
@@ -121,6 +122,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     result = Ok();
                     _logger.LogInformation($"New Courses Added");
                 }
+                // Note: if any exception is catch it course.IsValid() needs to be revisited
                 catch(DbUpdateException ex)
                 {
                     _logger.LogWarning(ex, "Failed to save the courses to database");

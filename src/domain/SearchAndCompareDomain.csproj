@@ -6,7 +6,7 @@
     <Authors>DfE Digital</Authors>
     <Title>Domain objects for SearchAndCompare project</Title>
     <Description>Domain objects for SearchAndCompare project</Description>
-    <VersionPrefix>0.6.4</VersionPrefix>
+    <VersionPrefix>0.6.5</VersionPrefix>
     <VersionSuffix>beta</VersionSuffix>
     <RootNamespace>GovUk.Education.SearchAndCompare.Domain</RootNamespace>
   </PropertyGroup>
