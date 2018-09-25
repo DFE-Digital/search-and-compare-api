@@ -126,14 +126,14 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
 
             using (var context2 = GetContext())
             {
-                Assert.AreEqual(1, context2.SuggestProviders("prov").Count(), "incomplete");
-                Assert.AreEqual(1, context2.SuggestProviders("provider").Count(), "complete");
-                Assert.AreEqual(1, context2.SuggestProviders("providers").Count(), "plural");
-                Assert.AreEqual(1, context2.SuggestProviders("provider' &!").Count(), "garbage");
+                Assert.AreEqual(2, context2.SuggestProviders("prov").Count(), "incomplete");
+                Assert.AreEqual(2, context2.SuggestProviders("provider").Count(), "complete");
+                Assert.AreEqual(2, context2.SuggestProviders("providers").Count(), "plural");
+                Assert.AreEqual(2, context2.SuggestProviders("provider' &!").Count(), "garbage");
                 Assert.AreEqual(0, context2.SuggestProviders("providerrr").Count(), "overshoot");
                 Assert.AreEqual(0, context2.SuggestProviders("provider foobar").Count(), "multiwords bad");
-                Assert.AreEqual(1, context2.SuggestProviders("provider my").Count(), "multiwords good");
-                Assert.AreEqual(1, context2.SuggestProviders("prov my").Count(), "multiwords good incomplete");
+                Assert.AreEqual(2, context2.SuggestProviders("provider my").Count(), "multiwords good");
+                Assert.AreEqual(2, context2.SuggestProviders("prov my").Count(), "multiwords good incomplete");
             }
         }
 
