@@ -85,7 +85,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
         [HttpPost]
         [ApiTokenAuth]
-        [RequestSizeLimit(1_000_000_000)]
+        [RequestSizeLimit(100_000_000_000)]
         public IActionResult Index([FromBody]IList<Course> courses)
         {
             //
