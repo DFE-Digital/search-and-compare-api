@@ -58,6 +58,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
                     AssociateWithLocations(ref courses);
                     AssociateWithSubjects(ref courses);
+
+                    ResolveSalaryAndFeesReferences(ref courses);
                     var itemToSave = courses.First();
 
                     await _context.AddOrUpdateCourse(itemToSave);
@@ -115,6 +117,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     MakeRoutesDistinctReferences(ref courses);
                     AssociateWithLocations(ref courses);
                     AssociateWithSubjects(ref courses);
+                    ResolveSalaryAndFeesReferences(ref courses);
 
                     _context.Courses.AddRange(courses);
                     _context.SaveChanges();
@@ -443,6 +446,17 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 {
                     course.Route = existing.GetValueOrDefault(course.Route.Name) ?? distinctRoutes[course.Route.Name];
                 }
+            }
+        }
+
+        private void ResolveSalaryAndFeesReferences(ref IList<Course> courses)
+        {
+            // Even if there is no salary create a new instance to satisfy ef core.
+            // The 'course' table is shared with 'Fees' &'Salary' & 'Course' domain object
+            foreach (var course in courses)
+            {
+                course.Fees = course.Fees ?? new Fees();
+                course.Salary = course.Salary ?? new Salary();
             }
         }
     }
