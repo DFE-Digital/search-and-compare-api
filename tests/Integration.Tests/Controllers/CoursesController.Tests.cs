@@ -184,6 +184,20 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         }
 
         [Test]
+        public void ImportCourse_Null_Salary()
+        {
+            var courses = GetCourses(1);
+            foreach (var item in courses)
+            {
+                item.Salary = null;
+            }
+
+            var result = subject.Index(courses);
+
+            AssertOkay(result);
+        }
+
+        [Test]
         public void ImportCourse_Null_ProviderLocation()
         {
             var courses = GetCourses(1);
