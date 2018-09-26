@@ -143,6 +143,8 @@ JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
             if(existingCourse == null)
             {
                 itemToSave.Id = 0;
+                itemToSave.Salary = itemToSave.Salary ?? new Salary();
+
                 Courses.Add(itemToSave);
             }
             else
