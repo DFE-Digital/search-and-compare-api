@@ -105,8 +105,10 @@ JOIN ""course"" ON ""course"".""Id"" = ""distance"".""Id""",
 
             return ForListing(Courses.FromSql(@"
 SELECT ""course"".*, NULL as ""Distance""
-FROM course_matching_query(to_tsquery('english', quote_literal(@query))) AS ""ids""
-JOIN ""course"" ON ""course"".""Id"" = ""ids"".""Id""",
+FROM ""course""
+LEFT OUTER JOIN ""provider"" AS ""p1"" ON ""course"".""ProviderId"" = ""p1"".""Id""
+LEFT OUTER JOIN ""provider"" AS ""p2"" ON ""course"".""AccreditingProviderId"" = ""p2"".""Id""
+WHERE lower(""p1"".""Name"") = lower(@query) OR lower(""p2"".""Name"") = lower(@query)",
                     new NpgsqlParameter("@query", searchText)));
         }
 
@@ -118,10 +120,12 @@ JOIN ""course"" ON ""course"".""Id"" = ""ids"".""Id""",
             }
 
             return ForListing(Courses.FromSql(@"
-SELECT ""course"".*, c2.""Distance""
-FROM course_matching_query(plainto_tsquery('english', quote_literal(@query))) AS ""c1""
-JOIN course_distance(@lat,@lon,@rad) AS ""c2"" ON ""c1"".""Id"" = ""c2"".""Id""
-JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""",
+SELECT ""course"".*, c1.""Distance""
+FROM course_distance(@lat,@lon,@rad) AS ""c1"" 
+JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""
+LEFT OUTER JOIN ""provider"" AS ""p1"" ON ""course"".""ProviderId"" = ""p1"".""Id""
+LEFT OUTER JOIN ""provider"" AS ""p2"" ON ""course"".""AccreditingProviderId"" = ""p2"".""Id""
+WHERE lower(""p1"".""Name"") = lower(@query) OR lower(""p2"".""Name"") = lower(@query)",
                     new NpgsqlParameter("@query", searchText),
                     new NpgsqlParameter("@lat", latitude),
                     new NpgsqlParameter("@lon", longitude),
