@@ -12,9 +12,5 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
         public int? EarlyCareerPayments { get; set; }
 
         public int? BursaryFirst { get; set; }
-
-        public int? BursaryUpperSecond { get; set; }
-
-        public int? BursaryLowerSecond { get; set; }
     }
 }
