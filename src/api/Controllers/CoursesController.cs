@@ -452,9 +452,10 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         private void ResolveSalaryReferences(ref IList<Course> courses)
         {
             // Even if there is no salary create a new instance to satisfy ef core.
-            // The 'course' table is shared with 'Salary' & 'Course' domain object
+            // The 'course' table is shared with 'Fees' &'Salary' & 'Course' domain object
             foreach (var course in courses)
             {
+                course.Fees = course.Fees ?? new Fees();
                 course.Salary = course.Salary ?? new Salary();
             }
         }

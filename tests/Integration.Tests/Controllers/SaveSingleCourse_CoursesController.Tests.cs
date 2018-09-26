@@ -86,6 +86,21 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         }
 
         [Test]
+        public async Task ImportCourse_Null_Fees()
+        {
+            var courses = GetCourses(1);
+            foreach (var item in courses)
+            {
+                item.Fees = null;
+            }
+
+            var course = courses.First();
+            var result = await subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode, course);
+
+            AssertOkay(result);
+        }
+
+        [Test]
         public async Task ImportCourse_Null_Salary()
         {
             var courses = GetCourses(1);
