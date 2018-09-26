@@ -117,7 +117,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     MakeRoutesDistinctReferences(ref courses);
                     AssociateWithLocations(ref courses);
                     AssociateWithSubjects(ref courses);
-                    ResolveSalaryReferences(ref courses);
+                    ResolveSalaryAndFeesReferences(ref courses);
 
                     _context.Courses.AddRange(courses);
                     _context.SaveChanges();
