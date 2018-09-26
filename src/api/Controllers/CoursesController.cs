@@ -59,7 +59,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     AssociateWithLocations(ref courses);
                     AssociateWithSubjects(ref courses);
 
-                    ResolveSalaryReferences(ref courses);
+                    ResolveSalaryAndFeesReferences(ref courses);
                     var itemToSave = courses.First();
 
                     await _context.AddOrUpdateCourse(itemToSave);
@@ -449,7 +449,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             }
         }
 
-        private void ResolveSalaryReferences(ref IList<Course> courses)
+        private void ResolveSalaryAndFeesReferences(ref IList<Course> courses)
         {
             // Even if there is no salary create a new instance to satisfy ef core.
             // The 'course' table is shared with 'Fees' &'Salary' & 'Course' domain object
