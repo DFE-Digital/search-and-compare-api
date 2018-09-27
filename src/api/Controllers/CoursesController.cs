@@ -160,7 +160,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 {
                     courses = courses
                         .OrderBy(c => c.Provider.Name != filter.query) // false comes before true... (odd huh)
-                        .ThenByDescending(c => c.Provider.Name);
+                        .ThenByDescending(c => c.Provider.Name)
+                        .ThenBy(c => c.Name);
                     break;
                 }
                 case (SortByOption.Distance):
@@ -173,7 +174,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 {
                     courses = courses
                         .OrderBy(c => c.Provider.Name != filter.query) // false comes before true... (odd huh)
-                        .OrderBy(c => c.Provider.Name);
+                        .ThenBy(c => c.Provider.Name)
+                        .ThenBy(c => c.Name);
                     break;
                 }
             }
