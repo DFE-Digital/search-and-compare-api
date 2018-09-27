@@ -17,6 +17,8 @@ using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using GovUk.Education.SearchAndCompare.Domain.Lists;
+using System.Threading.Tasks;
 
 namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controllers
 {
@@ -339,6 +341,45 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             // subject area previously set is still there
             context.Subjects.Single().SubjectArea.Should().NotBeNull();
             context.Subjects.Single().SubjectArea.Name.Should().Be("Primary");
+        }
+
+        [Test]
+        public void LocationSearchViaCampus()
+        {
+            subject.Index(GetCourses(1));
+
+            var course = context.GetCoursesWithProviderSubjectsRouteAndCampuses()
+                .Include(x => x.Campuses).ThenInclude(x=>x.Location).Single();
+
+            course.ProviderLocation = new Location {
+                Latitude = 55.95,
+                Longitude = -3.19,
+                Address = "Edinburgh"                
+            };
+
+            foreach(var campus in course.Campuses)
+            {
+                campus.Location.Latitude = 52.2;
+                campus.Location.Longitude = 0.12;              
+            }
+            context.SaveChanges();
+
+            var result = subject.GetFiltered(new QueryFilter { lat = 52.2, lng = 0.12, rad = 5 }) as OkObjectResult;
+
+            var listOfCourses = result.Value as PaginatedList<Course>;
+            listOfCourses.TotalCount.Should().Be(1);
+            listOfCourses.Items[0].Name.Should().Be("Name0");   
+
+            var resultByProviderLocation = subject.GetFiltered(new QueryFilter { lat = 55.95, lng = -3.19, rad = 5 }) as OkObjectResult;
+
+            var providerLocationList = resultByProviderLocation.Value as PaginatedList<Course>;
+            providerLocationList.TotalCount.Should().Be(1);
+            providerLocationList.Items[0].Name.Should().Be("Name0");   
+
+            var resultWhichShouldBeEmpty = subject.GetFiltered(new QueryFilter { lat = 50.0, lng = -0.5, rad = 5 }) as OkObjectResult;  
+
+            var emptyList = resultWhichShouldBeEmpty.Value as PaginatedList<Course>;
+            emptyList.TotalCount.Should().Be(0);
         }
 
         internal void AssertBad(IActionResult result)
