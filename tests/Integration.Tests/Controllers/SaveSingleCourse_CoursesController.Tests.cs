@@ -301,7 +301,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         }
 
         [Test]
-        public void ImportTwoCoursesTwice()
+        public void ImportSameCoursesTwice()
         {
             var course = GetCourses(1).First();
             var result1 = subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode, course).Result;;
@@ -314,6 +314,12 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var resultingCourses = context.GetCoursesWithProviderSubjectsRouteAndCampuses().ToList();
             var resultingProviders = context.Providers.ToList();
 
+            resultingCourses.Count().Should().Be(1);
+            var savedCourse = resultingCourses.First();
+            savedCourse.Campuses.Count().Should().Be(course.Campuses.Count());
+            savedCourse.DescriptionSections.Count().Should().Be(course.DescriptionSections.Count());
+            resultingCourses.SelectMany(x => x.DescriptionSections).Count().Should().Be(course.DescriptionSections.Count());
+
             // deduplicated
             resultingProviders.Count.Should().Be(1);
             context.Routes.Count().Should().Be(1);
@@ -321,7 +327,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             context.Locations.Count().Should().Be(1);
 
             // non-deduplicated
-            resultingCourses.SelectMany(x => x.DescriptionSections).Distinct().Count().Should().Be(1);
 
             context.Campuses.Count().Should().Be(4); //probably wrong
             context.CourseSubjects.Count().Should().Be(1);
