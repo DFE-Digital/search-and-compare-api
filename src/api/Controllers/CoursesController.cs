@@ -290,25 +290,16 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 }
             }
 
-            if(filter.qualification.Any(x => x == QualificationOption.QtsOnly))
+            if (!filter.pgce ^ !filter.qts)
             {
-                courses.Where(x => x.IncludesPgce == IncludesPgce.No);
-            }
-
-            if(filter.qualification.Any(x => x == QualificationOption.PgdePgceWithQts))
-            {
-                courses.Where(x =>
-                    x.IncludesPgce == IncludesPgce.Yes ||
-                    x.IncludesPgce == IncludesPgce.QtsWithOptionalPgce ||
-                    x.IncludesPgce == IncludesPgce.QtsWithPgde);
-            }
-
-            if(filter.qualification.Any(x => x == QualificationOption.Other))
-            {
-                courses.Where(x =>
-                    x.IncludesPgce == IncludesPgce.QtlsOnly ||
-                    x.IncludesPgce == IncludesPgce.QtlsWithPgce ||
-                    x.IncludesPgce == IncludesPgce.QtlsWithPgde);
+                if (!filter.pgce)
+                {
+                    courses = courses.Where(course => course.IncludesPgce != IncludesPgce.Yes);
+                }
+                else if (!filter.qts)
+                {
+                    courses = courses.Where(course => course.IncludesPgce != IncludesPgce.No);
+                }
             }
 
             if (!filter.parttime ^ !filter.fulltime)
