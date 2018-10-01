@@ -290,9 +290,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 }
             }
 
-            var qualQts = filter.qualification.Any(x => x == QualificationOption.QtsOnly); 
-            var qualPgce = filter.qualification.Any(x => x == QualificationOption.PgdePgceWithQts); 
-            var qualOther = filter.qualification.Any(x => x == QualificationOption.Other); 
+            var qualQts = (filter.qualification & (byte) QualificationOption.QtsOnly) > 0; 
+            var qualPgce = (filter.qualification & (byte) QualificationOption.PgdePgceWithQts) > 0; 
+            var qualOther = (filter.qualification & (byte) QualificationOption.Other) > 0; 
             
             if(qualQts && qualPgce && qualOther)
             {
@@ -323,18 +323,18 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             }
             else if(qualQts)
             {
-                courses.Where(x => x.IncludesPgce == IncludesPgce.No);
+                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.No);
             }
             else if(qualPgce)
             {
-                courses.Where(x =>
+                courses = courses.Where(x =>
                     x.IncludesPgce == IncludesPgce.Yes ||
                     x.IncludesPgce == IncludesPgce.QtsWithOptionalPgce ||
                     x.IncludesPgce == IncludesPgce.QtsWithPgde);
             }
             else if(qualOther)
             {
-                courses.Where(x =>
+                courses = courses.Where(x =>
                     x.IncludesPgce == IncludesPgce.QtlsOnly ||
                     x.IncludesPgce == IncludesPgce.QtlsWithPgce ||
                     x.IncludesPgce == IncludesPgce.QtlsWithPgde);

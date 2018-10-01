@@ -11,11 +11,6 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
 {
     public class QueryFilter
     {
-        public QueryFilter()
-        {
-            qualification = new List<QualificationOption>();
-        }
-
         public int? page { get; set; }
 
         public int? pageSize { get; set; }
@@ -38,7 +33,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
 
         public bool parttime { get; set; }
 
-        public IList<QualificationOption> qualification { get; set;}
+        public byte qualification { get; set; }
 
         [IgnoreDataMemberAttribute]
         public List<int> SelectedSubjects {
