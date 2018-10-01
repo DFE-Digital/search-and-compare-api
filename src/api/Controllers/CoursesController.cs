@@ -290,20 +290,49 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 }
             }
 
-            if(filter.qualification.Any(x => x == QualificationOption.QtsOnly))
+            var qualQts = filter.qualification.Any(x => x == QualificationOption.QtsOnly); 
+            var qualPgce = filter.qualification.Any(x => x == QualificationOption.PgdePgceWithQts); 
+            var qualOther = filter.qualification.Any(x => x == QualificationOption.Other); 
+            
+            if(qualQts && qualPgce && qualOther)
+            {
+                // do nothing - include all qualifications
+            }
+            else if (qualQts && qualPgce)
+            {
+                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.No ||
+                    x.IncludesPgce == IncludesPgce.Yes ||
+                    x.IncludesPgce == IncludesPgce.QtsWithOptionalPgce ||
+                    x.IncludesPgce == IncludesPgce.QtsWithPgde);
+            }
+            else if (qualQts && qualOther)
+            {
+                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.No ||
+                    x.IncludesPgce == IncludesPgce.QtlsOnly ||
+                    x.IncludesPgce == IncludesPgce.QtlsWithPgce ||
+                    x.IncludesPgce == IncludesPgce.QtlsWithPgde);
+            }
+            else if (qualPgce && qualOther)
+            {                
+                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.Yes ||
+                    x.IncludesPgce == IncludesPgce.QtsWithOptionalPgce ||
+                    x.IncludesPgce == IncludesPgce.QtsWithPgde ||
+                    x.IncludesPgce == IncludesPgce.QtlsOnly ||
+                    x.IncludesPgce == IncludesPgce.QtlsWithPgce ||
+                    x.IncludesPgce == IncludesPgce.QtlsWithPgde);
+            }
+            else if(qualQts)
             {
                 courses.Where(x => x.IncludesPgce == IncludesPgce.No);
             }
-
-            if(filter.qualification.Any(x => x == QualificationOption.PgdePgceWithQts))
+            else if(qualPgce)
             {
                 courses.Where(x =>
                     x.IncludesPgce == IncludesPgce.Yes ||
                     x.IncludesPgce == IncludesPgce.QtsWithOptionalPgce ||
                     x.IncludesPgce == IncludesPgce.QtsWithPgde);
             }
-
-            if(filter.qualification.Any(x => x == QualificationOption.Other))
+            else if(qualOther)
             {
                 courses.Where(x =>
                     x.IncludesPgce == IncludesPgce.QtlsOnly ||
