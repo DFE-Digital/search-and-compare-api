@@ -10,7 +10,12 @@ using GovUk.Education.SearchAndCompare.Domain.Models;
 namespace GovUk.Education.SearchAndCompare.Domain.Filters
 {
     public class QueryFilter
-    { 
+    {
+        public QueryFilter()
+        {
+            qualification = new List<QualificationOption>();
+        }
+
         public int? page { get; set; }
 
         public int? pageSize { get; set; }
@@ -29,19 +34,15 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
 
         public string query { get; set; }
 
-        public bool pgce { get; set; }
-
-        public bool qts { get; set; }
-        
         public bool fulltime { get; set; }
-        
+
         public bool parttime { get; set; }
 
-        
+        public IList<QualificationOption> qualification { get; set;}
 
         [IgnoreDataMemberAttribute]
-        public List<int> SelectedSubjects { 
-            get {            
+        public List<int> SelectedSubjects {
+            get {
                 List<int> subjectFilterIds = new List<int> ();
                 if (!string.IsNullOrEmpty(subjects))
                 {
@@ -75,13 +76,13 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
                 }
             }
         }
-        
+
         [IgnoreDataMemberAttribute]
         public Coordinates Coordinates
         {
             get {
-                return lng.HasValue && lat.HasValue && rad.HasValue 
-                    ? new Coordinates(lat.Value, lng.Value) 
+                return lng.HasValue && lat.HasValue && rad.HasValue
+                    ? new Coordinates(lat.Value, lng.Value)
                     : null;
             }
         }
