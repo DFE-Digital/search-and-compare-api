@@ -33,26 +33,19 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             _logger = logger;
         }
 
-        [HttpPost("{providerCode}/{courseCode}")]
+        [HttpPut("api/courses")]
         [ApiTokenAuth]
-        public async Task<IActionResult> SaveCourse(string providerCode, string courseCode, [FromBody]Course course)
+        [RequestSizeLimit(100_000_000_000)]
+        public async Task<IActionResult> SaveCourses([FromBody]IList<Course> courses)
         {
-            //
-            // TODO:
-            //   Match up subjects to an exisiting list (currently pulled from the list of distinct subjects in the importer)
-            //   This includes matching those existing subjects to a subject-area and to subject-funding.
-            //
             IActionResult result = BadRequest();
 
-            if(ModelState.IsValid &&
-                course != null &&
-                course.IsValid(false) &&
-                providerCode.Equals(course.Provider.ProviderCode, StringComparison.InvariantCultureIgnoreCase) &&
-                courseCode.Equals(course.ProgrammeCode, StringComparison.InvariantCultureIgnoreCase))
+            var allCoursesValid = courses.All(x => x != null && x.IsValid(false));
+
+            if(ModelState.IsValid && allCoursesValid)
             {
                 try
                 {
-                    IList<Course> courses = new List<Course> {course};
                     MakeProvidersDistinctReferences(ref courses);
                     MakeRoutesDistinctReferences(ref courses);
 
@@ -60,9 +53,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     AssociateWithSubjects(ref courses);
 
                     ResolveSalaryAndFeesReferences(ref courses);
-                    var itemToSave = courses.First();
-
-                    await _context.AddOrUpdateCourse(itemToSave);
+                    
+                    foreach(var course in courses)
+                    {                      
+                        await _context.AddOrUpdateCourse(course);
+                    }
 
                     _context.SaveChanges();
                     _logger.LogInformation($"Added/Updated Course successfully");
@@ -460,7 +455,15 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
             var existingProviders = _context.Providers.ToList()
                 .ToLookup(x => x.ProviderCode)
-                .ToDictionary(x => x.Key, x => x.First());;
+                .ToDictionary(x => x.Key, x => x.First());
+
+            // update provider names
+            foreach(var provider in existingProviders.Values)
+            {
+                provider.Name = distinctProviders.TryGetValue(provider.ProviderCode, out Provider newProvider)
+                    ? newProvider.Name
+                    : provider.Name;
+            }
 
 
             foreach (var course in courses)
