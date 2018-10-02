@@ -33,12 +33,17 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             _logger = logger;
         }
 
-        [HttpPut("api/courses")]
+        [HttpPut("")]
         [ApiTokenAuth]
         [RequestSizeLimit(100_000_000_000)]
         public async Task<IActionResult> SaveCourses([FromBody]IList<Course> courses)
         {
             IActionResult result = BadRequest();
+
+            if (courses == null)
+            {
+                return result;
+            }
 
             var allCoursesValid = courses.All(x => x != null && x.IsValid(false));
 
