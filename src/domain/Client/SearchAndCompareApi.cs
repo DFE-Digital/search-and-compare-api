@@ -43,20 +43,18 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             return GetObjects<Course>(queryUri);
         }
 
-        public async Task<bool> SaveCourseAsync(Course course)
+        public async Task<bool> UpdateCoursesAsync(IList<Course> courses)
         {
-            var result = course.IsValid(false);
+            var result = courses.All(course => course.IsValid(false));
 
             if (result)
             {
-                var programmeCode = course.ProgrammeCode;
-                var providerCode = course.Provider.ProviderCode;
-                var queryUri = GetUri($"/courses/{providerCode}/{programmeCode}");
+                var queryUri = GetUri($"/courses");
 
-                var courseJson = JsonConvert.SerializeObject(course, _serializerSettings);
+                var coursesJson = JsonConvert.SerializeObject(courses, _serializerSettings);
 
-                var courseStringContent = new StringContent(courseJson, Encoding.UTF8, "application/json" );
-                var response = await _httpClient.PostAsync(queryUri, courseStringContent);
+                var courseStringContent = new StringContent(coursesJson, Encoding.UTF8, "application/json" );
+                var response = await _httpClient.PutAsync(queryUri, courseStringContent);
 
                 result = response.IsSuccessStatusCode;
             }

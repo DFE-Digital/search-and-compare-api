@@ -68,14 +68,14 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
             var providerCode = course.Provider.ProviderCode;
             var programmeCode = course.ProgrammeCode;
 
-            mockHttp.Setup(x => x.PostAsync(It.Is<Uri>(y => y.AbsoluteUri == $"https://api.example.com/courses/{providerCode}/{programmeCode}"), It.IsAny<StringContent>())).ReturnsAsync(
+            mockHttp.Setup(x => x.PutAsync(It.Is<Uri>(y => y.AbsoluteUri == $"https://api.example.com/courses"), It.IsAny<StringContent>())).ReturnsAsync(
                 new HttpResponseMessage() {
                     StatusCode = HttpStatusCode.OK
                 }
             ).Verifiable();
 
             course.IsValid(false).Should().BeTrue();
-            var result = await sut.SaveCourseAsync(course);
+            var result = await sut.UpdateCoursesAsync(new List<Course> {course});
 
             result.Should().BeTrue();
             mockHttp.VerifyAll();

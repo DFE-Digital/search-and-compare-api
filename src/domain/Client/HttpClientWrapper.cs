@@ -22,5 +22,10 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
         {
             return wrapped.PostAsync(queryUri, content);
         }
+
+        public Task<HttpResponseMessage> PutAsync(Uri queryUri, StringContent content)
+        {
+            return wrapped.PutAsync(queryUri, content);
+        }
     }
 }
