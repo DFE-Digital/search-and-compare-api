@@ -7,7 +7,7 @@
 
 This repo provides a dotnet core solution containing:
 
-* An API + postgres database for managing course data and interacting with the UCAS website.
+* An API + postgres database for searching course data
 * A client library to provide easy usage of the above API, including a shared set of domain classes.
 * Regression tests.
 
@@ -97,3 +97,14 @@ var courses = new List<Course>()
 bool result = api.SaveCoursesAsync(courses);
 ```
 
+## Migrations
+
+### List
+
+    cd src\api
+    dotnet ef migrations list
+
+### Add
+
+    cd src\api
+    dotnet ef migrations add [MigrationName]
