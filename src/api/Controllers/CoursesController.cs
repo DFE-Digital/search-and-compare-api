@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
 using GovUk.Education.SearchAndCompare.Api.ListExtensions;
 using GovUk.Education.SearchAndCompare.Api.Middleware;
+using GovUk.Education.SearchAndCompare.Api.Services;
 using GovUk.Education.SearchAndCompare.Domain.Data;
 using GovUk.Education.SearchAndCompare.Domain.Filters;
 using GovUk.Education.SearchAndCompare.Domain.Filters.Enums;
@@ -25,12 +26,14 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         private readonly ICourseDbContext _context;
 
         private readonly ILogger _logger;
+        private readonly ICourseSearchService _courseSearchService;
         private int defaultPageSize = 10;
 
-        public CoursesController(ICourseDbContext courseDbContext, ILogger<CoursesController> logger)
+        public CoursesController(ICourseDbContext courseDbContext, ICourseSearchService courseSearchService, ILogger<CoursesController> logger)
         {
             _context = courseDbContext;
             _logger = logger;
+            _courseSearchService = courseSearchService;
         }
 
         [HttpPost("{providerCode}/{courseCode}")]
