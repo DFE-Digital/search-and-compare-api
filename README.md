@@ -97,3 +97,14 @@ var courses = new List<Course>()
 bool result = api.SaveCoursesAsync(courses);
 ```
 
+## Migrations
+
+### List
+
+    cd src\api
+    dotnet ef migrations list
+
+### Add
+
+    cd src\api
+    dotnet ef migrations add [MigrationName]
