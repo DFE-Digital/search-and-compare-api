@@ -49,6 +49,15 @@ namespace GovUk.Education.SearchAndCompare.Api.Services
                 courses = _context.GetCoursesWithProviderSubjectsRouteAndCampuses();
             }
 
+            courses = FilterSubjects(filter, courses);
+            courses = FilterFunding(filter, courses);
+            courses = FilterQualifications(filter, courses);
+            courses = FilterParttime(filter, courses);
+            return courses;
+        }
+
+        private static IQueryable<Course> FilterSubjects(QueryFilter filter, IQueryable<Course> courses)
+        {
             if (filter.SelectedSubjects.Count() > 0)
             {
                 courses = courses
@@ -57,6 +66,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Services
                             .Contains(courseSubject.Subject.Id)));
             }
 
+            return courses;
+        }
+
+        private static IQueryable<Course> FilterFunding(QueryFilter filter, IQueryable<Course> courses)
+        {
             if (filter.SelectedFunding != FundingOption.All)
             {
                 Expression<Func<Course, bool>> f;
@@ -64,27 +78,35 @@ namespace GovUk.Education.SearchAndCompare.Api.Services
                 {
                     case FundingOption.AnyFunding:
                         f = c => c.IsSalaried || c.CourseSubjects
-                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue);
+                                     .Any(courseSubject => courseSubject.Subject.FundingId.HasValue);
                         break;
                     case FundingOption.NoScholarship:
                         f = c => c.IsSalaried || c.CourseSubjects
-                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue && courseSubject.Subject.Funding.BursaryFirst.HasValue);
+                                     .Any(courseSubject =>
+                                         courseSubject.Subject.FundingId.HasValue &&
+                                         courseSubject.Subject.Funding.BursaryFirst.HasValue);
                         break;
                     case FundingOption.NoBursary:
                         f = c => c.IsSalaried || c.CourseSubjects
-                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue && courseSubject.Subject.Funding.Scholarship.HasValue);
+                                     .Any(courseSubject =>
+                                         courseSubject.Subject.FundingId.HasValue &&
+                                         courseSubject.Subject.Funding.Scholarship.HasValue);
                         break;
                     case FundingOption.NoSalary:
                         f = c => !c.IsSalaried && c.CourseSubjects
-                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue);
+                                     .Any(courseSubject => courseSubject.Subject.FundingId.HasValue);
                         break;
                     case FundingOption.Scholarship:
                         f = c => !c.IsSalaried && c.CourseSubjects
-                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue && courseSubject.Subject.Funding.Scholarship.HasValue);
+                                     .Any(courseSubject =>
+                                         courseSubject.Subject.FundingId.HasValue &&
+                                         courseSubject.Subject.Funding.Scholarship.HasValue);
                         break;
                     case FundingOption.Bursary:
                         f = c => !c.IsSalaried && c.CourseSubjects
-                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue && courseSubject.Subject.Funding.BursaryFirst.HasValue);
+                                     .Any(courseSubject =>
+                                         courseSubject.Subject.FundingId.HasValue &&
+                                         courseSubject.Subject.Funding.BursaryFirst.HasValue);
                         break;
                     case FundingOption.Salary:
                         f = c => c.IsSalaried;
@@ -100,6 +122,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Services
                 }
             }
 
+            return courses;
+        }
+
+        private static IQueryable<Course> FilterQualifications(QueryFilter filter, IQueryable<Course> courses)
+        {
             var qualQts = (filter.qualification & (byte)QualificationOption.QtsOnly) > 0;
             var qualPgce = (filter.qualification & (byte)QualificationOption.PgdePgceWithQts) > 0;
             var qualOther = (filter.qualification & (byte)QualificationOption.Other) > 0;
@@ -111,25 +138,25 @@ namespace GovUk.Education.SearchAndCompare.Api.Services
             else if (qualQts && qualPgce)
             {
                 courses = courses.Where(x => x.IncludesPgce == IncludesPgce.No ||
-                    x.IncludesPgce == IncludesPgce.Yes ||
-                    x.IncludesPgce == IncludesPgce.QtsWithOptionalPgce ||
-                    x.IncludesPgce == IncludesPgce.QtsWithPgde);
+                                             x.IncludesPgce == IncludesPgce.Yes ||
+                                             x.IncludesPgce == IncludesPgce.QtsWithOptionalPgce ||
+                                             x.IncludesPgce == IncludesPgce.QtsWithPgde);
             }
             else if (qualQts && qualOther)
             {
                 courses = courses.Where(x => x.IncludesPgce == IncludesPgce.No ||
-                    x.IncludesPgce == IncludesPgce.QtlsOnly ||
-                    x.IncludesPgce == IncludesPgce.QtlsWithPgce ||
-                    x.IncludesPgce == IncludesPgce.QtlsWithPgde);
+                                             x.IncludesPgce == IncludesPgce.QtlsOnly ||
+                                             x.IncludesPgce == IncludesPgce.QtlsWithPgce ||
+                                             x.IncludesPgce == IncludesPgce.QtlsWithPgde);
             }
             else if (qualPgce && qualOther)
             {
                 courses = courses.Where(x => x.IncludesPgce == IncludesPgce.Yes ||
-                    x.IncludesPgce == IncludesPgce.QtsWithOptionalPgce ||
-                    x.IncludesPgce == IncludesPgce.QtsWithPgde ||
-                    x.IncludesPgce == IncludesPgce.QtlsOnly ||
-                    x.IncludesPgce == IncludesPgce.QtlsWithPgce ||
-                    x.IncludesPgce == IncludesPgce.QtlsWithPgde);
+                                             x.IncludesPgce == IncludesPgce.QtsWithOptionalPgce ||
+                                             x.IncludesPgce == IncludesPgce.QtsWithPgde ||
+                                             x.IncludesPgce == IncludesPgce.QtlsOnly ||
+                                             x.IncludesPgce == IncludesPgce.QtlsWithPgce ||
+                                             x.IncludesPgce == IncludesPgce.QtlsWithPgde);
             }
             else if (qualQts)
             {
@@ -150,6 +177,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Services
                     x.IncludesPgce == IncludesPgce.QtlsWithPgde);
             }
 
+            return courses;
+        }
+
+        private static IQueryable<Course> FilterParttime(QueryFilter filter, IQueryable<Course> courses)
+        {
             if (!filter.parttime ^ !filter.fulltime)
             {
                 if (!filter.parttime)
