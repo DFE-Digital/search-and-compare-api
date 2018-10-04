@@ -11,6 +11,7 @@ using GovUk.Education.SearchAndCompare.Api.Services;
 using GovUk.Education.SearchAndCompare.Domain.Data;
 using GovUk.Education.SearchAndCompare.Domain.Filters;
 using GovUk.Education.SearchAndCompare.Domain.Filters.Enums;
+using GovUk.Education.SearchAndCompare.Domain.Lists;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 using GovUk.Education.SearchAndCompare.Domain.Models.Enums;
 using GovUk.Education.SearchAndCompare.Domain.Models.Joins;
@@ -183,21 +184,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     }
             }
 
-            var pageSize = defaultPageSize;
-
-            if (filter.pageSize.HasValue)
-            {
-                if (filter.pageSize.Value == 0)
-                {
-                    pageSize = int.MaxValue;
-                }
-                else
-                {
-                    pageSize = filter.pageSize.Value;
-                }
-            }
-
-            var paginatedCourses = courses.ToPaginatedList<Course>(filter.page ?? 1, pageSize);
+            var paginatedCourses = Paginate(courses, filter.pageSize, filter.page);
 
             return Ok(paginatedCourses);
         }
@@ -209,6 +196,26 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             var course = await _context.GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(providerCode, courseCode);
 
             return Ok(course);
+        }
+
+        private PaginatedList<T> Paginate<T>(IQueryable<T> items, int? filterPageSize, int? selectedPage)
+        {
+            var pageSize = defaultPageSize;
+
+            if (filterPageSize.HasValue)
+            {
+                if (filterPageSize.Value == 0)
+                {
+                    pageSize = int.MaxValue;
+                }
+                else
+                {
+                    pageSize = filterPageSize.Value;
+                }
+            }
+
+            var paginatedCourses = items.ToPaginatedList<T>(selectedPage ?? 1, pageSize);
+            return paginatedCourses;
         }
 
         private void AssociateWithLocations(ref IList<Course> courses)
