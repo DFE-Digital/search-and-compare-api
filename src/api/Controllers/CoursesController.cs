@@ -11,6 +11,7 @@ using GovUk.Education.SearchAndCompare.Api.Services;
 using GovUk.Education.SearchAndCompare.Domain.Data;
 using GovUk.Education.SearchAndCompare.Domain.Filters;
 using GovUk.Education.SearchAndCompare.Domain.Filters.Enums;
+using GovUk.Education.SearchAndCompare.Domain.Lists;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 using GovUk.Education.SearchAndCompare.Domain.Models.Enums;
 using GovUk.Education.SearchAndCompare.Domain.Models.Joins;
@@ -154,8 +155,21 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         [HttpGet]
         public IActionResult GetFiltered(QueryFilter filter)
         {
-            var result = _courseSearchService.GetCourses(filter);
-            return Ok(result);
+            var courses = _courseSearchService.GetCourses(filter);
+            var paginatedCourses = Paginate(filter, courses);
+            return Ok(paginatedCourses);
+        }
+
+        private static PaginatedList<T> Paginate<T>(QueryFilter filter, IQueryable<T> queryable)
+        {
+            const int defaultPageSize = 10;
+            var pageSize = defaultPageSize;
+            if (filter.pageSize.HasValue)
+            {
+                pageSize = filter.pageSize.Value == 0 ? int.MaxValue : filter.pageSize.Value;
+            }
+            var paginatedCourses = queryable.ToPaginatedList(filter.page ?? 1, pageSize);
+            return paginatedCourses;
         }
 
         // GET api/courses/{id}

@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using GovUk.Education.SearchAndCompare.Domain.Filters;
-using GovUk.Education.SearchAndCompare.Domain.Lists;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 
 namespace GovUk.Education.SearchAndCompare.Api.Services
@@ -8,10 +7,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Services
     public interface ICourseSearchService
     {
         /// <summary>
-        /// Applies pagination and filtering.
+        /// Retrieves course list from database based on filters supplied.
+        /// Does not apply pagination, that is up to the consumer of this method's output.
         /// </summary>
-        /// <param name="filter"></param>
-        /// <returns></returns>
-        PaginatedList<Course> GetCourses(QueryFilter filter);
+        IQueryable<Course> GetCourses(QueryFilter filter);
     }
 }
