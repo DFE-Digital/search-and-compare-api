@@ -27,6 +27,21 @@ namespace GovUk.Education.SearchAndCompare.Api.Services
             return courses;
         }
 
+        /// <inheritdoc />
+        public IQueryable<Course> AddListingIncludes(IQueryable<Course> queryable)
+        {
+            return queryable.Include("Provider")
+                .Include(course => course.AccreditingProvider)
+                .Include(course => course.CourseSubjects)
+                .ThenInclude(courseSubject => courseSubject.Subject)
+                .ThenInclude(subject => subject.Funding)
+                .Include(course => course.ContactDetails)
+                .Include(course => course.ProviderLocation)
+                .Include(course => course.Route)
+                .Include(course => course.Campuses)
+                .ThenInclude(campus => campus.Location);
+        }
+
         private IQueryable<Course> GetFilteredCourses(QueryFilter filter)
         {
             bool hasTextFilter = !string.IsNullOrWhiteSpace(filter.query);
@@ -189,25 +204,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Services
                 }
             }
             return courses;
-        }
-
-        /// <summary>
-        /// Make sure EF Core actually loads all the data we need about a course
-        /// </summary>
-        /// <param name="queryable"></param>
-        /// <returns></returns>
-        private IQueryable<Course> AddListingIncludes(IQueryable<Course> queryable)
-        {
-            return queryable.Include("Provider")
-                .Include(course => course.AccreditingProvider)
-                .Include(course => course.CourseSubjects)
-                    .ThenInclude(courseSubject => courseSubject.Subject)
-                        .ThenInclude(subject => subject.Funding)
-                .Include(course => course.ContactDetails)
-                .Include(course => course.ProviderLocation)
-                .Include(course => course.Route)
-                .Include(course => course.Campuses)
-                    .ThenInclude(campus => campus.Location);
         }
 
         private static IQueryable<Course> ApplySort(QueryFilter filter, IQueryable<Course> courses)

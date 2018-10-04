@@ -150,7 +150,7 @@ WHERE lower(""p1"".""Name"") = lower(@query) OR lower(""p2"".""Name"") = lower(@
                 throw new ArgumentException("Cannot be null or white space", nameof(searchText));
             }
 
-            return ForListing(Courses.FromSql(@"
+            return Courses.FromSql(@"
 SELECT ""course"".*, c1.""Distance""
 FROM course_distance(@lat,@lon,@rad) AS ""c1""
 JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""

@@ -11,5 +11,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Services
         /// Does not apply pagination, that is up to the consumer of this method's output.
         /// </summary>
         IQueryable<Course> GetCourses(QueryFilter filter);
+
+        /// <summary>
+        /// Make sure EF Core actually loads all the data we need about a course
+        /// to show the search results.
+        /// </summary>
+        IQueryable<Course> AddListingIncludes(IQueryable<Course> queryable);
     }
 }
