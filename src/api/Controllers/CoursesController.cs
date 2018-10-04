@@ -150,8 +150,47 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         [HttpGet]
         public IActionResult GetFiltered(QueryFilter filter)
         {
+            // I need:
+            // All the courses that are nearby, regardless of whether it's provider, accrediting provider
+            // or campus address that's close.
+            // I then need a distinct list of courses, sorted by the distance of the nearest thing.
+            // I then need to be able to display as part of the course entry what that nearest thing was
+            // along with extra details from it.
+            // Nearest thing could be:
+            //  * provider
+            //  * accrediting provider
+            //  * campus (show name)
+            // result: list of courses, with associated nearest thing
+            // nearest thing needs location with distance + address
+
+            // Need it all in one db hit.
+            // Needs to be performant.
+            // Needs to be easy to change as we learn from our users.
+
+            /*
+
+            if location{
+                find locations in radius
+                join to 3x entities
+                link entities back to campus
+                aggregregate group by course - gives dictionary style access
+                add distance at top level
+            } else{
+                normal course attribute filters
+                still need address?
+            }
+
+            would it be easier in sql?
+            create a custom object type
+            locId, dist func
+            provId
+            accProvId
+            campusId
+            courseId (aggregate)
+             */
+
             var courses = _courseSearchService.GetCourses(filter);
-            courses = _courseSearchService.AddListingIncludes(courses);
+            //courses = _courseSearchService.AddListingIncludes(courses);
             var paginatedCourses = Paginate(filter, courses);
             return Ok(paginatedCourses);
         }

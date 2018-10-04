@@ -31,6 +31,9 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
         IQueryable<Location> LocationsNear(double latitude, double longitude, double radiusInMeters);
 
+        /// <summary>
+        /// Filters to courses that are an exact match on provider / accrediting provider name
+        /// </summary>
         IQueryable<Course> CoursesByProviderName(string providerName);
 
         IQueryable<Course> GetTextAndLocationFilteredCourses(string searchText, double latitude, double longitude, double radiusInMeters);

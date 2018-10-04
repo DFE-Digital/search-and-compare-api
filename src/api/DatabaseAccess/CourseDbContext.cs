@@ -80,9 +80,7 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
             base.SaveChanges();
         }
 
-        /// <summary>
-        /// Filters to courses that are an exact match on provider / accrediting provider name
-        /// </summary>
+        /// <inheritdoc />
         public IQueryable<Course> CoursesByProviderName(string providerName)
         {
             if (string.IsNullOrWhiteSpace(providerName))
@@ -91,7 +89,7 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
             }
 
             return Courses.FromSql(@"
-SELECT ""course"".*, NULL as ""Distance""
+SELECT ""course"".*
 FROM ""course""
 LEFT OUTER JOIN ""provider"" AS ""p1"" ON ""course"".""ProviderId"" = ""p1"".""Id""
 LEFT OUTER JOIN ""provider"" AS ""p2"" ON ""course"".""AccreditingProviderId"" = ""p2"".""Id""
@@ -160,7 +158,7 @@ WHERE lower(""p1"".""Name"") = lower(@query) OR lower(""p2"".""Name"") = lower(@
                     new NpgsqlParameter("@query", searchText),
                     new NpgsqlParameter("@lat", latitude),
                     new NpgsqlParameter("@lon", longitude),
-                    new NpgsqlParameter("@rad", radiusInMeters)));
+                    new NpgsqlParameter("@rad", radiusInMeters));
         }
 
         public IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses()
