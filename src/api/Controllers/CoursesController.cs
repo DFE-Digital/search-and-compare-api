@@ -146,7 +146,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         [HttpGet("total")]
         public IActionResult GetCoursesTotal(QueryFilter filter)
         {
-            var totalCount = GetFilteredCourses(filter).Count();
+            var totalCount = _courseSearchService.GetFilteredCourses(filter).Count();
 
             return Ok(new TotalCountResult { TotalCount = totalCount });
         }
@@ -155,7 +155,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         [HttpGet]
         public IActionResult GetFiltered(QueryFilter filter)
         {
-            var courses = GetFilteredCourses(filter);
+            var courses = _courseSearchService.GetFilteredCourses(filter);
 
             switch (filter.SortBy)
             {
@@ -209,153 +209,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             var course = await _context.GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(providerCode, courseCode);
 
             return Ok(course);
-        }
-
-        private IQueryable<Course> GetFilteredCourses(QueryFilter filter)
-        {
-            IQueryable<Course> courses;
-            bool locationFilter = filter.Coordinates != null && filter.RadiusOption != null;
-            bool textFilter = !string.IsNullOrWhiteSpace(filter.query);
-
-            if (textFilter && locationFilter)
-            {
-                courses = _context.GetTextAndLocationFilteredCourses(
-                    filter.query,
-                    filter.Coordinates.Latitude,
-                    filter.Coordinates.Longitude,
-                    filter.RadiusOption.Value.ToMetres());
-            }
-            else if (textFilter && !locationFilter)
-            {
-                courses = _context.GetTextFilteredCourses(
-                    filter.query);
-            }
-            else if (!textFilter && locationFilter)
-            {
-                courses = _context.GetLocationFilteredCourses(
-                    filter.Coordinates.Latitude,
-                    filter.Coordinates.Longitude,
-                    filter.RadiusOption.Value.ToMetres());
-            }
-            else
-            {
-                courses = _context.GetCoursesWithProviderSubjectsRouteAndCampuses();
-            }
-
-            if (filter.SelectedSubjects.Count() > 0)
-            {
-                courses = courses
-                    .Where(course => course.CourseSubjects
-                        .Any(courseSubject => filter.SelectedSubjects
-                            .Contains(courseSubject.Subject.Id)));
-            }
-
-            if (filter.SelectedFunding != FundingOption.All)
-            {
-                Expression<Func<Course, bool>> f;
-                switch (filter.SelectedFunding)
-                {
-                    case FundingOption.AnyFunding:
-                        f = c => c.IsSalaried || c.CourseSubjects
-                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue);
-                        break;
-                    case FundingOption.NoScholarship:
-                        f = c => c.IsSalaried || c.CourseSubjects
-                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue && courseSubject.Subject.Funding.BursaryFirst.HasValue);
-                        break;
-                    case FundingOption.NoBursary:
-                        f = c => c.IsSalaried || c.CourseSubjects
-                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue && courseSubject.Subject.Funding.Scholarship.HasValue);
-                        break;
-                    case FundingOption.NoSalary:
-                        f = c => !c.IsSalaried && c.CourseSubjects
-                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue);
-                        break;
-                    case FundingOption.Scholarship:
-                        f = c => !c.IsSalaried && c.CourseSubjects
-                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue && courseSubject.Subject.Funding.Scholarship.HasValue);
-                        break;
-                    case FundingOption.Bursary:
-                        f = c => !c.IsSalaried && c.CourseSubjects
-                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue && courseSubject.Subject.Funding.BursaryFirst.HasValue);
-                        break;
-                    case FundingOption.Salary:
-                        f = c => c.IsSalaried;
-                        break;
-                    default:
-                        f = null;
-                        break;
-                }
-
-                if (f != null)
-                {
-                    courses = courses.Where(f);
-                }
-            }
-
-            var qualQts = (filter.qualification & (byte)QualificationOption.QtsOnly) > 0;
-            var qualPgce = (filter.qualification & (byte)QualificationOption.PgdePgceWithQts) > 0;
-            var qualOther = (filter.qualification & (byte)QualificationOption.Other) > 0;
-
-            if (qualQts && qualPgce && qualOther)
-            {
-                // do nothing - include all qualifications
-            }
-            else if (qualQts && qualPgce)
-            {
-                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.No ||
-                    x.IncludesPgce == IncludesPgce.Yes ||
-                    x.IncludesPgce == IncludesPgce.QtsWithOptionalPgce ||
-                    x.IncludesPgce == IncludesPgce.QtsWithPgde);
-            }
-            else if (qualQts && qualOther)
-            {
-                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.No ||
-                    x.IncludesPgce == IncludesPgce.QtlsOnly ||
-                    x.IncludesPgce == IncludesPgce.QtlsWithPgce ||
-                    x.IncludesPgce == IncludesPgce.QtlsWithPgde);
-            }
-            else if (qualPgce && qualOther)
-            {
-                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.Yes ||
-                    x.IncludesPgce == IncludesPgce.QtsWithOptionalPgce ||
-                    x.IncludesPgce == IncludesPgce.QtsWithPgde ||
-                    x.IncludesPgce == IncludesPgce.QtlsOnly ||
-                    x.IncludesPgce == IncludesPgce.QtlsWithPgce ||
-                    x.IncludesPgce == IncludesPgce.QtlsWithPgde);
-            }
-            else if (qualQts)
-            {
-                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.No);
-            }
-            else if (qualPgce)
-            {
-                courses = courses.Where(x =>
-                    x.IncludesPgce == IncludesPgce.Yes ||
-                    x.IncludesPgce == IncludesPgce.QtsWithOptionalPgce ||
-                    x.IncludesPgce == IncludesPgce.QtsWithPgde);
-            }
-            else if (qualOther)
-            {
-                courses = courses.Where(x =>
-                    x.IncludesPgce == IncludesPgce.QtlsOnly ||
-                    x.IncludesPgce == IncludesPgce.QtlsWithPgce ||
-                    x.IncludesPgce == IncludesPgce.QtlsWithPgde);
-            }
-
-            if (!filter.parttime ^ !filter.fulltime)
-            {
-                if (!filter.parttime)
-                {
-                    courses = courses.Where(course => course.FullTime != VacancyStatus.NA);
-                }
-                else if (!filter.fulltime)
-                {
-                    courses = courses.Where(course => course.PartTime != VacancyStatus.NA);
-                }
-            }
-
-            return courses;
         }
 
         private void AssociateWithLocations(ref IList<Course> courses)
