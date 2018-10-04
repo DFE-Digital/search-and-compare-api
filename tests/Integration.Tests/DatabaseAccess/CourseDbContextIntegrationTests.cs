@@ -134,6 +134,36 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
         }
 
         [Test]
+        public void ProviderSuggest_ExactMatchesPreferred()
+        {
+            Assert.AreEqual(0, context.Courses.Count());            
+
+            var course1 = GetSimpleCourse();
+            var course2 = GetSimpleCourse();
+            var course3 = GetSimpleCourse();
+
+            var provider1 = new Provider { Name = "Teach"};
+            var provider2 = new Provider { Name = "Teach2"};
+
+            course1.Provider = provider1;
+            course2.Provider = provider2;
+            course3.Provider = provider2;
+
+            entitiesToCleanUp.Add(context.Courses.Add(course1));
+            entitiesToCleanUp.Add(context.Courses.Add(course2));
+            entitiesToCleanUp.Add(context.Courses.Add(course3));
+
+            context.SaveChanges();
+
+
+            using (var context2 = GetContext())
+            {
+                Assert.AreEqual("Teach2", context.SuggestProviders("tea").First().Name, "should be sorted by course count by default");
+                Assert.AreEqual("Teach", context.SuggestProviders("teach").First().Name, "should prefer exact matches");
+            }
+        }
+
+        [Test]
         public void RetrieveByIdCaseInsenstive()
         {
             Assert.AreEqual(0, context.Courses.Count());
@@ -202,7 +232,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
                 Salary = new Salary(),
                 DescriptionSections = new HashSet<CourseDescriptionSection>
                 {
-                    new CourseDescriptionSection { Id = 1, Name = "Title", Text = "Content" }
+                    new CourseDescriptionSection { Name = "Title", Text = "Content" }
                 }
             };
         }
