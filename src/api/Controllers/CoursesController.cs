@@ -1,23 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
-using GovUk.Education.SearchAndCompare.Api.ListExtensions;
 using GovUk.Education.SearchAndCompare.Api.Middleware;
 using GovUk.Education.SearchAndCompare.Api.Services;
 using GovUk.Education.SearchAndCompare.Domain.Data;
 using GovUk.Education.SearchAndCompare.Domain.Filters;
-using GovUk.Education.SearchAndCompare.Domain.Filters.Enums;
-using GovUk.Education.SearchAndCompare.Domain.Lists;
 using GovUk.Education.SearchAndCompare.Domain.Models;
-using GovUk.Education.SearchAndCompare.Domain.Models.Enums;
 using GovUk.Education.SearchAndCompare.Domain.Models.Joins;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace GovUk.Education.SearchAndCompare.Api.Controllers
 {
@@ -28,7 +22,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
         private readonly ILogger _logger;
         private readonly ICourseSearchService _courseSearchService;
-        private int defaultPageSize = 10;
 
         public CoursesController(ICourseDbContext courseDbContext, ICourseSearchService courseSearchService, ILogger<CoursesController> logger)
         {
@@ -147,7 +140,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         [HttpGet("total")]
         public IActionResult GetCoursesTotal(QueryFilter filter)
         {
-            var totalCount = _courseSearchService.GetFilteredCourses(filter).Count();
+            var totalCount = _courseSearchService.GetFilteredCourseCount(filter);
 
             return Ok(new TotalCountResult { TotalCount = totalCount });
         }
@@ -156,9 +149,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         [HttpGet]
         public IActionResult GetFiltered(QueryFilter filter)
         {
-            var courses = _courseSearchService.GetFilteredCourses(filter);
-            courses = ApplySort(filter, courses);
-            var paginatedCourses = Paginate(courses, filter.pageSize, filter.page);
+            var paginatedCourses = _courseSearchService.GetFilteredCourses(filter);
             return Ok(paginatedCourses);
         }
 
@@ -169,57 +160,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             var course = await _context.GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(providerCode, courseCode);
 
             return Ok(course);
-        }
-
-        private static IQueryable<Course> ApplySort(QueryFilter filter, IQueryable<Course> courses)
-        {
-            switch (filter.SortBy)
-            {
-                case (SortByOption.ZtoA):
-                {
-                    courses = courses
-                        .OrderBy(c => c.Provider.Name != filter.query) // false comes before true... (odd huh)
-                        .ThenByDescending(c => c.Provider.Name)
-                        .ThenBy(c => c.Name);
-                    break;
-                }
-                case (SortByOption.Distance):
-                {
-                    courses = courses.OrderBy(c => c.Distance);
-                    break;
-                }
-                default:
-                case (SortByOption.AtoZ):
-                {
-                    courses = courses
-                        .OrderBy(c => c.Provider.Name != filter.query) // false comes before true... (odd huh)
-                        .ThenBy(c => c.Provider.Name)
-                        .ThenBy(c => c.Name);
-                    break;
-                }
-            }
-
-            return courses;
-        }
-
-        private PaginatedList<T> Paginate<T>(IQueryable<T> items, int? filterPageSize, int? selectedPage)
-        {
-            var pageSize = defaultPageSize;
-
-            if (filterPageSize.HasValue)
-            {
-                if (filterPageSize.Value == 0)
-                {
-                    pageSize = int.MaxValue;
-                }
-                else
-                {
-                    pageSize = filterPageSize.Value;
-                }
-            }
-
-            var paginatedCourses = items.ToPaginatedList<T>(selectedPage ?? 1, pageSize);
-            return paginatedCourses;
         }
 
         private void AssociateWithLocations(ref IList<Course> courses)

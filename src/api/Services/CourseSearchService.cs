@@ -2,8 +2,10 @@
 using System.Linq;
 using System.Linq.Expressions;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
+using GovUk.Education.SearchAndCompare.Api.ListExtensions;
 using GovUk.Education.SearchAndCompare.Domain.Filters;
 using GovUk.Education.SearchAndCompare.Domain.Filters.Enums;
+using GovUk.Education.SearchAndCompare.Domain.Lists;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 using GovUk.Education.SearchAndCompare.Domain.Models.Enums;
 
@@ -12,13 +14,27 @@ namespace GovUk.Education.SearchAndCompare.Api.Services
     public class CourseSearchService : ICourseSearchService
     {
         private readonly ICourseDbContext _context;
+        private const int DefaultPageSize = 10;
 
         public CourseSearchService(ICourseDbContext context)
         {
             _context = context;
         }
 
-        public IQueryable<Course> GetFilteredCourses(QueryFilter filter)
+        public PaginatedList<Course> GetFilteredCourses(QueryFilter filter)
+        {
+            var courses = GetFiltered(filter);
+            var paginatedCourses = Paginate(courses, filter.pageSize, filter.page);
+            return paginatedCourses;
+        }
+
+        public int GetFilteredCourseCount(QueryFilter filter)
+        {
+            var courses = GetFiltered(filter);
+            return courses.Count();
+        }
+
+        private IQueryable<Course> GetFiltered(QueryFilter filter)
         {
             IQueryable<Course> courses;
             bool hasLocationFilter = filter.Coordinates != null && filter.RadiusOption != null;
@@ -53,6 +69,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Services
             courses = FilterFunding(filter, courses);
             courses = FilterQualifications(filter, courses);
             courses = FilterParttime(filter, courses);
+            courses = ApplySort(filter, courses);
             return courses;
         }
 
@@ -195,6 +212,57 @@ namespace GovUk.Education.SearchAndCompare.Api.Services
             }
 
             return courses;
+        }
+
+        private static IQueryable<Course> ApplySort(QueryFilter filter, IQueryable<Course> courses)
+        {
+            switch (filter.SortBy)
+            {
+                case (SortByOption.ZtoA):
+                    {
+                        courses = courses
+                            .OrderBy(c => c.Provider.Name != filter.query) // false comes before true... (odd huh)
+                            .ThenByDescending(c => c.Provider.Name)
+                            .ThenBy(c => c.Name);
+                        break;
+                    }
+                case (SortByOption.Distance):
+                    {
+                        courses = courses.OrderBy(c => c.Distance);
+                        break;
+                    }
+                default:
+                case (SortByOption.AtoZ):
+                    {
+                        courses = courses
+                            .OrderBy(c => c.Provider.Name != filter.query) // false comes before true... (odd huh)
+                            .ThenBy(c => c.Provider.Name)
+                            .ThenBy(c => c.Name);
+                        break;
+                    }
+            }
+
+            return courses;
+        }
+
+        private PaginatedList<T> Paginate<T>(IQueryable<T> items, int? filterPageSize, int? selectedPage)
+        {
+            var pageSize = DefaultPageSize;
+
+            if (filterPageSize.HasValue)
+            {
+                if (filterPageSize.Value == 0)
+                {
+                    pageSize = int.MaxValue;
+                }
+                else
+                {
+                    pageSize = filterPageSize.Value;
+                }
+            }
+
+            var paginatedCourses = items.ToPaginatedList<T>(selectedPage ?? 1, pageSize);
+            return paginatedCourses;
         }
     }
 }
