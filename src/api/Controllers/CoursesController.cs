@@ -1,21 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
-using GovUk.Education.SearchAndCompare.Api.ListExtensions;
 using GovUk.Education.SearchAndCompare.Api.Middleware;
+using GovUk.Education.SearchAndCompare.Api.Services;
 using GovUk.Education.SearchAndCompare.Domain.Data;
 using GovUk.Education.SearchAndCompare.Domain.Filters;
-using GovUk.Education.SearchAndCompare.Domain.Filters.Enums;
 using GovUk.Education.SearchAndCompare.Domain.Models;
-using GovUk.Education.SearchAndCompare.Domain.Models.Enums;
 using GovUk.Education.SearchAndCompare.Domain.Models.Joins;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace GovUk.Education.SearchAndCompare.Api.Controllers
 {
@@ -25,12 +21,13 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         private readonly ICourseDbContext _context;
 
         private readonly ILogger _logger;
-        private int defaultPageSize = 10;
+        private readonly ICourseSearchService _courseSearchService;
 
-        public CoursesController(ICourseDbContext courseDbContext, ILogger<CoursesController> logger)
+        public CoursesController(ICourseDbContext courseDbContext, ICourseSearchService courseSearchService, ILogger<CoursesController> logger)
         {
             _context = courseDbContext;
             _logger = logger;
+            _courseSearchService = courseSearchService;
         }
 
         [HttpPost("{providerCode}/{courseCode}")]
@@ -44,7 +41,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             //
             IActionResult result = BadRequest();
 
-            if(ModelState.IsValid &&
+            if (ModelState.IsValid &&
                 course != null &&
                 course.IsValid(false) &&
                 providerCode.Equals(course.Provider.ProviderCode, StringComparison.InvariantCultureIgnoreCase) &&
@@ -52,7 +49,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             {
                 try
                 {
-                    IList<Course> courses = new List<Course> {course};
+                    IList<Course> courses = new List<Course> { course };
                     MakeProvidersDistinctReferences(ref courses);
                     MakeRoutesDistinctReferences(ref courses);
 
@@ -71,11 +68,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
                 }
                 // Note: if any exception is catch it course.IsValid() needs to be revisited
-                catch(DbUpdateException ex)
+                catch (DbUpdateException ex)
                 {
                     _logger.LogWarning(ex, "Failed to save the courses to database");
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     // Note: notice that ef core dont respect id generation for some reason.
                     _logger.LogWarning(ex, "Failed to save the course");
@@ -97,13 +94,13 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             //
             IActionResult result = BadRequest();
 
-            if(ModelState.IsValid &&
+            if (ModelState.IsValid &&
                 courses != null &&
                 courses.All(x => x.IsValid(false)))
             {
                 try
                 {
-                    _logger.LogInformation($"Courses to import: {courses.Count()}" );
+                    _logger.LogInformation($"Courses to import: {courses.Count()}");
                     _context.Campuses.RemoveRange(_context.Campuses);
                     _context.Courses.RemoveRange(_context.GetCoursesWithProviderSubjectsRouteAndCampuses());
                     _context.Providers.RemoveRange(_context.Providers);
@@ -126,11 +123,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     _logger.LogInformation($"New Courses Added");
                 }
                 // Note: if any exception is catch it course.IsValid() needs to be revisited
-                catch(DbUpdateException ex)
+                catch (DbUpdateException ex)
                 {
                     _logger.LogWarning(ex, "Failed to save the courses to database");
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     // Note: notice that ef core dont respect id generation for some reason.
                     _logger.LogWarning(ex, "Failed to save the courses");
@@ -143,59 +140,16 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         [HttpGet("total")]
         public IActionResult GetCoursesTotal(QueryFilter filter)
         {
-            var totalCount = GetFilteredCourses(filter).Count();
+            var totalCount = _courseSearchService.GetFilteredCourseCount(filter);
 
-            return Ok(new TotalCountResult{TotalCount= totalCount });
+            return Ok(new TotalCountResult { TotalCount = totalCount });
         }
 
         // GET api/courses
         [HttpGet]
         public IActionResult GetFiltered(QueryFilter filter)
         {
-            var courses = GetFilteredCourses(filter);
-
-            switch (filter.SortBy)
-            {
-                case (SortByOption.ZtoA):
-                {
-                    courses = courses
-                        .OrderBy(c => c.Provider.Name != filter.query) // false comes before true... (odd huh)
-                        .ThenByDescending(c => c.Provider.Name)
-                        .ThenBy(c => c.Name);
-                    break;
-                }
-                case (SortByOption.Distance):
-                {
-                    courses = courses.OrderBy(c => c.Distance);
-                    break;
-                }
-                default:
-                case (SortByOption.AtoZ):
-                {
-                    courses = courses
-                        .OrderBy(c => c.Provider.Name != filter.query) // false comes before true... (odd huh)
-                        .ThenBy(c => c.Provider.Name)
-                        .ThenBy(c => c.Name);
-                    break;
-                }
-            }
-
-            var pageSize = defaultPageSize;
-
-            if (filter.pageSize.HasValue)
-            {
-                if (filter.pageSize.Value == 0)
-                {
-                    pageSize = int.MaxValue;
-                }
-                else
-                {
-                    pageSize = filter.pageSize.Value;
-                }
-            }
-
-            var paginatedCourses = courses.ToPaginatedList<Course>(filter.page ?? 1, pageSize);
-
+            var paginatedCourses = _courseSearchService.GetFilteredCourses(filter);
             return Ok(paginatedCourses);
         }
 
@@ -208,153 +162,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             return Ok(course);
         }
 
-        private IQueryable<Course> GetFilteredCourses(QueryFilter filter)
-        {
-            IQueryable<Course> courses;
-            bool locationFilter = filter.Coordinates != null && filter.RadiusOption != null;
-            bool textFilter = !string.IsNullOrWhiteSpace(filter.query);
-
-            if (textFilter && locationFilter)
-            {
-                courses = _context.GetTextAndLocationFilteredCourses(
-                    filter.query,
-                    filter.Coordinates.Latitude,
-                    filter.Coordinates.Longitude,
-                    filter.RadiusOption.Value.ToMetres());
-            }
-            else if (textFilter && !locationFilter)
-            {
-                courses = _context.GetTextFilteredCourses(
-                    filter.query);
-            }
-            else if (!textFilter && locationFilter)
-            {
-                courses = _context.GetLocationFilteredCourses(
-                    filter.Coordinates.Latitude,
-                    filter.Coordinates.Longitude,
-                    filter.RadiusOption.Value.ToMetres());
-            }
-            else
-            {
-                courses = _context.GetCoursesWithProviderSubjectsRouteAndCampuses();
-            }
-
-            if (filter.SelectedSubjects.Count() > 0)
-            {
-                courses = courses
-                    .Where(course => course.CourseSubjects
-                        .Any(courseSubject => filter.SelectedSubjects
-                            .Contains(courseSubject.Subject.Id)));
-            }
-
-            if (filter.SelectedFunding != FundingOption.All)
-            {
-                Expression<Func<Course,bool>> f;
-                switch(filter.SelectedFunding)
-                {
-                    case FundingOption.AnyFunding:
-                        f = c => c.IsSalaried || c.CourseSubjects
-                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue);
-                        break;
-                    case FundingOption.NoScholarship:
-                        f = c => c.IsSalaried || c.CourseSubjects
-                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue && courseSubject.Subject.Funding.BursaryFirst.HasValue);
-                        break;
-                    case FundingOption.NoBursary:
-                        f = c => c.IsSalaried || c.CourseSubjects
-                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue && courseSubject.Subject.Funding.Scholarship.HasValue);
-                        break;
-                    case FundingOption.NoSalary:
-                        f = c => !c.IsSalaried && c.CourseSubjects
-                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue);
-                        break;
-                    case FundingOption.Scholarship:
-                        f = c => !c.IsSalaried && c.CourseSubjects
-                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue && courseSubject.Subject.Funding.Scholarship.HasValue);
-                        break;
-                    case FundingOption.Bursary:
-                        f = c => !c.IsSalaried && c.CourseSubjects
-                            .Any(courseSubject => courseSubject.Subject.FundingId.HasValue && courseSubject.Subject.Funding.BursaryFirst.HasValue);
-                        break;
-                    case FundingOption.Salary:
-                        f = c => c.IsSalaried;
-                        break;
-                    default:
-                        f = null;
-                        break;
-                }
-
-                if (f != null)
-                {
-                    courses = courses.Where(f);
-                }
-            }
-
-            var qualQts = (filter.qualification & (byte) QualificationOption.QtsOnly) > 0; 
-            var qualPgce = (filter.qualification & (byte) QualificationOption.PgdePgceWithQts) > 0; 
-            var qualOther = (filter.qualification & (byte) QualificationOption.Other) > 0; 
-            
-            if(qualQts && qualPgce && qualOther)
-            {
-                // do nothing - include all qualifications
-            }
-            else if (qualQts && qualPgce)
-            {
-                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.No ||
-                    x.IncludesPgce == IncludesPgce.Yes ||
-                    x.IncludesPgce == IncludesPgce.QtsWithOptionalPgce ||
-                    x.IncludesPgce == IncludesPgce.QtsWithPgde);
-            }
-            else if (qualQts && qualOther)
-            {
-                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.No ||
-                    x.IncludesPgce == IncludesPgce.QtlsOnly ||
-                    x.IncludesPgce == IncludesPgce.QtlsWithPgce ||
-                    x.IncludesPgce == IncludesPgce.QtlsWithPgde);
-            }
-            else if (qualPgce && qualOther)
-            {                
-                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.Yes ||
-                    x.IncludesPgce == IncludesPgce.QtsWithOptionalPgce ||
-                    x.IncludesPgce == IncludesPgce.QtsWithPgde ||
-                    x.IncludesPgce == IncludesPgce.QtlsOnly ||
-                    x.IncludesPgce == IncludesPgce.QtlsWithPgce ||
-                    x.IncludesPgce == IncludesPgce.QtlsWithPgde);
-            }
-            else if(qualQts)
-            {
-                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.No);
-            }
-            else if(qualPgce)
-            {
-                courses = courses.Where(x =>
-                    x.IncludesPgce == IncludesPgce.Yes ||
-                    x.IncludesPgce == IncludesPgce.QtsWithOptionalPgce ||
-                    x.IncludesPgce == IncludesPgce.QtsWithPgde);
-            }
-            else if(qualOther)
-            {
-                courses = courses.Where(x =>
-                    x.IncludesPgce == IncludesPgce.QtlsOnly ||
-                    x.IncludesPgce == IncludesPgce.QtlsWithPgce ||
-                    x.IncludesPgce == IncludesPgce.QtlsWithPgde);
-            }
-
-            if (!filter.parttime ^ !filter.fulltime)
-            {
-                if (!filter.parttime)
-                {
-                    courses = courses.Where(course => course.FullTime != VacancyStatus.NA);
-                }
-                else if (!filter.fulltime)
-                {
-                    courses = courses.Where(course => course.PartTime != VacancyStatus.NA);
-                }
-            }
-
-            return courses;
-        }
-
         private void AssociateWithLocations(ref IList<Course> courses)
         {
             var existingLocations = _context.Locations.ToList();
@@ -362,24 +169,26 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             var allContactDetailsAddresses = courses.Where(x => !string.IsNullOrWhiteSpace(x.ContactDetails?.Address)).Select(x => x.ContactDetails?.Address) ?? new List<string>();
             var allCampusesAddresses = courses
                 .SelectMany(x => x.Campuses.Select(y => y.Location.Address)) ?? new List<string>();
-            var allProviderLocationAddresses = courses.Select(x=>x.ProviderLocation?.Address) ?? new List<string>();
+            var allProviderLocationAddresses = courses.Select(x => x.ProviderLocation?.Address) ?? new List<string>();
 
             var allAddressesAsLocations = allContactDetailsAddresses
                 .Concat(allCampusesAddresses)
                 .Concat(allProviderLocationAddresses)
-                .Where(x =>  !string.IsNullOrWhiteSpace(x))
+                .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Distinct()
-                .ToDictionary(x => x, x => {
+                .ToDictionary(x => x, x =>
+                {
                     var location = existingLocations.FirstOrDefault(l => l.Address == x);
 
-                    if (location == null) {
+                    if (location == null)
+                    {
                         location = new Location { Address = x };
                     }
 
                     return location;
                 });
 
-            foreach(var course in courses)
+            foreach (var course in courses)
             {
                 var courseAddress = course.ProviderLocation?.Address ?? course.ContactDetails?.Address;
 
@@ -424,10 +233,12 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
             var distinctSubjects = allSubjects
                 .ToLookup(x => x.Name)
-                .ToDictionary(x => x.Key, x => {
+                .ToDictionary(x => x.Key, x =>
+                {
                     var subject = allExistingSubjects.FirstOrDefault(s => s.Name == x.Key);
 
-                    if (subject == null) {
+                    if (subject == null)
+                    {
                         subject = new Subject { Name = x.Key, SubjectArea = defaultAreaOrNull };
                     }
 
@@ -449,7 +260,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             var coursesProviders = courses
                     .Select(x => x.Provider) ?? new List<Provider>();
             var accreditingProviders = courses.Where(x => x.AccreditingProvider != null)
-                    .Select(x => x.AccreditingProvider) ??  new List<Provider>();
+                    .Select(x => x.AccreditingProvider) ?? new List<Provider>();
 
             var allProviders = coursesProviders.Concat(accreditingProviders);
             var distinctProviders = allProviders
@@ -460,7 +271,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
             var existingProviders = _context.Providers.ToList()
                 .ToLookup(x => x.ProviderCode)
-                .ToDictionary(x => x.Key, x => x.First());;
+                .ToDictionary(x => x.Key, x => x.First()); ;
 
 
             foreach (var course in courses)
@@ -469,7 +280,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 {
                     course.AccreditingProvider = existingProviders.GetValueOrDefault(course.AccreditingProvider.ProviderCode) ?? distinctProviders[course.AccreditingProvider.ProviderCode];
                 }
-                    course.Provider = existingProviders.GetValueOrDefault(course.Provider.ProviderCode) ?? distinctProviders[course.Provider.ProviderCode];
+                course.Provider = existingProviders.GetValueOrDefault(course.Provider.ProviderCode) ?? distinctProviders[course.Provider.ProviderCode];
             }
         }
 

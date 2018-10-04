@@ -19,6 +19,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using GovUk.Education.SearchAndCompare.Domain.Lists;
 using System.Threading.Tasks;
+using GovUk.Education.SearchAndCompare.Api.Services;
 
 namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controllers
 {
@@ -31,7 +32,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         public void Setup()
         {
             var loggerMock = new Mock<ILogger<CoursesController>>();
-            subject = new CoursesController(context, loggerMock.Object);
+            ICourseSearchService courseSearchService = new CourseSearchService(context);
+            subject = new CoursesController(context, courseSearchService, loggerMock.Object);
         }
 
         [Test]
