@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GovUk.Education.SearchAndCompare.Domain.Models
@@ -22,5 +23,15 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
         public double? Longitude { get; set; }
 
         public DateTime LastGeocodedUtc { get; set; }
+
+        public ICollection<Course> Coursees { get; set; }
+
+        public ICollection<Campus> Campuses { get; set; }
+
+        /// <summary>
+        /// How far from search location this is.
+        /// To populate this use LocationsWithDistance() in the db context.
+        /// </summary>
+        public double? Distance { get; set; }
     }
 }

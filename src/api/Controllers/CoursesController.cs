@@ -166,7 +166,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                     }
                 case (SortByOption.Distance):
                     {
-                        courses = courses.OrderBy(c => c.Distance);
+                        // already sorted
                         break;
                     }
                 default:
@@ -232,7 +232,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 courses = _context.GetLocationFilteredCourses(
                     filter.Coordinates.Latitude,
                     filter.Coordinates.Longitude,
-                    filter.RadiusOption.Value.ToMetres());
+                    filter.RadiusOption.Value.ToMetres())
+                    .Select(lr => lr.Course);
             }
             else
             {

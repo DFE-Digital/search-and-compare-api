@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using GovUk.Education.SearchAndCompare.Domain.Models.Enums;
-using GovUk.Education.SearchAndCompare.Domain.Models.Joins;
 
 namespace GovUk.Education.SearchAndCompare.Domain.Models
 {
@@ -19,6 +15,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
 
         public Location Location { get; set; }
 
+        public int CourseId { get; set; }
         public Course Course { get; set; }
     }
 }

@@ -39,13 +39,9 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Distance is not a real column (except when TVF "course_distance" is used)
-            modelBuilder.Entity<Course>()
+            modelBuilder.Entity<Location>()
                 .Property(x => x.Distance)
                 .Metadata.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
-
-            modelBuilder.Entity<Course>()
-                .Property(x => x.Distance)
-                .Metadata.AfterSaveBehavior = PropertySaveBehavior.Ignore;
 
             modelBuilder.Entity<Course>().OwnsOne(p => p.Fees);
 
@@ -84,18 +80,6 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
             base.SaveChanges();
         }
 
-        public IQueryable<Course> GetLocationFilteredCourses(double latitude, double longitude, double radiusInMeters)
-        {
-            return ForListing(Courses.FromSql(@"
-SELECT ""course"".*, distance.""Distance""
-FROM course_distance(@lat,@lon,@rad) AS distance
-JOIN ""course"" ON ""course"".""Id"" = ""distance"".""Id""",
-                    new NpgsqlParameter("@lat", latitude),
-                    new NpgsqlParameter("@lon", longitude),
-                    new NpgsqlParameter("@rad", radiusInMeters)));
-
-        }
-
         public IQueryable<Course> GetTextFilteredCourses(string searchText)
         {
             if (string.IsNullOrWhiteSpace(searchText))
@@ -109,7 +93,58 @@ FROM ""course""
 LEFT OUTER JOIN ""provider"" AS ""p1"" ON ""course"".""ProviderId"" = ""p1"".""Id""
 LEFT OUTER JOIN ""provider"" AS ""p2"" ON ""course"".""AccreditingProviderId"" = ""p2"".""Id""
 WHERE lower(""p1"".""Name"") = lower(@query) OR lower(""p2"".""Name"") = lower(@query)",
-                    new NpgsqlParameter("@query", searchText)));
+                new NpgsqlParameter("@query", searchText)));
+        }
+
+        public IQueryable<LocationResult> GetLocationFilteredCourses(double latitude, double longitude,
+            double radiusInMeters)
+        {
+            // This code and supporting functions was written with the following needs in mind:
+            // Search results needs a list of courses, sorted by distance, within a radius;
+            // where distance is from the user's search location (e.g. postcode) to the
+            // location of either provider or a campus.
+            // We need to show the address of the provider if that was nearest,
+            // or the name & address of the campus if that was nearest, along with the fact it's a campus.
+            // The code needs to be easy to iterate on as we learn what users actually need from location search.
+
+            // Data structure being created:
+            // List of locations that match distance criteria, sorted nearest first.
+            // For each location there is either a course or a campus attached to it.
+            // If it's a campus then the course can be retrieved by navigating that relationship.
+
+            var locationsWithDistance = LocationsWithDistance(latitude, longitude, radiusInMeters);
+
+            var results = locationsWithDistance.Select(location => new LocationResult
+            {
+                Location = location,
+                Course = location.Coursees.SingleOrDefault() ?? location.Campuses.SingleOrDefault().Course,
+                Campus = location.Campuses.SingleOrDefault(),
+            });
+            return results;
+
+            /*
+            return ForListing(Courses.FromSql(@"
+SELECT ""course"".*, distance.""Distance""
+FROM course_distance(@lat,@lon,@rad) AS distance
+JOIN ""course"" ON ""course"".""Id"" = ""distance"".""Id""",
+                    new NpgsqlParameter("@lat", latitude),
+                    new NpgsqlParameter("@lon", longitude),
+                    new NpgsqlParameter("@rad", radiusInMeters)));
+*/
+        }
+
+        /// <summary>
+        /// Result of searching for any location by distance.
+        /// Contains a mix of course and campus results.
+        /// If it's a course match then campus is null.
+        /// If it's a campus match then both are populated.
+        /// The location distance is populated.
+        /// </summary>
+        public class LocationResult
+        {
+            public Location Location { get; set; }
+            public Course Course { get; set; }
+            public Campus Campus { get; set; }
         }
 
         public IQueryable<Course> GetTextAndLocationFilteredCourses(string searchText, double latitude, double longitude, double radiusInMeters)
@@ -162,6 +197,15 @@ WHERE lower(""p1"".""Name"") = lower(@query) OR lower(""p2"".""Name"") = lower(@
         {
             return await GetCoursesWithProviderSubjectsRouteAndCampuses(providerCode, courseCode)
                 .Include(x => x.DescriptionSections).FirstAsync();
+        }
+
+        private IQueryable<Location> LocationsWithDistance(double latitude, double longitude, double radiusInMeters)
+        {
+            return Locations.FromSql(@"
+                    SELECT *
+                    FROM location_distance(@lat,@lat,@radius) AS loc
+                    join location on location.""Id"" = loc.""Id""
+                ", latitude, longitude, radiusInMeters);
         }
 
         private IQueryable<Course> GetCourses(string providerCode, string courseCode)
@@ -269,7 +313,6 @@ LIMIT @limit",
             existingCourse.Salary = itemToSave.Salary;
             // existingCourse.ProviderLocationId = itemToSave.ProviderLocationId;
             existingCourse.ProviderLocation = itemToSave.ProviderLocation;
-            existingCourse.Distance = itemToSave.Distance;
             // existingCourse.ContactDetailsId = itemToSave.ContactDetailsId;
             existingCourse.ContactDetails = itemToSave.ContactDetails;
             existingCourse.FullTime = itemToSave.FullTime;

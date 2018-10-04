@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentAssertions;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 using GovUk.Education.SearchAndCompare.Domain.Models.Joins;
 using Microsoft.EntityFrameworkCore;
@@ -44,13 +45,16 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
 
             using (var context2 = GetContext())
             {
-                Assert.AreEqual(1, context2.GetLocationFilteredCourses(50, 0, 1000).Count(), "Filtered to (roughly) London, the course should be found");
-                Assert.AreEqual(0, context2.GetLocationFilteredCourses(56.0, -3.2, 1000).Count(), "Filtered to (roughly) Edinburgh, the course shouldn't be found");
+                var londonCourses = context2.GetLocationFilteredCourses(50, 0, 1000);
+                londonCourses.Count().Should().Be(1, "Filtered to (roughly) London, the course should be found");
 
-                var distance = context2.GetLocationFilteredCourses(50, 0.01, 1000).Single().Distance;
-                Assert.NotNull(distance);
-                Assert.LessOrEqual(715, distance.Value);
-                Assert.GreaterOrEqual(716, distance.Value);
+                var edinburghCourses = context2.GetLocationFilteredCourses(56.0, -3.2, 1000);
+                edinburghCourses.Count().Should().Be(0, "Filtered to (roughly) Edinburgh, the course shouldn't be found");
+
+                // check distance is about right
+                var distance = context2.GetLocationFilteredCourses(50, 0.01, 1000).Single().Location.Distance;
+                distance.Should().NotBeNull();
+                distance.Should().BeInRange(715, 716);
             }
         }
 

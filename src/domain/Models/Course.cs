@@ -50,8 +50,6 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
 
         public Location ProviderLocation { get; set; }
 
-        public double? Distance { get; set; }
-
         public int? ContactDetailsId { get; set; }
 
         public Contact ContactDetails { get; set; }
@@ -87,8 +85,8 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
             var noProvider = this.Provider == null || string.IsNullOrWhiteSpace(this.Provider.ProviderCode);
             var noRoute = this.Route == null || string.IsNullOrWhiteSpace(this.Route.Name);
 
-            var badSubject =  this.CourseSubjects != null ? (this.CourseSubjects.Count() > 0 ?
-                this.CourseSubjects.Any(cs => cs.Subject == null || string.IsNullOrWhiteSpace(cs.Subject.Name) ) :
+            var badSubject = this.CourseSubjects != null ? (this.CourseSubjects.Count() > 0 ?
+                this.CourseSubjects.Any(cs => cs.Subject == null || string.IsNullOrWhiteSpace(cs.Subject.Name)) :
                 true) : true;
 
             var badAccreditingProvider = this.AccreditingProvider != null ? string.IsNullOrWhiteSpace(this.AccreditingProvider.ProviderCode) : false;
@@ -105,7 +103,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
             // });
 
             // If this is true then its a no ops, as it will either throw DbUpdateException or InvalidOperationException or NullReferenceException.
-            if(noProgrammeCode || noProvider || noRoute || badSubject || badAccreditingProvider || badCampus || badFeesOrSalary || badProviderLocation || badContactDetails)
+            if (noProgrammeCode || noProvider || noRoute || badSubject || badAccreditingProvider || badCampus || badFeesOrSalary || badProviderLocation || badContactDetails)
             {
                 if (throwException)
                 {
