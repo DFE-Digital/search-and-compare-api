@@ -29,10 +29,9 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
         DbSet<Location> Locations { get; set; }
 
-        IQueryable<CourseDbContext.LocationResult> GetLocationFilteredCourses(double latitude, double longitude,
-            double radiusInMeters);
+        IQueryable<Location> LocationsNear(double latitude, double longitude, double radiusInMeters);
 
-        IQueryable<Course> GetTextFilteredCourses(string searchText);
+        IQueryable<Course> CoursesByProviderName(string providerName);
 
         IQueryable<Course> GetTextAndLocationFilteredCourses(string searchText, double latitude, double longitude, double radiusInMeters);
 

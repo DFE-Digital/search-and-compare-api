@@ -2,6 +2,7 @@
 using System.Reflection;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
 using GovUk.Education.SearchAndCompare.Api.Middleware;
+using GovUk.Education.SearchAndCompare.Api.Services;
 using GovUk.Education.SearchAndCompare.UI.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -44,6 +45,7 @@ namespace GovUk.Education.SearchAndCompare.Api
                 }
             );
             services.AddScoped<ICourseDbContext>(provider => provider.GetService<CourseDbContext>());
+            services.AddScoped<ICourseSearchService, CourseSearchService>();
             services.AddScoped(provider => new HttpClient());
 
             // No default auth method has been set here because each action must explicitly be decorated with

@@ -80,24 +80,26 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
             base.SaveChanges();
         }
 
-        public IQueryable<Course> GetTextFilteredCourses(string searchText)
+        /// <summary>
+        /// Filters to courses that are an exact match on provider / accrediting provider name
+        /// </summary>
+        public IQueryable<Course> CoursesByProviderName(string providerName)
         {
-            if (string.IsNullOrWhiteSpace(searchText))
+            if (string.IsNullOrWhiteSpace(providerName))
             {
-                throw new ArgumentException("Cannot be null or white space", nameof(searchText));
+                throw new ArgumentException("Cannot be null or white space", nameof(providerName));
             }
 
-            return ForListing(Courses.FromSql(@"
+            return Courses.FromSql(@"
 SELECT ""course"".*, NULL as ""Distance""
 FROM ""course""
 LEFT OUTER JOIN ""provider"" AS ""p1"" ON ""course"".""ProviderId"" = ""p1"".""Id""
 LEFT OUTER JOIN ""provider"" AS ""p2"" ON ""course"".""AccreditingProviderId"" = ""p2"".""Id""
 WHERE lower(""p1"".""Name"") = lower(@query) OR lower(""p2"".""Name"") = lower(@query)",
-                new NpgsqlParameter("@query", searchText)));
+                new NpgsqlParameter("@query", providerName));
         }
 
-        public IQueryable<LocationResult> GetLocationFilteredCourses(double latitude, double longitude,
-            double radiusInMeters)
+        public IQueryable<Location> LocationsNear(double latitude, double longitude, double radiusInMeters)
         {
             // This code and supporting functions was written with the following needs in mind:
             // Search results needs a list of courses, sorted by distance, within a radius;
@@ -105,6 +107,7 @@ WHERE lower(""p1"".""Name"") = lower(@query) OR lower(""p2"".""Name"") = lower(@
             // location of either provider or a campus.
             // We need to show the address of the provider if that was nearest,
             // or the name & address of the campus if that was nearest, along with the fact it's a campus.
+            // Need to be able to filter arbitrarily on any other course/campus info.
             // The code needs to be easy to iterate on as we learn what users actually need from location search.
 
             // Data structure being created:
@@ -112,39 +115,32 @@ WHERE lower(""p1"".""Name"") = lower(@query) OR lower(""p2"".""Name"") = lower(@
             // For each location there is either a course or a campus attached to it.
             // If it's a campus then the course can be retrieved by navigating that relationship.
 
-            var locationsWithDistance = LocationsWithDistance(latitude, longitude, radiusInMeters);
+            // filtered locations
+            // join
+            // filtered courses
+            // filtered courses via campus
+            // filtered campuses
 
-            var results = locationsWithDistance.Select(location => new LocationResult
-            {
-                Location = location,
-                Course = location.Coursees.SingleOrDefault() ?? location.Campuses.SingleOrDefault().Course,
-                Campus = location.Campuses.SingleOrDefault(),
-            });
-            return results;
+            // e.g. locations near x (course or campus), sorted by distance
+            // but only computer science courses
+            // and only those with a salary
+            // and maybe in the future a restriction on campuses in some form
 
-            /*
-            return ForListing(Courses.FromSql(@"
-SELECT ""course"".*, distance.""Distance""
-FROM course_distance(@lat,@lon,@rad) AS distance
-JOIN ""course"" ON ""course"".""Id"" = ""distance"".""Id""",
-                    new NpgsqlParameter("@lat", latitude),
-                    new NpgsqlParameter("@lon", longitude),
-                    new NpgsqlParameter("@rad", radiusInMeters)));
-*/
-        }
+            // how to use:
+            // get queryable of location by lat/lon distance
+            // get queryable of course, apply filters
+            // get queryable of campus, apply filters
+            // join them all together
+            // apply distance sort
+            // execute (tolist)
 
-        /// <summary>
-        /// Result of searching for any location by distance.
-        /// Contains a mix of course and campus results.
-        /// If it's a course match then campus is null.
-        /// If it's a campus match then both are populated.
-        /// The location distance is populated.
-        /// </summary>
-        public class LocationResult
-        {
-            public Location Location { get; set; }
-            public Course Course { get; set; }
-            public Campus Campus { get; set; }
+            var locationsWithDistance = Locations.FromSql(@"
+                    SELECT *
+                    FROM location_distance(@lat,@lat,@radius) AS loc
+                    join location on location.""Id"" = loc.""Id""
+                ", latitude, longitude, radiusInMeters);
+
+            return locationsWithDistance;
         }
 
         public IQueryable<Course> GetTextAndLocationFilteredCourses(string searchText, double latitude, double longitude, double radiusInMeters)
@@ -199,15 +195,6 @@ WHERE lower(""p1"".""Name"") = lower(@query) OR lower(""p2"".""Name"") = lower(@
                 .Include(x => x.DescriptionSections).FirstAsync();
         }
 
-        private IQueryable<Location> LocationsWithDistance(double latitude, double longitude, double radiusInMeters)
-        {
-            return Locations.FromSql(@"
-                    SELECT *
-                    FROM location_distance(@lat,@lat,@radius) AS loc
-                    join location on location.""Id"" = loc.""Id""
-                ", latitude, longitude, radiusInMeters);
-        }
-
         private IQueryable<Course> GetCourses(string providerCode, string courseCode)
         {
             var sqlParams = new List<NpgsqlParameter>();
@@ -239,7 +226,7 @@ WHERE lower(""p1"".""Name"") = lower(@query) OR lower(""p2"".""Name"") = lower(@
 
         private IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses(string providerCode, string courseCode)
         {
-            return ForListing(GetCourses(providerCode, courseCode));
+            return GetCourses(providerCode, courseCode);
         }
 
         public IQueryable<Subject> GetSubjects()
@@ -276,20 +263,6 @@ LIMIT @limit",
             new NpgsqlParameter("@query", query),
             new NpgsqlParameter("@limit", 5))
             .ToList();
-        }
-
-        private IQueryable<Course> ForListing(IQueryable<Course> queryable)
-        {
-            return queryable.Include("Provider")
-                .Include(course => course.AccreditingProvider)
-                .Include(course => course.CourseSubjects)
-                    .ThenInclude(courseSubject => courseSubject.Subject)
-                        .ThenInclude(subject => subject.Funding)
-                .Include(course => course.ContactDetails)
-                .Include(course => course.ProviderLocation)
-                .Include(course => course.Route)
-                .Include(course => course.Campuses)
-                    .ThenInclude(campus => campus.Location);
         }
 
         private static void Map(Course existingCourse, Course itemToSave)

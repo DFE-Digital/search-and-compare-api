@@ -89,9 +89,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
 
             using (var context2 = GetContext())
             {
-                Assert.AreEqual(1, context2.GetTextFilteredCourses("My provider").Count(), "exact match");
-                Assert.AreEqual(1, context2.GetTextFilteredCourses("my Provider").Count(), "exact match, case insensitive");
-                Assert.AreEqual(0, context2.GetTextFilteredCourses("provider").Count(), "partial match, don't return");
+                Assert.AreEqual(1, context2.CoursesByProviderName("My provider").Count(), "exact match");
+                Assert.AreEqual(1, context2.CoursesByProviderName("my Provider").Count(), "exact match, case insensitive");
+                Assert.AreEqual(0, context2.CoursesByProviderName("provider").Count(), "partial match, don't return");
             }
         }
 
@@ -106,9 +106,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
 
             using (var context2 = GetContext())
             {
-                Assert.Throws(typeof(ArgumentException), () => context2.GetTextFilteredCourses(""), "Empty");
-                Assert.Throws(typeof(ArgumentException), () => context2.GetTextFilteredCourses("  "), "Whitespace");
-                Assert.Throws(typeof(ArgumentException), () => context2.GetTextFilteredCourses(null), "Null");
+                Assert.Throws(typeof(ArgumentException), () => context2.CoursesByProviderName(""), "Empty");
+                Assert.Throws(typeof(ArgumentException), () => context2.CoursesByProviderName("  "), "Whitespace");
+                Assert.Throws(typeof(ArgumentException), () => context2.CoursesByProviderName(null), "Null");
                 Assert.Throws(typeof(ArgumentException), () => context2.GetTextAndLocationFilteredCourses("", 50, 0, 1000), "Empty (with location)");
                 Assert.Throws(typeof(ArgumentException), () => context2.GetTextAndLocationFilteredCourses("  ", 50, 0, 1000), "Whitespace (with location)");
                 Assert.Throws(typeof(ArgumentException), () => context2.GetTextAndLocationFilteredCourses(null, 50, 0, 1000), "Null (with location)");
