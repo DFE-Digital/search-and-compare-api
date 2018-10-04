@@ -27,6 +27,17 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
         }
 
         [Test]
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase(" ")]
+        public void Constructor_Exception(string value)
+        {
+            Action act = () => new SearchAndCompareApi(mockHttp.Object, value);
+            var msg = $"Failed to instantiate due apiUri is null or white space";
+            act.Should().Throw<SearchAndCompareApiException>().WithMessage(msg);
+        }
+
+        [Test]
         public void GetCourse_CallsCorrectUrl()
         {
             mockHttp.Setup(x => x.GetAsync(It.Is<Uri>(y => y.AbsoluteUri == "https://api.example.com/courses/XYZ/1AB"))).ReturnsAsync(

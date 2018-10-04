@@ -8,6 +8,7 @@ using GovUk.Education.SearchAndCompare.Domain.Client;
 using Moq;
 using Moq.Protected;
 using NUnit.Framework;
+using FluentAssertions;
 
 namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
 {
@@ -21,6 +22,14 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
         {
             mockMessageHandler = new Mock<HttpMessageHandler>();
             sut = new HttpClientWrapper(new HttpClient(mockMessageHandler.Object));
+        }
+
+        [Test]
+        public void Constructor_Exception()
+        {
+            Action act = () => new HttpClientWrapper(null);
+            var msg = $"Failed to instantiate due to HttpClient = null";
+            act.Should().Throw<SearchAndCompareApiException>().WithMessage(msg);
         }
 
         [Test]
@@ -39,6 +48,44 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
             mockMessageHandler.VerifyAll();
 
             Assert.Pass("Verified underlaying http client was called");
+        }
+
+        [Test]
+        public async Task SendAsync_SearchAndCompareApiException()
+        {
+            var ub = new UriBuilder("test");
+            var uri = ub.Uri;
+            var sc = new StringContent("tested");
+
+            mockMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(() => throw new Exception());
+
+            // Func<Task<HttpResponseMessage>> func = async () => await sut.PostAsync(uri, sc);
+            Action act = () => sut.PostAsync(uri, sc);
+
+            var msg = $"API POST Failed uri {uri}";
+            act.Should().Throw<SearchAndCompareApiException>().WithMessage(msg);
+        }
+
+        [Test]
+        public async Task GetAsync_SearchAndCompareApiException()
+        {
+            var ub = new UriBuilder("test");
+            var uri = ub.Uri;
+
+            mockMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(() => throw new Exception());
+
+            // Func<Task<HttpResponseMessage>> func = async () => await sut.PostAsync(uri, sc);
+            Action act = () => sut.GetAsync(uri);
+
+
+            var msg = $"API GET Failed uri {uri}";
+            act.Should().Throw<SearchAndCompareApiException>().WithMessage(msg);
         }
     }
 }
