@@ -21,10 +21,10 @@ namespace GovUk.Education.SearchAndCompare.Api.Services
         public IQueryable<Course> GetFilteredCourses(QueryFilter filter)
         {
             IQueryable<Course> courses;
-            bool locationFilter = filter.Coordinates != null && filter.RadiusOption != null;
-            bool textFilter = !string.IsNullOrWhiteSpace(filter.query);
+            bool hasLocationFilter = filter.Coordinates != null && filter.RadiusOption != null;
+            bool hasTextFilter = !string.IsNullOrWhiteSpace(filter.query);
 
-            if (textFilter && locationFilter)
+            if (hasTextFilter && hasLocationFilter)
             {
                 courses = _context.GetTextAndLocationFilteredCourses(
                     filter.query,
@@ -32,12 +32,12 @@ namespace GovUk.Education.SearchAndCompare.Api.Services
                     filter.Coordinates.Longitude,
                     filter.RadiusOption.Value.ToMetres());
             }
-            else if (textFilter && !locationFilter)
+            else if (hasTextFilter && !hasLocationFilter)
             {
                 courses = _context.GetTextFilteredCourses(
                     filter.query);
             }
-            else if (!textFilter && locationFilter)
+            else if (!hasTextFilter && hasLocationFilter)
             {
                 courses = _context.GetLocationFilteredCourses(
                     filter.Coordinates.Latitude,
