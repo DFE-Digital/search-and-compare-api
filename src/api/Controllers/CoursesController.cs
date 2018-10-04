@@ -157,35 +157,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         public IActionResult GetFiltered(QueryFilter filter)
         {
             var courses = _courseSearchService.GetFilteredCourses(filter);
-
-            switch (filter.SortBy)
-            {
-                case (SortByOption.ZtoA):
-                    {
-                        courses = courses
-                            .OrderBy(c => c.Provider.Name != filter.query) // false comes before true... (odd huh)
-                            .ThenByDescending(c => c.Provider.Name)
-                            .ThenBy(c => c.Name);
-                        break;
-                    }
-                case (SortByOption.Distance):
-                    {
-                        courses = courses.OrderBy(c => c.Distance);
-                        break;
-                    }
-                default:
-                case (SortByOption.AtoZ):
-                    {
-                        courses = courses
-                            .OrderBy(c => c.Provider.Name != filter.query) // false comes before true... (odd huh)
-                            .ThenBy(c => c.Provider.Name)
-                            .ThenBy(c => c.Name);
-                        break;
-                    }
-            }
-
+            courses = ApplySort(filter, courses);
             var paginatedCourses = Paginate(courses, filter.pageSize, filter.page);
-
             return Ok(paginatedCourses);
         }
 
@@ -196,6 +169,37 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             var course = await _context.GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(providerCode, courseCode);
 
             return Ok(course);
+        }
+
+        private static IQueryable<Course> ApplySort(QueryFilter filter, IQueryable<Course> courses)
+        {
+            switch (filter.SortBy)
+            {
+                case (SortByOption.ZtoA):
+                {
+                    courses = courses
+                        .OrderBy(c => c.Provider.Name != filter.query) // false comes before true... (odd huh)
+                        .ThenByDescending(c => c.Provider.Name)
+                        .ThenBy(c => c.Name);
+                    break;
+                }
+                case (SortByOption.Distance):
+                {
+                    courses = courses.OrderBy(c => c.Distance);
+                    break;
+                }
+                default:
+                case (SortByOption.AtoZ):
+                {
+                    courses = courses
+                        .OrderBy(c => c.Provider.Name != filter.query) // false comes before true... (odd huh)
+                        .ThenBy(c => c.Provider.Name)
+                        .ThenBy(c => c.Name);
+                    break;
+                }
+            }
+
+            return courses;
         }
 
         private PaginatedList<T> Paginate<T>(IQueryable<T> items, int? filterPageSize, int? selectedPage)
