@@ -18,11 +18,11 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             this.wrapped = wrapped;
         }
 
-        public Task<HttpResponseMessage> GetAsync(Uri queryUri)
+        public async Task<HttpResponseMessage> GetAsync(Uri queryUri)
         {
             try
             {
-                return wrapped.GetAsync(queryUri);
+                return await wrapped.GetAsync(queryUri);
             }
             catch(Exception ex)
             {
@@ -31,11 +31,11 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             }
         }
 
-        public Task<HttpResponseMessage> PostAsync(Uri queryUri, StringContent content)
+        public async Task<HttpResponseMessage> PostAsync(Uri queryUri, StringContent content)
         {
             try
             {
-                return wrapped.PostAsync(queryUri, content);
+                return await wrapped.PostAsync(queryUri, content);
             }
             catch(Exception ex)
             {
@@ -44,11 +44,11 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             }
         }
 
-        public Task<HttpResponseMessage> PutAsync(Uri queryUri, StringContent content)
+        public async Task<HttpResponseMessage> PutAsync(Uri queryUri, StringContent content)
         {
             try
             {
-                return wrapped.PutAsync(queryUri, content);
+                return await wrapped.PutAsync(queryUri, content);
             }
             catch(Exception ex)
             {

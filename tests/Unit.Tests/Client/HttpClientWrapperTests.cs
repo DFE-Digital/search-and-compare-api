@@ -63,7 +63,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
                 .ReturnsAsync(() => throw new Exception());
 
             // Func<Task<HttpResponseMessage>> func = async () => await sut.PostAsync(uri, sc);
-            Action act = () => sut.PostAsync(uri, sc);
+            Func<Task> act = async () => await sut.PostAsync(uri, sc);
 
             var msg = $"API POST Failed uri {uri}";
             act.Should().Throw<SearchAndCompareApiException>().WithMessage(msg);
@@ -80,9 +80,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(() => throw new Exception());
 
-            // Func<Task<HttpResponseMessage>> func = async () => await sut.PostAsync(uri, sc);
-            Action act = () => sut.GetAsync(uri);
-
+            Func<Task> act = async () => await sut.GetAsync(uri);
 
             var msg = $"API GET Failed uri {uri}";
             act.Should().Throw<SearchAndCompareApiException>().WithMessage(msg);
@@ -100,9 +98,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
                 .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
                 .ReturnsAsync(() => throw new Exception());
 
-            // Func<Task<HttpResponseMessage>> func = async () => await sut.PostAsync(uri, sc);
-            Action act = () => sut.PutAsync(uri, sc);
-
+            Func<Task> act = async () => await sut.PutAsync(uri, sc);
 
             var msg = $"API Put Failed uri {uri}";
             act.Should().Throw<SearchAndCompareApiException>().WithMessage(msg);
