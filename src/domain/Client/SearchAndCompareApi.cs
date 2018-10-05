@@ -31,6 +31,11 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
 
         public SearchAndCompareApi(IHttpClient httpClient, string apiUri)
         {
+            if(string.IsNullOrWhiteSpace(apiUri))
+            {
+                throw new SearchAndCompareApiException($"Failed to instantiate due apiUri is null or white space");
+            }
+
             _httpClient = httpClient;
             _apiUri = apiUri;
             if (_apiUri.EndsWith('/')) { _apiUri = _apiUri.Remove(_apiUri.Length - 1); }

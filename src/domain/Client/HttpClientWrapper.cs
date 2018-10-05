@@ -10,22 +10,51 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
 
         public HttpClientWrapper(HttpClient wrapped)
         {
+            if(wrapped == null)
+            {
+                throw new SearchAndCompareApiException($"Failed to instantiate due to HttpClient = null");
+            }
+
             this.wrapped = wrapped;
         }
 
         public Task<HttpResponseMessage> GetAsync(Uri queryUri)
         {
-            return wrapped.GetAsync(queryUri);
+            try
+            {
+                return wrapped.GetAsync(queryUri);
+            }
+            catch(Exception ex)
+            {
+                var msg = $"API GET Failed uri {queryUri}";
+                throw new SearchAndCompareApiException(msg, ex);
+            }
         }
 
         public Task<HttpResponseMessage> PostAsync(Uri queryUri, StringContent content)
         {
-            return wrapped.PostAsync(queryUri, content);
+            try
+            {
+                return wrapped.PostAsync(queryUri, content);
+            }
+            catch(Exception ex)
+            {
+                var msg = $"API POST Failed uri {queryUri}";
+                throw new SearchAndCompareApiException(msg, ex);
+            }
         }
 
         public Task<HttpResponseMessage> PutAsync(Uri queryUri, StringContent content)
         {
-            return wrapped.PutAsync(queryUri, content);
+            try
+            {
+                return wrapped.PutAsync(queryUri, content);
+            }
+            catch(Exception ex)
+            {
+                var msg = $"API PUT Failed uri {queryUri}";
+                throw new SearchAndCompareApiException(msg, ex);
+            }
         }
     }
 }
