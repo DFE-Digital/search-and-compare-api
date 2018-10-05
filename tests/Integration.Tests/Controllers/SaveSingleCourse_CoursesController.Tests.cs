@@ -56,17 +56,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         [Test]
         public async Task ImportNullCourse()
         {
-            var result = await subject.SaveCourse(null, null, null);
+            var result = await subject.SaveCourses(null);
 
-            AssertBad(result);
-        }
-
-        [Test]
-        public async Task ImportNullCourse_ProgrammeCode()
-        {
-            var courses = GetCourses(1);
-            var course = courses.First();
-            var result = await subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode + 1, course);
             AssertBad(result);
         }
 
@@ -80,7 +71,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             var course = courses.First();
-            var result = await subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode, course);
+            var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertBad(result);
         }
@@ -95,7 +86,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             var course = courses.First();
-            var result = await subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode, course);
+            var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertOkay(result);
         }
@@ -110,7 +101,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             var course = courses.First();
-            var result = await subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode, course);
+            var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertOkay(result);
         }
@@ -126,7 +117,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             var course = courses.First();
-            var result = await subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode, course);
+            var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertBad(result);
         }
@@ -141,7 +132,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             var course = courses.First();
-            var result = await subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode, course);
+            var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertBad(result);
         }
@@ -156,7 +147,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             var course = courses.First();
-            var result = await subject.SaveCourse("course.Provider.ProviderCode", course.ProgrammeCode, course);
+            var result = await subject.SaveCourses(new List<Course> {course});
 
             AssertBad(result);
         }
@@ -171,7 +162,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             var course = courses.First();
-            var result = await subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode, course);
+            var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertBad(result);
         }
@@ -186,7 +177,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             var course = courses.First();
-            var result = await subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode, course);
+            var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertOkay(result);
         }
@@ -202,7 +193,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             var course = courses.First();
-            var result = await subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode, course);
+            var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertBad(result);
         }
@@ -217,7 +208,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             var course = courses.First();
-            var result = await subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode, course);
+            var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertBad(result);
         }
@@ -235,7 +226,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             var course = courses.First();
-            var result = await subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode, course);
+            var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertBad(result);
         }
@@ -250,7 +241,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             var course = courses.First();
-            var result = await subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode, course);
+            var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertOkay(result);
         }
@@ -260,7 +251,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         {
             var courses = GetCourses(1);
             var course = courses.First();
-            var result = await subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode, course);
+            var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertOkay(result);
         }
@@ -270,12 +261,12 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         {
             var courses = GetCourses(2);
             var course = courses.First();
-            var result = await subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode, course);
+            var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertOkay(result);
 
             var course1 = courses[1];
-            var result1 = await subject.SaveCourse(course1.Provider.ProviderCode, course1.ProgrammeCode, course1);
+            var result1 = await subject.SaveCourses(new List<Course>{course1});
 
             AssertOkay(result1);
             var resultingCourses = context.GetCoursesWithProviderSubjectsRouteAndCampuses()
@@ -304,11 +295,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         public void ImportSameCoursesTwice()
         {
             var course = GetCourses(1).First();
-            var result1 = subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode, course).Result;;
+            var result1 = subject.SaveCourses(new List<Course> { course }).Result;;
             AssertOkay(result1);
 
             var course2 = GetCourses(1).First();
-            var result2 = subject.SaveCourse(course2.Provider.ProviderCode, course2.ProgrammeCode, course2).Result;;
+            var result2 = subject.SaveCourses(new List<Course>{course2}).Result;;
             AssertOkay(result2);
 
             var resultingCourses = context.GetCoursesWithProviderSubjectsRouteAndCampuses().ToList();
@@ -338,7 +329,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         {
             // initial import
             var course = GetCourses(1).First();
-            var result = await subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode, course);
+            var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertOkay(result);
 
@@ -352,7 +343,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             // second import, with equivalent addresses
             var course2 = GetCourses(1).First();
-            await subject.SaveCourse(course2.Provider.ProviderCode, course2.ProgrammeCode, course2);
+            await subject.SaveCourses(new List<Course>{course2});
 
             // coordinates previously set are still there
             context.Locations.Single().Latitude.Should().Be(51.0);
@@ -364,7 +355,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         {
             // initial import
             var course = GetCourses(1).First();
-            var result = await subject.SaveCourse(course.Provider.ProviderCode, course.ProgrammeCode, course);
+            var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertOkay(result);
 
@@ -377,7 +368,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             // second import, with equivalent subject
             var course2 = GetCourses(1).First();
-            await subject.SaveCourse(course2.Provider.ProviderCode, course2.ProgrammeCode, course2);
+            await subject.SaveCourses(new List<Course>{course2});
 
             // subject area previously set is still there
             context.Subjects.Single().SubjectArea.Should().NotBeNull();
