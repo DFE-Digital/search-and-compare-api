@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentAssertions;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 using GovUk.Education.SearchAndCompare.Domain.Models.Joins;
 using Microsoft.EntityFrameworkCore;
@@ -52,6 +53,29 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
                 Assert.LessOrEqual(715, distance.Value);
                 Assert.GreaterOrEqual(716, distance.Value);
             }
+        }
+
+        [Test]
+        public void LocationFiltering()
+        {
+            context.Locations.Count().Should().Be(0, "database should be clean before test runs");
+            var emptyDbResult = context.LocationsInRadius(1, 2, 3);
+            emptyDbResult.Count().Should().Be(0, "There are no locations");
+            context.Locations.AddRange(
+            new List<Location>
+            {
+                new Location { Address = "near", Latitude = 51.5073509, Longitude = -0.1277583}, // centre of london
+                new Location { Address = "far", Latitude = 51.4996109, Longitude = -0.1310529}, // ~800m away
+                new Location { Address = "where-ever you are", Latitude = 52.2213067, Longitude = -0.2578839}, // ~80km away
+            });
+            context.SaveChanges();
+            var singleMatch = context.LocationsInRadius(51.5073509, -0.1277583, 100); // centre of london
+            singleMatch.Count().Should().Be(1, "searched ten metres around location");
+            var match = singleMatch.Single();
+            match.Distance.Should().Be(4);
+            match.Location.Address.Should().Be("near", "related entity should be loaded");
+            var doubleMatch = context.LocationsInRadius(51.5073509, -0.1277583, 10000); // centre of london
+            doubleMatch.Count().Should().Be(2, "searched ten km around location");
         }
 
         [Test]

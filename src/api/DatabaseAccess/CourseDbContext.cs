@@ -31,6 +31,8 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
         public DbSet<Contact> Contacts { get; set; }
 
+        public DbQuery<LocationMatch> LocationMatches { get; set; }
+
         // Join tables
         public DbSet<CourseSubject> CourseSubjects { get; set; }
 
@@ -71,6 +73,8 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
             modelBuilder.Entity<DefaultCourseDescriptionSection>();
 
+            modelBuilder.Query<LocationMatch>();
+
             base.OnModelCreating(modelBuilder);
         }
 
@@ -82,6 +86,16 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
         public void SaveChanges()
         {
             base.SaveChanges();
+        }
+
+        public IQueryable<LocationMatch> LocationsInRadius(double latitude, double longitude, double radiusInMeters)
+        {
+            return LocationMatches.FromSql(@"
+SELECT ""Id"", ""Distance""
+FROM location_distance(@lat,@lon,@rad) AS distance",
+                    new NpgsqlParameter("@lat", latitude),
+                    new NpgsqlParameter("@lon", longitude),
+                    new NpgsqlParameter("@rad", radiusInMeters));
         }
 
         public IQueryable<Course> GetLocationFilteredCourses(double latitude, double longitude, double radiusInMeters)
