@@ -87,5 +87,25 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
             var msg = $"API GET Failed uri {uri}";
             act.Should().Throw<SearchAndCompareApiException>().WithMessage(msg);
         }
+
+        [Test]
+        public async Task PutAsync_SearchAndCompareApiException()
+        {
+            var ub = new UriBuilder("test");
+            var uri = ub.Uri;
+            var sc = new StringContent("tested");
+
+            mockMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(() => throw new Exception());
+
+            // Func<Task<HttpResponseMessage>> func = async () => await sut.PostAsync(uri, sc);
+            Action act = () => sut.PutAsync(uri, sc);
+
+
+            var msg = $"API Put Failed uri {uri}";
+            act.Should().Throw<SearchAndCompareApiException>().WithMessage(msg);
+        }
     }
 }

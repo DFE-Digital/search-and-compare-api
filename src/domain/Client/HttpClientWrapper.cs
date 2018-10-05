@@ -46,7 +46,15 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
 
         public Task<HttpResponseMessage> PutAsync(Uri queryUri, StringContent content)
         {
-            return wrapped.PutAsync(queryUri, content);
+            try
+            {
+                return wrapped.PutAsync(queryUri, content);
+            }
+            catch(Exception ex)
+            {
+                var msg = $"API PUT Failed uri {queryUri}";
+                throw new SearchAndCompareApiException(msg, ex);
+            }
         }
     }
 }
