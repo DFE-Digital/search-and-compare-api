@@ -25,7 +25,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
 
             using (var context2 = GetContext())
             {
-                var allCourses = context2.Courses.FromSql("SELECT *, NULL as \"Distance\" FROM \"course\"");
+                var allCourses = context2.Courses.FromSql("SELECT *, NULL as \"Distance\", NULL as \"DistanceAddress\" FROM \"course\"");
 
                 Assert.AreEqual(1, allCourses.Count());
                 Assert.AreEqual(GetSimpleCourse().Name, allCourses.First().Name);
@@ -52,6 +52,39 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
                 Assert.LessOrEqual(715, distance.Value);
                 Assert.GreaterOrEqual(716, distance.Value);
             }
+        }
+
+        [Test]
+        public void GetLocationFilteredCourses_GiveCorrectDistanceAddress()
+        {
+            Assert.AreEqual(0, context.Courses.Count());
+            
+            var persistedCourse = GetSimpleCourse();
+            
+            persistedCourse.ProviderLocation = new Location {
+                Address = "London",
+                Latitude = 50,
+                Longitude = 0
+            };
+
+            persistedCourse.Campuses.Single().Location = new Location {
+                Address = "Edinburgh",
+                Latitude = 56.0,
+                Longitude = -3.2
+            };
+
+            entitiesToCleanUp.Add(context.Courses.Add(persistedCourse));
+            context.SaveChanges();            
+            
+
+            using (var context2 = GetContext())
+            {
+                Assert.AreEqual("London", context2.GetLocationFilteredCourses(50, 0, 100).Single().DistanceAddress, "Filtered to (roughly) London, DistanceAddress should be London");
+            }
+            using (var context3 = GetContext())
+            {
+                Assert.AreEqual("Edinburgh", context3.GetLocationFilteredCourses(56.0, -3.2, 100).Single().DistanceAddress, "Filtered to (roughly) Edinburgh, DistanceAddress should be Edinburgh");
+            }            
         }
 
         [Test]

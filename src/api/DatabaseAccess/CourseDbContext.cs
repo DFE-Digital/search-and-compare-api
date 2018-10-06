@@ -38,13 +38,21 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Distance is not a real column (except when TVF "course_distance" is used)
+            // Distance and DistanceAddress are not real columns (except when TVF "course_distance" is used)
             modelBuilder.Entity<Course>()
                 .Property(x => x.Distance)
                 .Metadata.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
 
             modelBuilder.Entity<Course>()
                 .Property(x => x.Distance)
+                .Metadata.AfterSaveBehavior = PropertySaveBehavior.Ignore;
+
+            modelBuilder.Entity<Course>()
+                .Property(x => x.DistanceAddress)
+                .Metadata.BeforeSaveBehavior = PropertySaveBehavior.Ignore;
+
+            modelBuilder.Entity<Course>()
+                .Property(x => x.DistanceAddress)
                 .Metadata.AfterSaveBehavior = PropertySaveBehavior.Ignore;
 
             modelBuilder.Entity<Course>().OwnsOne(p => p.Fees);
@@ -87,7 +95,7 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
         public IQueryable<Course> GetLocationFilteredCourses(double latitude, double longitude, double radiusInMeters)
         {
             return ForListing(Courses.FromSql(@"
-SELECT ""course"".*, distance.""Distance""
+SELECT ""course"".*, distance.""Distance"", distance.""DistanceAddress""
 FROM course_distance(@lat,@lon,@rad) AS distance
 JOIN ""course"" ON ""course"".""Id"" = ""distance"".""Id""",
                     new NpgsqlParameter("@lat", latitude),
@@ -104,7 +112,7 @@ JOIN ""course"" ON ""course"".""Id"" = ""distance"".""Id""",
             }
 
             return ForListing(Courses.FromSql(@"
-SELECT ""course"".*, NULL as ""Distance""
+SELECT ""course"".*, NULL as ""Distance"", NULL as ""DistanceAddress""
 FROM ""course""
 LEFT OUTER JOIN ""provider"" AS ""p1"" ON ""course"".""ProviderId"" = ""p1"".""Id""
 LEFT OUTER JOIN ""provider"" AS ""p2"" ON ""course"".""AccreditingProviderId"" = ""p2"".""Id""
@@ -120,7 +128,7 @@ WHERE lower(""p1"".""Name"") = lower(@query) OR lower(""p2"".""Name"") = lower(@
             }
 
             return ForListing(Courses.FromSql(@"
-SELECT ""course"".*, c1.""Distance""
+SELECT ""course"".*, c1.""Distance"", c1.""DistanceAddress""
 FROM course_distance(@lat,@lon,@rad) AS ""c1""
 JOIN ""course"" on ""course"".""Id"" = ""c1"".""Id""
 LEFT OUTER JOIN ""provider"" AS ""p1"" ON ""course"".""ProviderId"" = ""p1"".""Id""
@@ -187,7 +195,7 @@ WHERE lower(""p1"".""Name"") = lower(@query) OR lower(""p2"".""Name"") = lower(@
                 : "";
 
             return Courses.FromSql(
-                "SELECT \"course\".*, NULL as \"Distance\" FROM \"course\" " +
+                "SELECT \"course\".*, NULL as \"Distance\", NULL as \"DistanceAddress\" FROM \"course\" " +
                 "LEFT OUTER JOIN \"provider\" ON \"course\".\"ProviderId\" = \"provider\".\"Id\"" +
                 whereClause,
                 sqlParams.ToArray());
@@ -270,6 +278,7 @@ LIMIT @limit",
             // existingCourse.ProviderLocationId = itemToSave.ProviderLocationId;
             existingCourse.ProviderLocation = itemToSave.ProviderLocation;
             existingCourse.Distance = itemToSave.Distance;
+            existingCourse.DistanceAddress = itemToSave.DistanceAddress;
             // existingCourse.ContactDetailsId = itemToSave.ContactDetailsId;
             existingCourse.ContactDetails = itemToSave.ContactDetails;
             existingCourse.FullTime = itemToSave.FullTime;
