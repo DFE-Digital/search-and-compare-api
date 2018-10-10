@@ -277,8 +277,6 @@ LIMIT @limit",
             existingCourse.Salary = itemToSave.Salary;
             // existingCourse.ProviderLocationId = itemToSave.ProviderLocationId;
             existingCourse.ProviderLocation = itemToSave.ProviderLocation;
-            existingCourse.Distance = itemToSave.Distance;
-            existingCourse.DistanceAddress = itemToSave.DistanceAddress;
             // existingCourse.ContactDetailsId = itemToSave.ContactDetailsId;
             existingCourse.ContactDetails = itemToSave.ContactDetails;
             existingCourse.FullTime = itemToSave.FullTime;
