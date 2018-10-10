@@ -19,7 +19,7 @@ namespace GovUk.Education.SearchAndCompare.Geocoder
         public static LocationRequesterConfiguration FromConfiguration(IConfiguration configuration)
         {
             return new LocationRequesterConfiguration(
-                configuration["ApiKeys:GoogleMaps"],
+                configuration["google_cloud_platform_key_geocoding"],
                 int.TryParse(configuration["geocoder_batch_size"], out int batchSize) ? batchSize : 10 
             );
         }
