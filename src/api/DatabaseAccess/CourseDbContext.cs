@@ -234,6 +234,7 @@ SELECT * FROM (
     FROM ""provider""
     JOIN ""course"" ON ""course"".""ProviderId"" = ""provider"".""Id""  OR ""course"".""AccreditingProviderId"" = ""provider"".""Id""
     WHERE (to_tsvector('english', ""provider"".""Name"") @@ to_tsquery('english', quote_literal(@query) || ':*')) IS TRUE
+    OR (to_tsvector('english', ""provider"".""ProviderCode"") @@ to_tsquery('english', quote_literal(@query) || ':*')) IS TRUE
     GROUP BY ""provider"".""Id"") AS sub
 ORDER BY lower(""Name"") <> lower(@query) ASC, ""cnt"" DESC
 LIMIT @limit",

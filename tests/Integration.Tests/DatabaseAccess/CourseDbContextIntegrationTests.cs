@@ -167,6 +167,29 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
         }
 
         [Test]
+        [TestCase("xyz", 1)]
+        [TestCase("wxy", 1)]
+        [TestCase("xxx", 0)]
+        [TestCase("xy", 1)]
+        [TestCase("wx", 1)]
+        [TestCase("x", 1)]
+        [TestCase("w", 1)]
+        [TestCase("y", 0)]
+        public void ProviderSuggest_ProviderCode(string query, int expectedCount)
+        {
+            Assert.AreEqual(0, context.Courses.Count());
+
+            var entity = context.Courses.Add(GetSimpleCourse());
+            context.SaveChanges();
+            entitiesToCleanUp.Add(entity);
+
+            using (var context2 = GetContext())
+            {
+                Assert.AreEqual(expectedCount, context2.SuggestProviders(query).Count(), "complete");
+            }
+        }
+
+        [Test]
         public void ProviderSuggest_ExactMatchesPreferred()
         {
             Assert.AreEqual(0, context.Courses.Count());            
