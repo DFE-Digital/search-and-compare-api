@@ -205,6 +205,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         {
             var course = await _context.GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(providerCode, courseCode);
 
+            if (course == null)
+            {
+                return NotFound();
+            }
+
             return Ok(course);
         }
 

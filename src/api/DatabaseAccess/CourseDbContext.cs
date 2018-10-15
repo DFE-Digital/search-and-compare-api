@@ -169,7 +169,7 @@ WHERE lower(""p1"".""Name"") = lower(@query) OR lower(""p2"".""Name"") = lower(@
         public async Task<Course> GetCourseWithProviderSubjectsRouteCampusesAndDescriptions(string providerCode, string courseCode)
         {
             return await GetCoursesWithProviderSubjectsRouteAndCampuses(providerCode, courseCode)
-                .Include(x => x.DescriptionSections).FirstAsync();
+                .Include(x => x.DescriptionSections).FirstOrDefaultAsync();
         }
 
         private IQueryable<Course> GetCourses(string providerCode, string courseCode)
