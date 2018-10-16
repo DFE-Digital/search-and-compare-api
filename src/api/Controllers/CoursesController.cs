@@ -101,39 +101,44 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 courses != null &&
                 courses.All(x => x.IsValid(false)))
             {
-                try
-                {
-                    _logger.LogInformation($"Courses to import: {courses.Count()}");
-                    _context.Campuses.RemoveRange(_context.Campuses);
-                    _context.Courses.RemoveRange(_context.GetCoursesWithProviderSubjectsRouteAndCampuses());
-                    _context.Providers.RemoveRange(_context.Providers);
-                    _context.Contacts.RemoveRange(_context.Contacts);
-                    _context.Routes.RemoveRange(_context.Routes);
+                using (var transaction = (_context as DbContext).Database.BeginTransaction()){
+                    try
+                    {
+                        _logger.LogInformation($"Courses to import: {courses.Count()}");
+                        _context.Campuses.RemoveRange(_context.Campuses);
+                        _context.Courses.RemoveRange(_context.GetCoursesWithProviderSubjectsRouteAndCampuses());
+                        _context.Providers.RemoveRange(_context.Providers);
+                        _context.Contacts.RemoveRange(_context.Contacts);
+                        _context.Routes.RemoveRange(_context.Routes);
 
-                    _context.SaveChanges();
-                    _logger.LogInformation($"Existing Courses Removed");
+                        _context.SaveChanges();
+                        _logger.LogInformation($"Existing Courses Removed");
 
-                    MakeProvidersDistinctReferences(ref courses);
-                    MakeRoutesDistinctReferences(ref courses);
-                    AssociateWithLocations(ref courses);
-                    AssociateWithSubjects(ref courses);
-                    ResolveSalaryAndFeesReferences(ref courses);
+                        MakeProvidersDistinctReferences(ref courses);
+                        MakeRoutesDistinctReferences(ref courses);
+                        AssociateWithLocations(ref courses);
+                        AssociateWithSubjects(ref courses);
+                        ResolveSalaryAndFeesReferences(ref courses);
 
-                    _context.Courses.AddRange(courses);
-                    _context.SaveChanges();
+                        _context.Courses.AddRange(courses);
+                        _context.SaveChanges();
+                        transaction.Commit();
 
                     result = Ok();
                     _logger.LogInformation($"New Courses Added");
-                }
-                // Note: if any exception is catch it course.IsValid() needs to be revisited
-                catch (DbUpdateException ex)
-                {
-                    _logger.LogWarning(ex, "Failed to save the courses to database");
-                }
-                catch (Exception ex)
-                {
-                    // Note: notice that ef core dont respect id generation for some reason.
-                    _logger.LogWarning(ex, "Failed to save the courses");
+                    }
+                    // Note: if any exception is catch it course.IsValid() needs to be revisited
+                    catch (DbUpdateException ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to save the courses to database");
+                        transaction.Rollback();
+                    }
+                    catch (Exception ex)
+                    {
+                        // Note: notice that ef core dont respect id generation for some reason.
+                        _logger.LogWarning(ex, "Failed to save the courses");
+                        transaction.Rollback();
+                    }
                 }
             }
 
