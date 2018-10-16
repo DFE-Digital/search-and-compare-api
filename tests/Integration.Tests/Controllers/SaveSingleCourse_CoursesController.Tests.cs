@@ -34,7 +34,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         }
 
         [TearDown]
-        public async Task TearDown()
+        public new async Task TearDown()
         {
             await context.GetCoursesWithProviderSubjectsRouteAndCampuses().ForEachAsync(x =>
             {

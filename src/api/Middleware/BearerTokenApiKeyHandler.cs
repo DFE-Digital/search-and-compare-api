@@ -16,7 +16,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Middleware
             _logger = logger.CreateLogger<BearerTokenApiKeyHandler>();
         }
 
-        protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
+        protected override Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             var accessToken = Request.GetAccessToken();
 
@@ -33,13 +33,13 @@ namespace GovUk.Education.SearchAndCompare.Api.Middleware
 
                     var ticket = new AuthenticationTicket(princical, BearerTokenApiKeyDefaults.AuthenticationScheme);
 
-                    return AuthenticateResult.Success(ticket);
+                    return Task.FromResult(AuthenticateResult.Success(ticket));
                 }
 
-                return AuthenticateResult.Fail($"Invalid api key: {accessToken}");
+                return Task.FromResult(AuthenticateResult.Fail($"Invalid api key: {accessToken}"));
             }
 
-            return AuthenticateResult.NoResult();
+            return Task.FromResult(AuthenticateResult.NoResult());
         }
 
         protected override Task HandleChallengeAsync(AuthenticationProperties properties)

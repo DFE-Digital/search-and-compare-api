@@ -51,7 +51,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
         }
 
         [Test]
-        public async Task SendAsync_SearchAndCompareApiException()
+        public void SendAsync_SearchAndCompareApiException()
         {
             var ub = new UriBuilder("test");
             var uri = ub.Uri;
@@ -70,7 +70,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
         }
 
         [Test]
-        public async Task GetAsync_SearchAndCompareApiException()
+        public void GetAsync_SearchAndCompareApiException()
         {
             var ub = new UriBuilder("test");
             var uri = ub.Uri;
@@ -87,7 +87,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
         }
 
         [Test]
-        public async Task PutAsync_SearchAndCompareApiException()
+        public void PutAsync_SearchAndCompareApiException()
         {
             var ub = new UriBuilder("test");
             var uri = ub.Uri;

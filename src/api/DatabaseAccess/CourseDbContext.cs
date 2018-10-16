@@ -87,7 +87,7 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
         {
             base.Update(course);
         }
-        public void SaveChanges()
+        public new void SaveChanges()
         {
             base.SaveChanges();
         }
@@ -194,11 +194,15 @@ WHERE lower(""p1"".""Name"") = lower(@query) OR lower(""p2"".""Name"") = lower(@
                 ? " WHERE " + string.Join(" AND ", whereClauses)
                 : "";
 
+            #pragma warning disable EF1000
+
             return Courses.FromSql(
                 "SELECT \"course\".*, NULL as \"Distance\", NULL as \"DistanceAddress\" FROM \"course\" " +
                 "LEFT OUTER JOIN \"provider\" ON \"course\".\"ProviderId\" = \"provider\".\"Id\"" +
                 whereClause,
                 sqlParams.ToArray());
+
+            #pragma warning restore EF1000
         }
 
         private IQueryable<Course> GetCoursesWithProviderSubjectsRouteAndCampuses(string providerCode, string courseCode)
