@@ -23,7 +23,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             try
             {
                 var result = await wrapped.GetAsync(queryUri);
-                result.EnsureSuccessStatusCode();//handle internal error
+                result.EnsureSuccessStatusCode();
                 return result;
             }
             catch(Exception ex)
@@ -38,7 +38,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             try
             {
                 var result = await wrapped.PostAsync(queryUri, content);
-                result.EnsureSuccessStatusCode();//handle internal error
+                result.EnsureSuccessStatusCode();
                 return result;
             }
             catch(Exception ex)
@@ -53,7 +53,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             try
             {
                 var result = await wrapped.PutAsync(queryUri, content);
-                result.EnsureSuccessStatusCode();//handle internal error
+                result.EnsureSuccessStatusCode();
                 return result;
             }
             catch(Exception ex)
