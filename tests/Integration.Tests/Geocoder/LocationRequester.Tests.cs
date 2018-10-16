@@ -27,7 +27,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Geocoder
         LocationRequester system;
 
         [SetUp]
-        public void SetUp()
+        public new void SetUp()
         {                
             var integrationConfig = new LocationRequesterConfiguration("apiKey", 10);
 

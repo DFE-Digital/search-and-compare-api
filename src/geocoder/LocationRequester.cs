@@ -17,8 +17,6 @@ namespace GovUk.Education.SearchAndCompare.Geocoder
         private readonly ILogger _logger;
         private readonly IHttpClient _httpClient;
         private readonly ICourseDbContext _context;
-        private LocationRequesterConfiguration requesterConfig;
-        private Logger logger;
 
         public LocationRequester(LocationRequesterConfiguration config, ILogger logger, IHttpClient httpClient, ICourseDbContext context)
         {
