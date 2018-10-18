@@ -74,7 +74,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
         /// Aggregate of vacancy status for each campus.
         /// </summary>
         /// <value></value>
-        public bool HasVacancies { get; internal set; }
+        public bool HasVacancies { get; set; }
 
         /// <summary>
         /// A course is consider valid if it has:
