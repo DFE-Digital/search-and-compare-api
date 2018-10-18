@@ -16,6 +16,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
         public string CampusCode { get; set; }
 
         public int? LocationId { get; set; }
+        public string VacStatus { get; set; }
 
         public Location Location { get; set; }
 
