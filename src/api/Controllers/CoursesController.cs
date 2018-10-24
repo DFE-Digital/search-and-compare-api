@@ -362,6 +362,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 }
             }
 
+            if (filter.hasvacanciesonly)
+            {
+                courses = courses.Where(course => course.HasVacancies);
+            }            
+
             return courses;
         }
 
