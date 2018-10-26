@@ -19,10 +19,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Dockerfile = Dockerfile
 		Dockerfile.rhel7 = Dockerfile.rhel7
 		global.json = global.json
+		nuget.config = nuget.config
 		package.json = package.json
 		README.md = README.md
 		travis-build.sh = travis-build.sh
 		travis-deploy.sh = travis-deploy.sh
+		travis-nuget-deploy.sh = travis-nuget-deploy.sh
 	EndProjectSection
 EndProject
 Global

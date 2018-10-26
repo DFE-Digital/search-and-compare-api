@@ -42,6 +42,13 @@ deploy:
   script: "./travis-deploy-geocoder.sh govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD
     bat-prod-search-and-compare-api-app"
   on: production
+- provider: script
+  skip_cleanup: true
+  script: chmod +x ./travis-nuget-deploy.sh && ./travis-nuget-deploy.sh $NUGET_API_KEY
+    $NUGET_SOURCE
+  on:
+    all_branches: true
+
 notifications:
   slack:
     secure: LV9uQYUL169TE5cC5TpdbWqnSrz9SU4eMUTe1aRrLD3V0F3iSOFe+tW1wzjBiqGnZLzSnEpa2jZDnBdDUVf7XDFsE2goivoYp0RAfR+PHrzU9Ov2GTgyf7zztF7lJ3gUkiKQSr/PWg4tVIsc6tJb7sXEMkpdXklw4USmcR6pwMSEh8C/Lf1/prRD0kTnWjMoH9ZieSi3r32QY5SKaOS9CN8sVC1bCe1mQE/oAKHuc3BgE4TaD9rZ5VENkuP8mR4RhHtPhB9AfTWlSVDezfq+luHdIy6xjs/QxizzjyK0nwkbEw18BP3n0rgO/FRa2B/w8zkOHDuLXqPD5NmgZg8AMTRwJsyCUE7lrI9xlj5PpjpIAOk7oIDNgn1MgxjAwfX7Ht6IHOUn2vpA7QyPUNZueFm194myq2qmAYGdgwPnx0lslQ2YaymzP5nUh82F1TbfEaw3cXZ2wXa7VXK2NxXccvTrhA/niHVZ7YAh3QlvJsj/9DrBGxMrtRLvdx4fdqt7AAvR9fYcWjzwcjGM9bH3Vz5frxOX9E+mpt9Y2k4EodcZ3MrfYTDTfxBygi1pI+DNirMQ02orLLS6P6rFXfyMcraAo1c1NyzvpROXuFejSm1oJKVljsFuDzReFpjS7fch8rBwfqdTFrOM7HMhC+eT3Bzun5kTOI2i9jJ1j+ReBKo=
