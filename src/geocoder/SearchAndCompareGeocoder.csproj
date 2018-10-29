@@ -18,7 +18,7 @@
     <PackageReference Include="Serilog.Sinks.Trace" Version="2.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\domain\SearchAndCompareDomain.csproj" />
+    <ProjectReference Include="..\domain\SearchAndCompareApiClient.csproj" />
     <ProjectReference Include="..\api\SearchAndCompareApi.csproj" />
   </ItemGroup>
   <ItemGroup>
