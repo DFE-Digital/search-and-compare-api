@@ -26,7 +26,7 @@ In a windows command prompt:
     cd src\api
     set ASPNETCORE_URLS=http://*:5001 && dotnet run
 
-## Building API domain nuget package
+## Building API domain nuget package (this is now part of the ci build)
 
 First, bump the version number in SearchAndCompareApiClient.csproj. The -beta suffix is appended automatically.
 
