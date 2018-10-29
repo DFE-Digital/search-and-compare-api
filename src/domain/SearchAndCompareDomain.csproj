@@ -30,4 +30,5 @@
       <PackageVersion>$(GitBaseVersion)-$([System.Text.RegularExpressions.Regex]::Replace('$(GitBranch)','[^A-Za-z0-9]','-')).$(GitSemVerPatch)</PackageVersion>
     </PropertyGroup>
   </Target>
+
 </Project>
