@@ -26,29 +26,6 @@ In a windows command prompt:
     cd src\api
     set ASPNETCORE_URLS=http://*:5001 && dotnet run
 
-## Building API domain nuget package (this is now part of the ci build)
-
-First, bump the version number in SearchAndCompareApiClient.csproj. The -beta suffix is appended automatically.
-
-```
-cd src/domain
-dotnet pack -o publish -c Release --version-suffix beta
-dotnet nuget push publish/GovUk.Education.SearchAndCompare.ApiClient.0.10.0-beta.nupkg -s https://www.nuget.org -k <NUGET_API_KEY>
-```
-Make sure to change the package to reflect your version number, e.g. change "0.1.3". You'll also need to put in the API key for nuget.
-
-## Using the domain nuget package locally
-
-1. Run `pack` (See above)
-2. Reference the package in the publish folder by adding a local package source in `nuget.config`.
-   [Example in UI project](https://github.com/DFE-Digital/search-and-compare-ui/blob/dd22365f4ae476c9a0126d6acbd60020a6a10858/Nuget.config).
-
-    <configuration><packageSources><add key="local-packages" value="../search-and-compare-api/src/domain/publish" />
-
-3.  Run `dotnet nuget locals all --clear` to remove the stale local cache (to avoid needing to bump the version number during local development
-    of API + UI
-4. Build the referencing project (presumably the UI).
-
 ## Logging
 
 Logging is configured in `appsettings.json`, and values in there can be overridden with environment variables.
