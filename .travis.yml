@@ -19,15 +19,15 @@ services:
 - postgresql: '9.6'
 deploy:
 - provider: script
-  script: git fetch --unshallow && git push https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-dev-search-and-compare-api-app.scm.azurewebsites.net:443/bat-dev-search-and-compare-api-app.git
+  script: git fetch --unshallow && git push --force https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-dev-search-and-compare-api-app.scm.azurewebsites.net:443/bat-dev-search-and-compare-api-app.git
     HEAD:refs/heads/master
   on: master
 - provider: script
-  script: git fetch --unshallow && git push https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-staging-search-and-compare-api-app.scm.azurewebsites.net:443/bat-staging-search-and-compare-api-app.git
+  script: git fetch --unshallow && git push --force https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-staging-search-and-compare-api-app.scm.azurewebsites.net:443/bat-staging-search-and-compare-api-app.git
     HEAD:refs/heads/master
   on: staging
 - provider: script
-  script: git fetch --unshallow && git push https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-prod-search-and-compare-api-app.scm.azurewebsites.net:443/bat-prod-search-and-compare-api-app.git
+  script: git fetch --unshallow && git push --force https://govuk-dfe-bat-deployment-user:$AZURE_WA_PASSWORD@bat-prod-search-and-compare-api-app.scm.azurewebsites.net:443/bat-prod-search-and-compare-api-app.git
     HEAD:refs/heads/master
   on: production
 - provider: script
