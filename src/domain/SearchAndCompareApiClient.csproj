@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="packages\GitInfo.2.0.3\build\GitInfo.targets" Condition="Exists('packages\GitInfo.2.0.3\build\GitInfo.targets')" />
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <PackageId>GovUk.Education.SearchAndCompare.ApiClient</PackageId>
+    <Authors>Department for Education</Authors>
+    <Title>Client library for SearchAndCompare project</Title>
+    <Description>Client library to access the "Search And Compare" api</Description>
+    <RootNamespace>GovUk.Education.SearchAndCompare.Domain</RootNamespace>
+    <PackageReleaseNotes>Pre-release</PackageReleaseNotes>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <GitInfoReportImportance>high</GitInfoReportImportance>
+    <GitVersionFile>$(ProjectDir)GitVersion.txt</GitVersionFile>
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
+    <PackageReference Include="GitInfo" Version="2.0.11">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+  <Target Name="SemanticVersioning" DependsOnTargets="GitVersion" AfterTargets="GitVersion">
+    <PropertyGroup Condition="'$(GitBranch)'=='master'">
+      <Version>$(GitBaseVersion).$(GitSemVerPatch)</Version>
+      <PackageVersion>$(GitBaseVersion).$(GitSemVerPatch)</PackageVersion>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(GitBranch)'!='master'">
+      <Version>$(GitBaseVersion)-$([System.Text.RegularExpressions.Regex]::Replace('$(GitBranch)','[^A-Za-z0-9]','-')).$(GitSemVerPatch)</Version>
+      <PackageVersion>$(GitBaseVersion)-$([System.Text.RegularExpressions.Regex]::Replace('$(GitBranch)','[^A-Za-z0-9]','-')).$(GitSemVerPatch)</PackageVersion>
+    </PropertyGroup>
+  </Target>
+
+</Project>
