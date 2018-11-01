@@ -1,6 +1,6 @@
 # Search and Compare API project
 
-[<img src="https://img.shields.io/nuget/v/DFE.SearchAndCompare.Domain.svg">](https://www.nuget.org/packages/DFE.SearchAndCompare.Domain)
+[<img src="https://img.shields.io/nuget/v/GovUk.Education.SearchAndCompare.ApiClient.svg">](https://www.nuget.org/packages/GovUk.Education.SearchAndCompare.ApiClient)
 [<img src="https://api.travis-ci.org/DFE-Digital/search-and-compare-api.svg?branch=master">](https://travis-ci.org/DFE-Digital/search-and-compare-api?branch=master)
 
 ## About
