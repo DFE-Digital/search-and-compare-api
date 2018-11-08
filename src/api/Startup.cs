@@ -59,7 +59,7 @@ namespace GovUk.Education.SearchAndCompare.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, CourseDbContext dbContext)
         {
-            app.SeedSchema(dbContext);
+            //app.SeedSchema(dbContext);
 
             if (env.IsDevelopment())
             {
