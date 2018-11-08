@@ -51,8 +51,13 @@ namespace GovUk.Education.SearchAndCompare.Api.Middleware
                 return base.HandleChallengeAsync(properties);
             }
 
-            _logger.LogError(authException, "Failed api-key challenge");
-            Context.Response.StatusCode = 404; // todo: return 500 if there's an exception, 401 otherwise
+            if (authException == null){
+                Context.Response.StatusCode = 401;
+            } else {
+                _logger.LogError(authException, "Failed api-key challenge");
+                Context.Response.StatusCode = 500;
+            }
+
             return Task.CompletedTask;
         }
     }
