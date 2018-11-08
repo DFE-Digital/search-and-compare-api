@@ -39,6 +39,8 @@ namespace GovUk.Education.SearchAndCompare.Api
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .CaptureStartupErrors(true)
+                .UseSetting(WebHostDefaults.DetailedErrorsKey, "true")
                 .UseApplicationInsights()
                 .UseKestrel(options =>
                 {
