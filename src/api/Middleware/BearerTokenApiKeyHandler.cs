@@ -44,8 +44,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Middleware
 
         protected override Task HandleChallengeAsync(AuthenticationProperties properties)
         {
-            // this method is not async because it's an override!!
-
             var authResult = HandleAuthenticateOnceSafeAsync().Result;
             var authException = authResult.Failure;
             if (authResult.Succeeded || authException == null)
@@ -56,7 +54,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Middleware
             _logger.LogError(authException, "Failed api-key challenge");
             Context.Response.StatusCode = 404; // todo: return 500 if there's an exception, 401 otherwise
             return Task.CompletedTask;
-
         }
     }
 }
