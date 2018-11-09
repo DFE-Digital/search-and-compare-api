@@ -18,7 +18,7 @@ namespace GovUk.Education.SearchAndCompare.Api
             var sslDefault = "SSL Mode=Prefer;Trust Server Certificate=true";
             var ssl = Environment.GetEnvironmentVariable("PG_SSL") ?? dbConfig.GetValue<string>("Ssl") ?? sslDefault;
 
-            var connectionString = $"Server={server};Port={port};Database={dbase};User Id={user};Password={pword};{ssl}";
+            var connectionString = $"Server={server};Port={port};Database={dbase};User Id={user};Password={pword};{ssl};Timeout=3";
             return connectionString;
         }
     }
