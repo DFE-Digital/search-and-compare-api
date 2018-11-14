@@ -84,3 +84,7 @@ bool result = api.SaveCoursesAsync(courses);
 
     cd src\api
     dotnet ef migrations add [MigrationName]
+
+## Shutting down the service and showing the off line page.
+Rename the file "app_offline.htm.example" in the root folder to "app_offline.htm"
+
