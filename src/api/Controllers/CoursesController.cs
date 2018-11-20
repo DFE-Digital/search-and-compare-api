@@ -97,6 +97,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             //
             IActionResult result = BadRequest();
 
+            if (courses.Count() < 1)
+            {
+                throw new Exception($"Cowardly refusing to import {courses.Count()} courses to avoid wiping the database (again)");
+            }
+
             if (ModelState.IsValid &&
                 courses != null &&
                 courses.All(x => x.IsValid(false)))
