@@ -11,11 +11,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
     public class HomeController : Controller
     {
         [HttpGet("")]
-        [HttpGet("home")]
-        [HttpGet("home/index")]
-        public IActionResult Index()
+        public RedirectResult Index()
         {
-            return View();
+            return Redirect("swagger");
         }
 
         public IActionResult Error()
