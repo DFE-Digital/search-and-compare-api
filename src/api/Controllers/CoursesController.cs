@@ -99,7 +99,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
             if (courses.Count() < 1)
             {
-                throw new Exception($"Cowardly refusing to import {courses.Count()} courses to avoid wiping the database (again)");
+                throw new Exception($"Refusing to import {courses.Count()} courses to avoid wiping the database");
             }
 
             if (ModelState.IsValid &&
