@@ -33,6 +33,10 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Add/update one or more courses.
+        /// This is used when a user on manage courses publishes a course.
+        /// </summary>
         [HttpPut("")]
         [ApiTokenAuth]
         [RequestSizeLimit(100_000_000_000)]
@@ -85,6 +89,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             return result;
         }
 
+        /// <summary>
+        /// Wipe database and replace the contents with what was posted.
+        /// This is used by the scheduled bulk export from manage courses
+        /// into this system.
+        /// </summary>
         [HttpPost]
         [ApiTokenAuth]
         [RequestSizeLimit(100_000_000_000)]
