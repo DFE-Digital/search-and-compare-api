@@ -99,7 +99,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         [RequestSizeLimit(100_000_000_000)]
         public IActionResult Index([FromBody]IList<Course> courses)
         {
-            if (courses == null || courses.Count() < 1)
+            if (courses == null || !courses.Any())
             {
                 return BadRequest();
             }
