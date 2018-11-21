@@ -99,7 +99,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         [RequestSizeLimit(100_000_000_000)]
         public IActionResult Index([FromBody]IList<Course> courses)
         {
-            if (courses.Count() < 1)
+            if (courses == null || courses.Count() < 1)
             {
                 return BadRequest();
             }
@@ -112,7 +112,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
             IActionResult result = BadRequest();
             if (ModelState.IsValid &&
-                courses != null &&
                 courses.All(x => x.IsValid(false)))
             {
                 using (var transaction = (_context as DbContext).Database.BeginTransaction()){
