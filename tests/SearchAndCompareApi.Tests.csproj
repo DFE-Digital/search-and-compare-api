@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <RootNamespace>GovUk.Education.SearchAndCompare.Api.Tests</RootNamespace>
+    <UserSecretsId>search-api-test-config</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

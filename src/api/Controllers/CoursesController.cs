@@ -33,6 +33,10 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Add/update one or more courses.
+        /// This is used when a user on manage courses publishes a course.
+        /// </summary>
         [HttpPut("")]
         [ApiTokenAuth]
         [RequestSizeLimit(100_000_000_000)]
@@ -85,20 +89,29 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             return result;
         }
 
+        /// <summary>
+        /// Wipe database and replace the contents with what was posted.
+        /// This is used by the scheduled bulk export from manage courses
+        /// into this system.
+        /// </summary>
         [HttpPost]
         [ApiTokenAuth]
         [RequestSizeLimit(100_000_000_000)]
         public IActionResult Index([FromBody]IList<Course> courses)
         {
+            if (courses == null || !courses.Any())
+            {
+                return BadRequest();
+            }
+
             //
             // TODO:
             //   Match up subjects to an exisiting list (currently pulled from the list of distinct subjects in the importer)
             //   This includes matching those existing subjects to a subject-area and to subject-funding.
             //
-            IActionResult result = BadRequest();
 
+            IActionResult result = BadRequest();
             if (ModelState.IsValid &&
-                courses != null &&
                 courses.All(x => x.IsValid(false)))
             {
                 using (var transaction = (_context as DbContext).Database.BeginTransaction()){

@@ -43,6 +43,15 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         }
 
         [Test]
+        public void ImportEmptyCourseList()
+        {
+            var courses = GetCourses(0);
+            var result = subject.Index(courses);
+
+            AssertBad(result);
+        }
+
+        [Test]
         public void ImportCourse_Null_CourseSubjects()
         {
             var courses = GetCourses(1);

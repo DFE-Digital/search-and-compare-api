@@ -20,6 +20,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("integration-tests.json")
+                .AddUserSecrets<CourseDbContextIntegrationBase>()
                 .Build();
 
             var options = new DbContextOptionsBuilder<CourseDbContext>()
