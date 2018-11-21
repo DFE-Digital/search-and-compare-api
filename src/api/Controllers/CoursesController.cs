@@ -99,18 +99,18 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         [RequestSizeLimit(100_000_000_000)]
         public IActionResult Index([FromBody]IList<Course> courses)
         {
+            if (courses.Count() < 1)
+            {
+                return BadRequest();
+            }
+
             //
             // TODO:
             //   Match up subjects to an exisiting list (currently pulled from the list of distinct subjects in the importer)
             //   This includes matching those existing subjects to a subject-area and to subject-funding.
             //
+
             IActionResult result = BadRequest();
-
-            if (courses.Count() < 1)
-            {
-                throw new Exception($"Refusing to import {courses.Count()} courses to avoid wiping the database");
-            }
-
             if (ModelState.IsValid &&
                 courses != null &&
                 courses.All(x => x.IsValid(false)))
