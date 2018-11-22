@@ -125,7 +125,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                         _context.Routes.RemoveRange(_context.Routes);
 
                         _context.SaveChanges();
-                        _logger.LogInformation($"Existing Courses Removed");
+                        _logger.LogInformation($"Existing Courses Removed (don't worry it's in a transaction, they'll be back soon)");
 
                         MakeProvidersDistinctReferences(ref courses);
                         MakeRoutesDistinctReferences(ref courses);
