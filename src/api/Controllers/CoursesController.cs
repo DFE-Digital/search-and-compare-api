@@ -378,7 +378,15 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             if (filter.hasvacanciesonly)
             {
                 courses = courses.Where(course => course.HasVacancies);
-            }            
+            }
+
+            if (filter.senCourses)
+            {
+                courses = courses.Where(course =>
+                    course.Name.ToLower().Contains("(sen)") || 
+                    course.Name.ToLower().Contains("(send)") ||
+                    course.Name.ToLower().Contains("special educational needs"));
+            }
 
             return courses;
         }

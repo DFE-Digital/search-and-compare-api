@@ -36,6 +36,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Filters
         public byte qualification { get; set; }
 
         public bool hasvacanciesonly { get; set; }
+        public bool senCourses { get; set; }
 
         [IgnoreDataMemberAttribute]
         public List<int> SelectedSubjects {
