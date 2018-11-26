@@ -382,11 +382,13 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
             if (filter.senCourses)
             {
-                courses = courses
-                    .Where(course => course.CourseSubjects
-                        .Any(courseSubject => courseSubject.Course.Name.ToLower().Contains("sen") ||
-                                              courseSubject.Course.Name.ToLower().Contains("send") ||
-                                              courseSubject.Course.Name.ToLower().Contains("special education needs")));
+                courses = courses.Where(c =>
+                    c.Name.ToLower().Contains("sen") ||
+                    c.Name.ToLower().Contains("send") ||
+                    c.Name.ToLower().Contains("special education needs") ||
+                    c.CourseSubjects.Any(s =>
+                        s.Subject.Name.ToLower().Contains("special education needs"))
+                );
             }
 
             return courses;
