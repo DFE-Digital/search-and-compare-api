@@ -6,6 +6,7 @@ using System.Threading;
 using GovUk.Education.SearchAndCompare.Api.DatabaseAccess;
 using GovUk.Education.SearchAndCompare.Api.Middleware;
 using GovUk.Education.SearchAndCompare.UI.Middleware;
+using Microsoft.ApplicationInsights;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -153,7 +154,9 @@ namespace GovUk.Education.SearchAndCompare.Api
                     {
                         delayMs = maxDelayMs;
                     }
-                    _logger.LogError($"Failed to apply EF migrations. Attempt {migrationAttempt} of ∞. Waiting for {delayMs}ms before trying again.", ex);
+                    // exception included in message string because app insights isn't showing the messages and kudo log stream only shows the message string.
+                    _logger.LogError($"Failed to apply EF migrations. Attempt {migrationAttempt} of ∞. Waiting for {delayMs}ms before trying again.\n{ex}", ex);
+                    new TelemetryClient().TrackException(ex);
                     Thread.Sleep(delayMs);
                     migrationAttempt++;
                 }
