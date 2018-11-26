@@ -75,6 +75,10 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
         /// </summary>
         /// <value></value>
         public bool HasVacancies { get; set; }
+        /// <summary>
+        /// Flags course as Special Education Needs and Disabilities
+        /// </summary>
+        public bool IsSen { get; set; }
 
         /// <summary>
         /// A course is consider valid if it has:
