@@ -378,7 +378,12 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             if (filter.hasvacanciesonly)
             {
                 courses = courses.Where(course => course.HasVacancies);
-            }            
+            }
+
+            if (filter.senCourses)
+            {
+                courses = courses.Where(c => c.IsSen);
+            }
 
             return courses;
         }
