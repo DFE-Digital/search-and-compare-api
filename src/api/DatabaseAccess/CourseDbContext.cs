@@ -291,6 +291,7 @@ LIMIT @limit",
             existingCourse.Duration = itemToSave.Duration;
             existingCourse.Mod = itemToSave.Mod;
             existingCourse.HasVacancies = itemToSave.HasVacancies;
+            existingCourse.IsSen = itemToSave.IsSen;
             // itemToSave.Id = existingCourse.Id;
         }
     }
