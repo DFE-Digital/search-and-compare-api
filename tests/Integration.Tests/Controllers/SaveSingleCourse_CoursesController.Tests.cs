@@ -374,7 +374,28 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             context.Subjects.Single().SubjectArea.Should().NotBeNull();
             context.Subjects.Single().SubjectArea.Name.Should().Be("Primary");
         }
+        [Test]
+        public async Task SenCoursesArePreservedAcrossImports()
+        {
+            // initial import
+            var course = GetCourses(1).First();
+            course.IsSen = true;
+            var result = await subject.SaveCourses(new List<Course> { course });
 
+            AssertOkay(result);
+
+            var savedCourse = context.GetCoursesWithProviderSubjectsRouteAndCampuses().Single();
+            savedCourse.IsSen.Should().BeTrue();
+            // next import
+            var course2 = GetCourses(1).First();
+            course2.IsSen = false;
+            var result2 = await subject.SaveCourses(new List<Course> { course2 });
+
+            AssertOkay(result2);
+
+            savedCourse = context.GetCoursesWithProviderSubjectsRouteAndCampuses().Single();
+            savedCourse.IsSen.Should().BeFalse();
+        }
         internal void AssertBad(IActionResult result)
         {
             AssertStatusCode(result, 400);
