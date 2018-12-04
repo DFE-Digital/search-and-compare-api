@@ -49,8 +49,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
 
                 var distance = context2.GetLocationFilteredCourses(50, 0.01, 1000).Single().Distance;
                 Assert.NotNull(distance);
-                Assert.LessOrEqual(715, distance.Value);
-                Assert.GreaterOrEqual(716, distance.Value);
+                Assert.GreaterOrEqual(distance.Value, 713);
+                Assert.LessOrEqual(distance.Value, 714);
             }
         }
 
