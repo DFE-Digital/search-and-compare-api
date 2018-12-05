@@ -114,45 +114,51 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             if (ModelState.IsValid &&
                 courses.All(x => x.IsValid(false)))
             {
-                using (var transaction = (_context as DbContext).Database.BeginTransaction()){
-                    try
+                // Strategy is required for compatibility with EnableRetryOnFailure in Startup. Ref https://docs.microsoft.com/en-gb/azure/architecture/best-practices/retry-service-specific#sql-database-using-entity-framework-core
+                var strategy = ((DbContext)_context).Database.CreateExecutionStrategy();
+                strategy.Execute(() =>
+                {
+                    using (var transaction = (_context as DbContext).Database.BeginTransaction())
                     {
-                        _logger.LogInformation($"Courses to import: {courses.Count()}");
-                        _context.Campuses.RemoveRange(_context.Campuses);
-                        _context.Courses.RemoveRange(_context.GetCoursesWithProviderSubjectsRouteAndCampuses());
-                        _context.Providers.RemoveRange(_context.Providers);
-                        _context.Contacts.RemoveRange(_context.Contacts);
-                        _context.Routes.RemoveRange(_context.Routes);
+                        try
+                        {
+                            _logger.LogInformation($"Courses to import: {courses.Count()}");
+                            _context.Campuses.RemoveRange(_context.Campuses);
+                            _context.Courses.RemoveRange(_context.GetCoursesWithProviderSubjectsRouteAndCampuses());
+                            _context.Providers.RemoveRange(_context.Providers);
+                            _context.Contacts.RemoveRange(_context.Contacts);
+                            _context.Routes.RemoveRange(_context.Routes);
 
-                        _context.SaveChanges();
-                        _logger.LogInformation($"Existing Courses Removed (don't worry it's in a transaction, they'll be back soon)");
+                            _context.SaveChanges();
+                            _logger.LogInformation($"Existing Courses Removed (don't worry it's in a transaction, they'll be back soon)");
 
-                        MakeProvidersDistinctReferences(ref courses);
-                        MakeRoutesDistinctReferences(ref courses);
-                        AssociateWithLocations(ref courses);
-                        AssociateWithSubjects(ref courses);
-                        ResolveSalaryAndFeesReferences(ref courses);
+                            MakeProvidersDistinctReferences(ref courses);
+                            MakeRoutesDistinctReferences(ref courses);
+                            AssociateWithLocations(ref courses);
+                            AssociateWithSubjects(ref courses);
+                            ResolveSalaryAndFeesReferences(ref courses);
 
-                        _context.Courses.AddRange(courses);
-                        _context.SaveChanges();
-                        transaction.Commit();
+                            _context.Courses.AddRange(courses);
+                            _context.SaveChanges();
+                            transaction.Commit();
 
-                    result = Ok();
-                    _logger.LogInformation($"New Courses Added");
+                            result = Ok();
+                            _logger.LogInformation($"New Courses Added");
+                        }
+                        // Note: if any exception is catch it course.IsValid() needs to be revisited
+                        catch (DbUpdateException ex)
+                        {
+                            _logger.LogWarning(ex, "Failed to save the courses to database");
+                            transaction.Rollback();
+                        }
+                        catch (Exception ex)
+                        {
+                            // Note: notice that ef core dont respect id generation for some reason.
+                            _logger.LogWarning(ex, "Failed to save the courses");
+                            transaction.Rollback();
+                        }
                     }
-                    // Note: if any exception is catch it course.IsValid() needs to be revisited
-                    catch (DbUpdateException ex)
-                    {
-                        _logger.LogWarning(ex, "Failed to save the courses to database");
-                        transaction.Rollback();
-                    }
-                    catch (Exception ex)
-                    {
-                        // Note: notice that ef core dont respect id generation for some reason.
-                        _logger.LogWarning(ex, "Failed to save the courses");
-                        transaction.Rollback();
-                    }
-                }
+                });
             }
 
             return result;
