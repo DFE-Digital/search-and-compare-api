@@ -16,7 +16,9 @@ namespace SearchAndCompare.Migrations
                                             RETURNS TABLE (""Id"" integer,
                                                            ""Distance"" double precision,
                                                            ""DistanceAddress"" text) AS $$
-                    WITH distances as (
+                    WITH matching_locations as (
+                        -- The Haversine formula for estimating distances on a spherical earth.
+                        -- Calculates distance in degrees and multiplies by 111045 metres per degree.  
                         SELECT ""Id"", ""Address"",
                             111045.0* DEGREES(ACOS(COS(RADIANS(lat))
                                     * COS(RADIANS(""Latitude""))
@@ -32,11 +34,11 @@ namespace SearchAndCompare.Migrations
                     ), matching_campuses AS (
                         select campus.""CourseId"" as ""Id"", ""Distance"", ""Address"" as ""DistanceAddress""
                         from campus
-                        JOIN distances on distances.""Id"" = ""LocationId""    
+                        JOIN matching_locations on matching_locations.""Id"" = ""LocationId""    
                     ), matching_courses AS (
                         select course.""Id"", ""Distance"", ""Address"" as ""DistanceAddress""
                         from course
-                        JOIN distances on distances.""Id"" = ""ProviderLocationId""
+                        JOIN matching_locations on matching_locations.""Id"" = ""ProviderLocationId""
                     ), matching_all AS (
                         SELECT ""Id"", ""Distance"", ""DistanceAddress"" from matching_campuses
                         
