@@ -114,6 +114,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             if (ModelState.IsValid &&
                 courses.All(x => x.IsValid(false)))
             {
+                var success = false;
                 // Strategy is required for compatibility with EnableRetryOnFailure in Startup. Ref https://docs.microsoft.com/en-gb/azure/architecture/best-practices/retry-service-specific#sql-database-using-entity-framework-core
                 var strategy = ((DbContext)_context).Database.CreateExecutionStrategy();
                 strategy.Execute(() =>
@@ -143,6 +144,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                             transaction.Commit();
 
                             result = Ok();
+                            success = true;
                             _logger.LogInformation($"New Courses Added");
                         }
                         // Note: if any exception is catch it course.IsValid() needs to be revisited
@@ -159,6 +161,15 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                         }
                     }
                 });
+
+                if (success)
+                {
+                    // a complete re-import of the data messes up the table statistics
+                    // and leads to the query optimiser choosing prohibitively slow execution plans
+                    // Do a stats rebuild befroe finishing.
+                    // Run synchronously (as ASP.NET cancels async commands that outlive the Controller Action).
+                    (_context as DbContext).Database.ExecuteSqlCommand("VACUUM ANALYZE");
+                }
             }
 
             return result;
