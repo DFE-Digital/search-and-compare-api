@@ -363,13 +363,13 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             course.ProviderLocation = new Location {
                 Latitude = 55.95,
                 Longitude = -3.19,
-                Address = "Edinburgh"                
+                Address = "Edinburgh"
             };
 
             foreach(var campus in course.Campuses)
             {
                 campus.Location.Latitude = 52.2;
-                campus.Location.Longitude = 0.12;              
+                campus.Location.Longitude = 0.12;
             }
             context.SaveChanges();
 
@@ -377,15 +377,15 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             var listOfCourses = result.Value as PaginatedList<Course>;
             listOfCourses.TotalCount.Should().Be(1);
-            listOfCourses.Items[0].Name.Should().Be("Name0");   
+            listOfCourses.Items[0].Name.Should().Be("Name0");
 
             var resultByProviderLocation = subject.GetFiltered(new QueryFilter { lat = 55.95, lng = -3.19, rad = 5 }) as OkObjectResult;
 
             var providerLocationList = resultByProviderLocation.Value as PaginatedList<Course>;
             providerLocationList.TotalCount.Should().Be(1);
-            providerLocationList.Items[0].Name.Should().Be("Name0");   
+            providerLocationList.Items[0].Name.Should().Be("Name0");
 
-            var resultWhichShouldBeEmpty = subject.GetFiltered(new QueryFilter { lat = 50.0, lng = -0.5, rad = 5 }) as OkObjectResult;  
+            var resultWhichShouldBeEmpty = subject.GetFiltered(new QueryFilter { lat = 50.0, lng = -0.5, rad = 5 }) as OkObjectResult;
 
             var emptyList = resultWhichShouldBeEmpty.Value as PaginatedList<Course>;
             emptyList.TotalCount.Should().Be(0);

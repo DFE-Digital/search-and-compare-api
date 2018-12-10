@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 using GovUk.Education.SearchAndCompare.Api.Controllers;
@@ -279,7 +280,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             resultingProviders.Count.Should().Be(1);
             context.Routes.Count().Should().Be(1);
             context.Subjects.Count().Should().Be(1);
-            context.Locations.Count().Should().Be(1);
+
+            var expectedLocations = GetExpectedLocations(courses);
+            context.Locations.Count().Should().Be(expectedLocations.Count());
 
             // non-deduplicated
             resultingCourses.Count.Should().Be(2);
@@ -415,6 +418,68 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             statusCodeResult.Should().NotBeNull();
             statusCodeResult.StatusCode.Should().Be(statusCode);
         }
+        internal static List<Location> GetExpectedLocations(IList<Course> courses)
+        {
+            var provider = courses.Where(x => x.ProviderLocation != null).Select(x => x.ProviderLocation);
+            var contactDetailsAddresses = courses.Where(x => x.ContactDetails?.Address != null).Select(x => new Location {Address = x.ContactDetails.Address});
+            var campuses = courses.SelectMany(x => x.Campuses).Where(x => !x.Name.Equals("Main site", StringComparison.InvariantCultureIgnoreCase)).Select(x => new Location {Address = $"{x.Name}, {x.Location.Address}"});
+
+            var locations = new List<Location>();
+            locations.AddRange(provider);
+            locations.AddRange(contactDetailsAddresses);
+            locations.AddRange(campuses);
+
+            var expectedLocation = new List<Location>();
+            foreach(var l in locations) {
+                if(!expectedLocation.Any(x => x.Address == l.Address)) {
+                    expectedLocation.Add(new Location {Address = l.Address, GeoAddress = l.Address});
+                }
+            }
+            return expectedLocation;
+        }
+
+        internal static List<Campus> GetCampuses()
+        {
+            var campuses = new List<Campus>{
+                        new Campus
+                        {
+                            CampusCode = "A",
+                            Name = "CampusA",
+                            Location = new Location
+                            {
+                                Address = "Common location"
+                            }
+                        },
+                        new Campus
+                        {
+                            CampusCode = "B",
+                            Name = "CampusB",
+                            Location = new Location
+                            {
+                                Address = "Common location"
+                            }
+                        },
+                        new Campus
+                        {
+                            CampusCode = "C",
+                            Name = "CampusC",
+                            Location = new Location
+                            {
+                                Address = "Common location"
+                            }
+                        },
+                        new Campus
+                        {
+                            CampusCode = "D",
+                            Name = "Main site",
+                            Location = new Location
+                            {
+                                Address = "Common location"
+                            }
+                        }
+                    };
+                return campuses;
+        }
 
         internal static List<Course> GetCourses(int count)
         {
@@ -464,27 +529,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
                     },
 
                     // need instance of at least one
-                    Campuses = new Collection<Campus>
-                    {
-                        new Campus
-                        {
-                            CampusCode = "A",
-                            Name = "CampusA",
-                            Location = new Location
-                            {
-                                Address = "Common location"
-                            }
-                        },
-                        new Campus
-                        {
-                            CampusCode = "B",
-                            Name = "CampusB",
-                            Location = new Location
-                            {
-                                Address = "Common location"
-                            }
-                        }
-                    },
+                    Campuses = new Collection<Campus>(GetCampuses()),
 
                     // need instance of at least one
 
