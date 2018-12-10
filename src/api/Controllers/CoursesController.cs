@@ -407,15 +407,26 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
         private void AssociateWithLocations(ref IList<Course> courses)
         {
-            var existingLocations = _context.Locations.ToList();
-
             var allContactDetailsAddresses = courses.Where(x => !string.IsNullOrWhiteSpace(x.ContactDetails?.Address)).Select(x => x.ContactDetails?.Address) ?? new List<string>();
+
             var allCampusesAddresses = courses
-                .SelectMany(x => x.Campuses.Select(y => y.Location.Address)) ?? new List<string>();
+                .SelectMany(x => x.Campuses.Select(c => {
+                        var result = c.Location.Address;
+
+                        if(!string.IsNullOrWhiteSpace(c.Name) && !c.Name.Equals("main site", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrWhiteSpace(c.Location.Address))
+                        {
+                            result = $"{c.Name}, {c.Location.Address}";
+                        }
+
+                        return new KeyValuePair<string, string>(result, c.Location.Address );
+                    })).GroupBy(x => x.Key).Select(g => g.First()).Where(x => x.Key != null).ToDictionary(kvp => kvp.Key, kvp => kvp.Value) ?? new Dictionary<string, string>();
+
             var allProviderLocationAddresses = courses.Select(x => x.ProviderLocation?.Address) ?? new List<string>();
 
+            var existingLocations = _context.Locations.ToList();
+
             var allAddressesAsLocations = allContactDetailsAddresses
-                .Concat(allCampusesAddresses)
+                .Concat(allCampusesAddresses.Keys)
                 .Concat(allProviderLocationAddresses)
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .Distinct()
@@ -425,11 +436,23 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
                     if (location == null)
                     {
-                        location = new Location { Address = x };
+                        location = new Location { Address = x, GeoAddress =x };
+
+                        if(allCampusesAddresses.ContainsKey(x))
+                        {
+                            var old = existingLocations.FirstOrDefault(l => l.Address == allCampusesAddresses[x]);
+
+                            if(old != null){
+                                location.Latitude = old.Latitude;
+                                location.Longitude = old.Longitude;
+                            }
+                        }
                     }
 
                     return location;
                 });
+
+
 
             foreach (var course in courses)
             {
@@ -447,6 +470,12 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 foreach (var campus in course.Campuses)
                 {
                     var address = campus.Location.Address;
+
+                    if(!string.IsNullOrWhiteSpace(campus.Name) && !campus.Name.Equals("main site", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrWhiteSpace(campus.Location.Address))
+                    {
+                        address = $"{campus.Name}, {campus.Location.Address}";
+                    }
+
                     if (!string.IsNullOrWhiteSpace(address))
                     {
                         campus.Location = allAddressesAsLocations[address];
