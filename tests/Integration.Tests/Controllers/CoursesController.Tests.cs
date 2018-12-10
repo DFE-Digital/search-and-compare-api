@@ -266,7 +266,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             resultingProviders.Count.Should().Be(1);
             context.Routes.Count().Should().Be(1);
             context.Subjects.Count().Should().Be(1);
-            context.Locations.Count().Should().Be(1);
+            context.Locations.Count().Should().Be(3);
 
             // non-deduplicated
             resultingCourses.Count.Should().Be(2);
@@ -294,7 +294,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             resultingProviders.Count.Should().Be(1);
             context.Routes.Count().Should().Be(1);
             context.Subjects.Count().Should().Be(1);
-            context.Locations.Count().Should().Be(1);
+            context.Locations.Count().Should().Be(3);
             object.ReferenceEquals(resultingCourses[0].Provider, resultingCourses[1].Provider).Should().BeTrue();
 
             // non-deduplicated
@@ -313,20 +313,18 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
 
             AssertOkay(result);
 
-            context.Locations.Single().Latitude.Should().NotBe(51.0);
-            context.Locations.Single().Longitude.Should().NotBe(13.7);
-
             // set some coordinates
-            context.Locations.Single().Latitude = 51.0;
-            context.Locations.Single().Longitude = 13.7;
+            var location = context.Locations.First(l => l.Latitude == null && l.Longitude == null);
+            location.Latitude = 51.0;
+            location.Longitude = 13.7;
             context.SaveChanges();
 
             // second import, with equivalent addresses
             subject.Index(GetCourses(1));
 
             // coordinates previously set are still there
-            context.Locations.Single().Latitude.Should().Be(51.0);
-            context.Locations.Single().Longitude.Should().Be(13.7);
+            var loc = context.Locations.FirstOrDefault(x => x.Latitude == 51.0 && x.Longitude == 13.7);
+            loc.Should().NotBeNull();
         }
 
         [Test]

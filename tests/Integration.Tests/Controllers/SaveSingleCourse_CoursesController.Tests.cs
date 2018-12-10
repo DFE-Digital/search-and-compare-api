@@ -287,7 +287,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             // non-deduplicated
             resultingCourses.Count.Should().Be(2);
             resultingCourses.SelectMany(x => x.DescriptionSections).Distinct().Count().Should().Be(2);
-            context.Campuses.Count().Should().Be(4);
+            context.Campuses.Count().Should().Be(8);
             context.CourseSubjects.Count().Should().Be(2);
             context.Contacts.Count().Should().Be(2);
 
@@ -315,14 +315,15 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             resultingCourses.SelectMany(x => x.DescriptionSections).Count().Should().Be(course.DescriptionSections.Count());
 
             // deduplicated
+            var courses = new List<Course> {course, course2};
             resultingProviders.Count.Should().Be(1);
             context.Routes.Count().Should().Be(1);
             context.Subjects.Count().Should().Be(1);
-            context.Locations.Count().Should().Be(1);
+            var expectedLocations = GetExpectedLocations(courses);
+            context.Locations.Count().Should().Be(expectedLocations.Count());
 
             // non-deduplicated
-
-            context.Campuses.Count().Should().Be(4); //probably wrong
+            context.Campuses.Count().Should().Be(8); //probably wrong
             context.CourseSubjects.Count().Should().Be(1);
             context.Contacts.Count().Should().Be(2); //probably wrong
         }
@@ -335,13 +336,10 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertOkay(result);
-
-            context.Locations.Single().Latitude.Should().NotBe(51.0);
-            context.Locations.Single().Longitude.Should().NotBe(13.7);
-
             // set some coordinates
-            context.Locations.Single().Latitude = 51.0;
-            context.Locations.Single().Longitude = 13.7;
+            var location = context.Locations.First(l => l.Latitude == null && l.Longitude == null);
+            location.Latitude = 51.0;
+            location.Longitude = 13.7;
             context.SaveChanges();
 
             // second import, with equivalent addresses
@@ -349,8 +347,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             await subject.SaveCourses(new List<Course>{course2});
 
             // coordinates previously set are still there
-            context.Locations.Single().Latitude.Should().Be(51.0);
-            context.Locations.Single().Longitude.Should().Be(13.7);
+            var loc = context.Locations.FirstOrDefault(x => x.Latitude == 51.0 && x.Longitude == 13.7);
+            loc.Should().NotBeNull();
         }
 
         [Test]
