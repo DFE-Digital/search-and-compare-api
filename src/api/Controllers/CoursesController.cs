@@ -409,8 +409,12 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         {
             var allContactDetailsAddresses = courses.Where(x => !string.IsNullOrWhiteSpace(x.ContactDetails?.Address)).Select(x => x.ContactDetails?.Address) ?? new List<string>();
 
-            var allCampusesAddresses = courses
-                .SelectMany(x => x.Campuses.Select(c => {
+            var existingLocations = _context.Locations.ToList();
+
+            var allCampusLocations = courses
+                .SelectMany(x => x.Campuses
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Name) && !string.IsNullOrWhiteSpace(c.Location?.Address) )
+                    .Select(c => {
                         var result = c.Location.Address;
 
                         if(!string.IsNullOrWhiteSpace(c.Name) && !c.Name.Equals("main site", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrWhiteSpace(c.Location.Address))
@@ -419,40 +423,43 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                         }
 
                         return new KeyValuePair<string, string>(result, c.Location.Address );
-                    })).GroupBy(x => x.Key).Select(g => g.First()).Where(x => x.Key != null).ToDictionary(kvp => kvp.Key, kvp => kvp.Value) ?? new Dictionary<string, string>();
-
-            var allProviderLocationAddresses = courses.Select(x => x.ProviderLocation?.Address) ?? new List<string>();
-
-            var existingLocations = _context.Locations.ToList();
-
-            var allAddressesAsLocations = allContactDetailsAddresses
-                .Concat(allCampusesAddresses.Keys)
-                .Concat(allProviderLocationAddresses)
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .Distinct()
-                .ToDictionary(x => x, x =>
+                    })).GroupBy(x => x.Key).Select(g => g.First()).ToDictionary(x => x.Key, x =>
                 {
-                    var location = existingLocations.FirstOrDefault(l => l.Address == x);
-
+                    var location = existingLocations.FirstOrDefault(l => l.Address == x.Key);
                     if (location == null)
                     {
-                        location = new Location { Address = x, GeoAddress =x };
+                        location = new Location { Address = x.Value, GeoAddress =x.Key };
 
-                        if(allCampusesAddresses.ContainsKey(x))
-                        {
-                            var old = existingLocations.FirstOrDefault(l => l.Address == allCampusesAddresses[x]);
+                        var old = existingLocations.FirstOrDefault(l => l.Address == x.Value);
 
-                            if(old != null){
-                                location.Latitude = old.Latitude;
-                                location.Longitude = old.Longitude;
-                            }
+                        if(old != null){
+                            location.Latitude = old.Latitude;
+                            location.Longitude = old.Longitude;
                         }
                     }
 
                     return location;
-                });
+                }) ?? new Dictionary<string, Location>();
+
+            var allProviderLocationAddresses = courses.Select(x => x.ProviderLocation?.Address) ?? new List<string>();
 
 
+            var allAddressesAsLocations = allContactDetailsAddresses
+                .Concat(allProviderLocationAddresses)
+                .Where(x => !string.IsNullOrWhiteSpace(x) && !allCampusLocations.ContainsKey(x) )
+                .Distinct()
+                .ToDictionary(x => x, x =>
+                {
+                    var location = existingLocations.FirstOrDefault(l => l.Address == x);
+                    if (location == null)
+                    {
+                        location = new Location { Address = x, GeoAddress =x };
+                    }
+
+                    return location;
+                })
+                .Concat(allCampusLocations)
+                .ToDictionary(x => x.Key, x=> x.Value);
 
             foreach (var course in courses)
             {
