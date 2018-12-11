@@ -40,11 +40,6 @@ namespace GovUk.Education.SearchAndCompare.Geocoder
 
             foreach (var location in locations)
             {
-                if(string.IsNullOrWhiteSpace(location.GeoAddress))
-                {
-                    location.GeoAddress = location.Address;
-                }
-
                 locationQueries.Add(
                     location.Id,
                     geocoder.ResolvePostCodeAsync(location.GeoAddress)

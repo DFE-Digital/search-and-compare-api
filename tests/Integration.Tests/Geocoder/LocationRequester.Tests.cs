@@ -28,7 +28,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Geocoder
 
         [SetUp]
         public new void SetUp()
-        {                
+        {
             var integrationConfig = new LocationRequesterConfiguration("apiKey", 10);
 
             httpClient = new Mock<IHttpClient>();
@@ -68,7 +68,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Geocoder
                 }))
                 .Verifiable();
 
-            context.Locations.Add(new Location{ Address = "FakeStreet" });
+            context.Locations.Add(new Location{ GeoAddress = "FakeStreet" });
             context.SaveChanges();
 
             system.RequestLocations().Wait();
@@ -89,7 +89,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Geocoder
         {
             httpClient.Setup(x => x.GetAsync(It.IsAny<string>()))
                 .ThrowsAsync(new Exception("shouldn't be called"));
-                
+
             context.Locations.Add(new Location { Address = "FakeStreet", FormattedAddress = "Formatted fake street", Latitude = 12.3, Longitude = 23.1});
             context.SaveChanges();
 
