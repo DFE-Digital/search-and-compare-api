@@ -413,11 +413,14 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
             var allCampusLocations = courses
                 .SelectMany(x => x.Campuses
-                    .Where(c => !string.IsNullOrWhiteSpace(c.Name) && !c.Name.Equals("main site", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrWhiteSpace(c.Location?.Address) )
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Name) && !string.IsNullOrWhiteSpace(c.Location?.Address) )
                     .Select(c => {
                         var result = c.Location.Address;
 
-                        result = $"{c.Name}, {c.Location.Address}";
+                        if(!c.Name.Equals("main site", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            result = $"{c.Name}, {c.Location.Address}";
+                        }
 
                         return new KeyValuePair<string, string>(result, c.Location.Address );
                     })).GroupBy(x => x.Key).Select(g => g.First()).ToDictionary(x => x.Key, x =>
@@ -473,15 +476,15 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
                 foreach (var campus in course.Campuses)
                 {
-                    var address = campus.Location.Address;
-
-                    if(!string.IsNullOrWhiteSpace(campus.Name) && !campus.Name.Equals("main site", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrWhiteSpace(campus.Location.Address))
-                    {
-                        address = $"{campus.Name}, {campus.Location.Address}";
-                    }
+                    var address = campus.Location?.Address;
 
                     if (!string.IsNullOrWhiteSpace(address))
                     {
+                        if(!campus.Name.Equals("main site", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            address = $"{campus.Name}, {address}";
+                        }
+
                         campus.Location = allAddressesAsLocations[address];
                     }
                     else
