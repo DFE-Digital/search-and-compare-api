@@ -42,7 +42,7 @@ namespace GovUk.Education.SearchAndCompare.Geocoder
             {
                 locationQueries.Add(
                     location.Id,
-                    geocoder.ResolvePostCodeAsync(location.Address)
+                    geocoder.ResolvePostCodeAsync(location.GeoAddress)
                 );
             }
 
@@ -58,12 +58,11 @@ namespace GovUk.Education.SearchAndCompare.Geocoder
                 }
                 else
                 {
-                    _logger.Information($"Unable to resolve address: {location.Id}, {location.Address}");
+                    _logger.Information($"Unable to resolve address: {location.Id}, {location.GeoAddress}");
                 }
             }
 
             _context.SaveChanges();
         }
-
     }
 }

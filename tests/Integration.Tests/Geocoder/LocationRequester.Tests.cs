@@ -28,7 +28,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Geocoder
 
         [SetUp]
         public new void SetUp()
-        {                
+        {
             var integrationConfig = new LocationRequesterConfiguration("apiKey", 10);
 
             httpClient = new Mock<IHttpClient>();
@@ -68,14 +68,15 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Geocoder
                 }))
                 .Verifiable();
 
-            context.Locations.Add(new Location{ Address = "FakeStreet" });
+            context.Locations.Add(new Location{ GeoAddress = "FakeStreet", Address = "old address that will no longer get geo coded" });
             context.SaveChanges();
 
             system.RequestLocations().Wait();
 
             httpClient.VerifyAll();
             var res = context.Locations.Single();
-            Assert.AreEqual("FakeStreet", res.Address);
+            Assert.AreEqual("FakeStreet", res.GeoAddress);
+            Assert.AreEqual("old address that will no longer get geo coded", res.Address);
             Assert.AreEqual("Formatted fake street", res.FormattedAddress);
             Assert.AreEqual(12.3, res.Latitude);
             Assert.AreEqual(23.1, res.Longitude);
@@ -89,7 +90,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Geocoder
         {
             httpClient.Setup(x => x.GetAsync(It.IsAny<string>()))
                 .ThrowsAsync(new Exception("shouldn't be called"));
-                
+
             context.Locations.Add(new Location { Address = "FakeStreet", FormattedAddress = "Formatted fake street", Latitude = 12.3, Longitude = 23.1});
             context.SaveChanges();
 

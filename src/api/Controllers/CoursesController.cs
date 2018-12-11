@@ -407,29 +407,59 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
         private void AssociateWithLocations(ref IList<Course> courses)
         {
+            var allContactDetailsAddresses = courses.Where(x => !string.IsNullOrWhiteSpace(x.ContactDetails?.Address)).Select(x => x.ContactDetails?.Address) ?? new List<string>();
+
             var existingLocations = _context.Locations.ToList();
 
-            var allContactDetailsAddresses = courses.Where(x => !string.IsNullOrWhiteSpace(x.ContactDetails?.Address)).Select(x => x.ContactDetails?.Address) ?? new List<string>();
-            var allCampusesAddresses = courses
-                .SelectMany(x => x.Campuses.Select(y => y.Location.Address)) ?? new List<string>();
-            var allProviderLocationAddresses = courses.Select(x => x.ProviderLocation?.Address) ?? new List<string>();
+            var allCampusLocations = courses
+                .SelectMany(x => x.Campuses
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Name) && !string.IsNullOrWhiteSpace(c.Location?.Address) )
+                    .Select(c => {
+                        var result = c.Location.Address;
 
-            var allAddressesAsLocations = allContactDetailsAddresses
-                .Concat(allCampusesAddresses)
-                .Concat(allProviderLocationAddresses)
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .Distinct()
-                .ToDictionary(x => x, x =>
+                        if(!c.Name.Equals("main site", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            result = $"{c.Name}, {c.Location.Address}";
+                        }
+
+                        return new KeyValuePair<string, string>(result, c.Location.Address );
+                    })).GroupBy(x => x.Key).Select(g => g.First()).ToDictionary(x => x.Key, x =>
                 {
-                    var location = existingLocations.FirstOrDefault(l => l.Address == x);
-
+                    var location = existingLocations.FirstOrDefault(l => l.GeoAddress == x.Key);
                     if (location == null)
                     {
-                        location = new Location { Address = x };
+                        location = new Location { Address = x.Value, GeoAddress =x.Key };
+
+                        var old = existingLocations.FirstOrDefault(l => l.Address == x.Value);
+
+                        if(old != null){
+                            location.Latitude = old.Latitude;
+                            location.Longitude = old.Longitude;
+                        }
                     }
 
                     return location;
-                });
+                }) ?? new Dictionary<string, Location>();
+
+            var allProviderLocationAddresses = courses.Select(x => x.ProviderLocation?.Address) ?? new List<string>();
+
+
+            var allAddressesAsLocations = allContactDetailsAddresses
+                .Concat(allProviderLocationAddresses)
+                .Where(x => !string.IsNullOrWhiteSpace(x) && !allCampusLocations.ContainsKey(x) )
+                .Distinct()
+                .ToDictionary(x => x, x =>
+                {
+                    var location = existingLocations.FirstOrDefault(l => l.GeoAddress == x);
+                    if (location == null)
+                    {
+                        location = new Location { Address = x, GeoAddress =x };
+                    }
+
+                    return location;
+                })
+                .Concat(allCampusLocations)
+                .ToDictionary(x => x.Key, x=> x.Value);
 
             foreach (var course in courses)
             {
@@ -446,9 +476,15 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
                 foreach (var campus in course.Campuses)
                 {
-                    var address = campus.Location.Address;
+                    var address = campus.Location?.Address;
+
                     if (!string.IsNullOrWhiteSpace(address))
                     {
+                        if(!campus.Name.Equals("main site", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            address = $"{campus.Name}, {address}";
+                        }
+
                         campus.Location = allAddressesAsLocations[address];
                     }
                     else

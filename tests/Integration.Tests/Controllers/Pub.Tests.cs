@@ -48,7 +48,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var courses = CoursesControllerTests.GetCourses(1);
             var result = subject.Index(courses);
 
-            context.Locations.Count().Should().Be(2);
+            context.Locations.Count().Should().Be(4);
 
             for (int i = 1; i <= context.Locations.Count(); i++)
             {

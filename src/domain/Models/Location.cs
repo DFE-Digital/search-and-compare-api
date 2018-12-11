@@ -16,6 +16,7 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models
         public string Address { get; set; }
 
         public string FormattedAddress { get; set; }
+        public string GeoAddress { get; set; }
 
         public double? Latitude { get; set; }
 
