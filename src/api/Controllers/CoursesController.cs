@@ -413,19 +413,16 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
             var allCampusLocations = courses
                 .SelectMany(x => x.Campuses
-                    .Where(c => !string.IsNullOrWhiteSpace(c.Name) && !string.IsNullOrWhiteSpace(c.Location?.Address) )
+                    .Where(c => !string.IsNullOrWhiteSpace(c.Name) && !c.Name.Equals("main site", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrWhiteSpace(c.Location?.Address) )
                     .Select(c => {
                         var result = c.Location.Address;
 
-                        if(!string.IsNullOrWhiteSpace(c.Name) && !c.Name.Equals("main site", StringComparison.InvariantCultureIgnoreCase) && !string.IsNullOrWhiteSpace(c.Location.Address))
-                        {
-                            result = $"{c.Name}, {c.Location.Address}";
-                        }
+                        result = $"{c.Name}, {c.Location.Address}";
 
                         return new KeyValuePair<string, string>(result, c.Location.Address );
                     })).GroupBy(x => x.Key).Select(g => g.First()).ToDictionary(x => x.Key, x =>
                 {
-                    var location = existingLocations.FirstOrDefault(l => l.Address == x.Key);
+                    var location = existingLocations.FirstOrDefault(l => l.GeoAddress == x.Key);
                     if (location == null)
                     {
                         location = new Location { Address = x.Value, GeoAddress =x.Key };
@@ -450,7 +447,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 .Distinct()
                 .ToDictionary(x => x, x =>
                 {
-                    var location = existingLocations.FirstOrDefault(l => l.Address == x);
+                    var location = existingLocations.FirstOrDefault(l => l.GeoAddress == x);
                     if (location == null)
                     {
                         location = new Location { Address = x, GeoAddress =x };
