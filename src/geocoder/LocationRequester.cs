@@ -40,14 +40,23 @@ namespace GovUk.Education.SearchAndCompare.Geocoder
             return locations;
         }
 
-        public async Task RequestLocations()
+        private int GetTotalLocationsToGeocode()
+        {
+            var locations = _context.Locations
+                .Where(x => (x.Latitude == null || x.Longitude == null) || x.LastGeocodedUtc == DateTime.MinValue)
+                .OrderBy(x => x.LastGeocodedUtc);
+
+            return locations.Count();
+        }
+
+        public async Task<int> RequestLocations()
         {
             var locations = GetLocationsToGeocode();
-
+            var totalLocationsToGeocode = GetTotalLocationsToGeocode();
             var geocoder = new TECH_DEBT__TemporarilyCopied__Geocoder(_config.ApiKey, _httpClient);
             var utcNow = DateTime.UtcNow;
 
-            _logger.Information($"Geocode proccessing a total of : {locations.Count()}");
+            _logger.Information($"Geocode proccessing a total of : {locations.Count()}/{totalLocationsToGeocode}");
 
             var failures = new Dictionary<string, string>();
             foreach (var location in locations)
@@ -82,6 +91,8 @@ namespace GovUk.Education.SearchAndCompare.Geocoder
             }
 
             _context.SaveChanges();
+
+            return failures.Count();
         }
     }
 }

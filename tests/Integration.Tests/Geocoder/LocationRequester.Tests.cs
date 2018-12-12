@@ -147,8 +147,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Geocoder
             context.Locations.Add(new Location{ GeoAddress = "FakeStreet", Address = "old address that will  get geo coded" });
             context.SaveChanges();
 
-            system.RequestLocations().Wait();
+            var result = system.RequestLocations().Result;
 
+            result.Should().Be(0);
             httpClient.VerifyAll();
             var res = context.Locations.Single();
             res.GeoAddress.Should().Be("FakeStreet");
@@ -171,6 +172,21 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Geocoder
             context.SaveChanges();
 
             Assert.DoesNotThrowAsync(() => system.RequestLocations());
+        }
+
+        [Test]
+        public void ReturnFailureCount()
+        {
+            httpClient.Setup(x => x.GetAsync(It.IsAny<string>()))
+                .ReturnsAsync(ResponseWithBody(new {
+                    status = "NOT OK"}));
+
+            context.Locations.Add(new Location { GeoAddress = "GeoAddress", Address = "FakeStreet", FormattedAddress = "Formatted fake street", Latitude = 12.3, Longitude = 23.1, LastGeocodedUtc = DateTime.MinValue});
+            context.SaveChanges();
+
+            var result = system.RequestLocations().Result;
+
+            result.Should().NotBe(0);
         }
 
         private HttpResponseMessage ResponseWithBody(object p)
