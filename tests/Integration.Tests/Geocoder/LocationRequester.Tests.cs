@@ -144,7 +144,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Geocoder
                 }))
                 .Verifiable();
 
-            context.Locations.Add(new Location{ GeoAddress = "FakeStreet", Address = "old address that will  get geo coded" });
+            context.Locations.Add(new Location{ GeoAddress = "FakeStreet", Address = "address not will get geo coded any more" });
             context.SaveChanges();
 
             var result = system.RequestLocations().Result;
@@ -153,7 +153,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Geocoder
             httpClient.VerifyAll();
             var res = context.Locations.Single();
             res.GeoAddress.Should().Be("FakeStreet");
-            res.Address.Should().Be("old address that will no longer get geo coded");
+            res.Address.Should().Be("address not will get geo coded any more");
             res.FormattedAddress.Should().Be("Formatted fake street");
             res.Latitude.Should().Be(12.3);
             res.Longitude.Should().Be(23.1);
