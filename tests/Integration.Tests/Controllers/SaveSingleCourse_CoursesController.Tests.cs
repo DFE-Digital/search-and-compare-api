@@ -549,7 +549,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
                     Salary = new Salary(),
 
                     // need the full object
-                    ContactDetails = new Contact{Email = "commonContact@example.com"},
+                    ContactDetails = new Contact(),
 
                     // need the address part
                     ProviderLocation = new Location
