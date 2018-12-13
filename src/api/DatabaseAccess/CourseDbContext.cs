@@ -79,8 +79,8 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
 
             //cascade delete between Course Campuses
             modelBuilder.Entity<Campus>()
-                .HasOne(p => p.Course)
-                .WithMany(b => b.Campuses)
+                .HasOne(c => c.Course)
+                .WithMany(c => c.Campuses)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<DefaultCourseDescriptionSection>();
