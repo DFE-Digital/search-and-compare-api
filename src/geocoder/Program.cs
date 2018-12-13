@@ -10,16 +10,17 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Serilog;
+using System.Threading.Tasks;
 
 namespace GovUk.Education.SearchAndCompare.Geocoder
 {
     class Program
     {
-        static void Main(string[] args)
+        public static int Main(string[] args)
         {
             var configuration = GetConfiguration();
             var requesterConfig = LocationRequesterConfiguration.FromConfiguration(configuration);
-            
+
             var logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(configuration)
                 .WriteTo
@@ -33,14 +34,16 @@ namespace GovUk.Education.SearchAndCompare.Geocoder
             var context = new CourseDbContext(options);
 
             logger.Information("Geocoder started.");
-            
+
             // Wait() because async Mains are not supported
             var locationRequester = new LocationRequester(requesterConfig, logger, new WrappedHttpClient(), context);
-            locationRequester.RequestLocations().Wait();
+            var exitcode = locationRequester.RequestLocations().Result;
 
             logger.Information("Geocoder finished.");
+
+            return exitcode;
         }
-        
+
         private static IConfiguration GetConfiguration()
         {
             return new ConfigurationBuilder()
