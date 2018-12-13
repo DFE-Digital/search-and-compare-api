@@ -321,11 +321,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             context.Subjects.Count().Should().Be(1);
             var expectedLocations = GetExpectedLocations(courses);
             context.Locations.Count().Should().Be(expectedLocations.Count());
-
-            // non-deduplicated
-            context.Campuses.Count().Should().Be(8); //probably wrong
-            context.CourseSubjects.Count().Should().Be(1);
+            context.Campuses.Count().Should().Be(4); //definately right
             context.Contacts.Count().Should().Be(2); //probably wrong
+
+            // non-deduplicated            
+            context.CourseSubjects.Count().Should().Be(1);            
         }
 
         [Test]
