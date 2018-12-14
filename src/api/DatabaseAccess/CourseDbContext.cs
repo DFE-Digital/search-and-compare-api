@@ -78,6 +78,12 @@ namespace GovUk.Education.SearchAndCompare.Api.DatabaseAccess
                 .WithMany(c => c.CourseSubjects)
                 .HasForeignKey(cs => cs.SubjectId);
 
+            //cascade delete between Course Campuses
+            modelBuilder.Entity<Campus>()
+                .HasOne(c => c.Course)
+                .WithMany(c => c.Campuses)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<DefaultCourseDescriptionSection>();
 
             base.OnModelCreating(modelBuilder);

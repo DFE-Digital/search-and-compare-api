@@ -298,11 +298,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         public void ImportSameCoursesTwice()
         {
             var course = GetCourses(1).First();
-            var result1 = subject.SaveCourses(new List<Course> { course }).Result;;
+            var result1 = subject.SaveCourses(new List<Course> { course }).Result;
             AssertOkay(result1);
 
             var course2 = GetCourses(1).First();
-            var result2 = subject.SaveCourses(new List<Course>{course2}).Result;;
+            var result2 = subject.SaveCourses(new List<Course>{course2}).Result;
             AssertOkay(result2);
 
             var resultingCourses = context.GetCoursesWithProviderSubjectsRouteAndCampuses().ToList();
@@ -321,11 +321,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             context.Subjects.Count().Should().Be(1);
             var expectedLocations = GetExpectedLocations(courses);
             context.Locations.Count().Should().Be(expectedLocations.Count());
+            context.Campuses.Count().Should().Be(4); //definately right
 
-            // non-deduplicated
-            context.Campuses.Count().Should().Be(8); //probably wrong
-            context.CourseSubjects.Count().Should().Be(1);
+            // non-deduplicated            
             context.Contacts.Count().Should().Be(2); //probably wrong
+            context.CourseSubjects.Count().Should().Be(1);            
         }
 
         [Test]
