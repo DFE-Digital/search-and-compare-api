@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FluentAssertions;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 using GovUk.Education.SearchAndCompare.Domain.Models.Joins;
 using Microsoft.EntityFrameworkCore;
@@ -247,6 +248,29 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
             }
         }
 
+        [Test]
+        public void GetSubjects_OmitEmptySubjects()
+        {
+            var entity1 = context.Courses.Add(GetSimpleCourse());
+            var entity2 = context.Subjects.Add(new Subject { Name = "Other subject", SubjectArea = new SubjectArea { Name = "Other subject area" }});
+
+            context.SaveChanges();
+
+            entitiesToCleanUp.Add(entity1);
+            entitiesToCleanUp.Add(entity2);
+
+            using (var context2 = GetContext())
+            {
+                var subjects = context2.GetSubjects();
+                subjects.Count().Should().Be(1);
+                subjects.First().Name.Should().Be("My subject");
+
+                var subjectAreas = context2.GetOrderedSubjectsByArea();
+                subjectAreas.Count().Should().Be(1);
+                subjectAreas.First().Name.Should().Be("My subject area");
+            }
+        }
+
         private static Course GetSimpleCourse()
         {
             return new Course()
@@ -277,7 +301,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
                 },
                 CourseSubjects = new HashSet<CourseSubject>
                 {
-                    new CourseSubject { Subject = new Subject {Name = "My subject"} }
+                    new CourseSubject { Subject = new Subject {Name = "My subject", SubjectArea = new SubjectArea { Name = "My subject area" } } }
                 },
                 Route = new Route
                 {

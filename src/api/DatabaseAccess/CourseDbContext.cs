@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
@@ -212,16 +213,24 @@ WHERE lower(""p1"".""Name"") = lower(@query) OR lower(""p2"".""Name"") = lower(@
 
         public IQueryable<Subject> GetSubjects()
         {
-            return from subject in Subjects select subject;
+            return Subjects.Where(x => x.CourseSubjects.Any());
         }
 
         public List<SubjectArea> GetOrderedSubjectsByArea()
         {
-            return SubjectAreas
-                .Include(x => x.Subjects)
-                    .ThenInclude(y => y.Funding)
-                .OrderBy(x => x.Ordinal)
+            var subjects = GetSubjects()
+                .Include(x => x.Funding)
+                .Include(x => x.SubjectArea)                
                 .AsNoTracking()
+                .ToList();
+
+            return subjects.GroupBy(x => x.SubjectArea.Id)
+                .Select(x => {
+                    var area = x.First().SubjectArea;
+                    area.Subjects = new Collection<Subject>(x.ToList());
+                    return area;
+                })
+                .OrderBy(x => x.Ordinal)
                 .ToList();
         }
 
