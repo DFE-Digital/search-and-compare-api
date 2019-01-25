@@ -41,15 +41,15 @@ deploy:
     HEAD:refs/heads/master
   on: production
 - provider: script
-  script: "./travis-deploy-geocoder.sh govuk-dfe-bat-deployment-user:$APP_CREDENTIALS_DEV_PWD
+  script: "./travis-deploy-geocoder.sh $bat-dev-search-and-compare-api-app:$APP_CREDENTIALS_DEV_PWD
     bat-dev-search-and-compare-api-app"
   on: master
 - provider: script
-  script: "./travis-deploy-geocoder.sh govuk-dfe-bat-deployment-user:$APP_CREDENTIALS_STAGING_PWD
+  script: "./travis-deploy-geocoder.sh $bat-staging-search-and-compare-api-app:$APP_CREDENTIALS_STAGING_PWD
     bat-staging-search-and-compare-api-app"
   on: staging
 - provider: script
-  script: "./travis-deploy-geocoder.sh govuk-dfe-bat-deployment-user:$APP_CREDENTIALS_PROD_PWD
+  script: "./travis-deploy-geocoder.sh $bat-prod-search-and-compare-api-app:$APP_CREDENTIALS_PROD_PWD
     bat-prod-search-and-compare-api-app"
   on: production
 - provider: script
