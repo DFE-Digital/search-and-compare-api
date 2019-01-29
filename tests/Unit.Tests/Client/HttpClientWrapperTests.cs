@@ -87,6 +87,24 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
         }
 
         [Test]
+        public void GetAsync_SearchAndCompareApi404()
+        {
+            var ub = new UriBuilder("test");
+            var uri = ub.Uri;
+
+            mockMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.NotFound });
+
+            Func<Task> act = async () => await sut.GetAsync(uri);
+
+            act.Should().NotThrow<SearchAndCompareApiException>();
+
+            Assert.Pass("Verified underlaying http client was called with no exception");
+        }
+
+        [Test]
         public void PutAsync_SearchAndCompareApiException()
         {
             var ub = new UriBuilder("test");
