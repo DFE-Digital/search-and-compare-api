@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -23,7 +24,11 @@ namespace GovUk.Education.SearchAndCompare.Domain.Client
             try
             {
                 var result = await wrapped.GetAsync(queryUri);
-                result.EnsureSuccessStatusCode();
+                if (result.StatusCode != HttpStatusCode.NotFound)
+                {
+                    result.EnsureSuccessStatusCode();
+                }
+                
                 return result;
             }
             catch(Exception ex)
