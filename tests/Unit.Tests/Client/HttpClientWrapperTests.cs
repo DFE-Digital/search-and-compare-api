@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text;
 using GovUk.Education.SearchAndCompare.Domain.Client;
 using Moq;
 using Moq.Protected;
@@ -35,16 +34,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
         [Test]
         public async Task PostAsync()
         {
-            var ub = new UriBuilder("test");
-            var uri = ub.Uri;
-            var sc = new StringContent("tested");
+            SetupMockMessageHandler(false, new HttpResponseMessage());
 
-            mockMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage());
-
-            var result = await sut.PostAsync(uri, sc);
+            var result = await sut.PostAsync(new UriBuilder("test").Uri, new StringContent("tested"));
             mockMessageHandler.VerifyAll();
 
             Assert.Pass("Verified underlaying http client was called");
@@ -53,17 +45,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
         [Test]
         public void SendAsync_SearchAndCompareApiException()
         {
-            var ub = new UriBuilder("test");
-            var uri = ub.Uri;
-            var sc = new StringContent("tested");
+            var uri = new UriBuilder("test").Uri;
 
-            mockMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(() => throw new Exception());
+            SetupMockMessageHandler(true, null);
 
-            // Func<Task<HttpResponseMessage>> func = async () => await sut.PostAsync(uri, sc);
-            Func<Task> act = async () => await sut.PostAsync(uri, sc);
+            Func<Task> act = async () => await sut.PostAsync(uri, new StringContent("tested"));
 
             var msg = $"API POST Failed uri {uri}";
             act.Should().Throw<SearchAndCompareApiException>().WithMessage(msg);
@@ -72,13 +58,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
         [Test]
         public void GetAsync_SearchAndCompareApiException()
         {
-            var ub = new UriBuilder("test");
-            var uri = ub.Uri;
+            var uri = new UriBuilder("test").Uri;
 
-            mockMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(() => throw new Exception());
+            SetupMockMessageHandler(true, null);
 
             Func<Task> act = async () => await sut.GetAsync(uri);
 
@@ -87,17 +69,11 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
         }
 
         [Test]
-        public void GetAsync_SearchAndCompareApi404()
+        public void GetAsync_SearchAndCompareApiEnsure404HasNoException()
         {
-            var ub = new UriBuilder("test");
-            var uri = ub.Uri;
+            SetupMockMessageHandler(false, new HttpResponseMessage { StatusCode = HttpStatusCode.NotFound });
 
-            mockMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.NotFound });
-
-            Func<Task> act = async () => await sut.GetAsync(uri);
+            Func<Task> act = async () => await sut.GetAsync(new UriBuilder("test").Uri);
 
             act.Should().NotThrow<SearchAndCompareApiException>();
 
@@ -105,21 +81,35 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests.Client
         }
 
         [Test]
+        public void GetAsync_SearchAndCompareApiEnsure404HappyPath()
+        {
+            SetupMockMessageHandler(false, new HttpResponseMessage { StatusCode = HttpStatusCode.NotFound });
+
+            var result = sut.GetAsync(new UriBuilder("test").Uri).Result;
+
+            result.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        }
+
+        [Test]
         public void PutAsync_SearchAndCompareApiException()
         {
-            var ub = new UriBuilder("test");
-            var uri = ub.Uri;
-            var sc = new StringContent("tested");
+            var uri = new UriBuilder("test").Uri;
 
-            mockMessageHandler
-                .Protected()
-                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-                .ReturnsAsync(() => throw new Exception());
+            SetupMockMessageHandler(true, null);
 
-            Func<Task> act = async () => await sut.PutAsync(uri, sc);
+            Func<Task> act = async () => await sut.PutAsync(uri, new StringContent("tested"));
 
             var msg = $"API Put Failed uri {uri}";
             act.Should().Throw<SearchAndCompareApiException>().WithMessage(msg);
+        }
+
+        private void SetupMockMessageHandler(bool throwException, HttpResponseMessage response)
+        {
+            mockMessageHandler
+                .Protected()
+                .Setup<Task<HttpResponseMessage>>("SendAsync", ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(() => throwException ? throw new Exception() : response);
         }
     }
 }
