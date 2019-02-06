@@ -164,6 +164,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
                 Assert.AreEqual(0, context2.SuggestProviders("provider foobar").Count(), "multiwords bad");
                 Assert.AreEqual(2, context2.SuggestProviders("provider my").Count(), "multiwords good");
                 Assert.AreEqual(2, context2.SuggestProviders("prov my").Count(), "multiwords good incomplete");
+                Assert.AreEqual(2, context2.SuggestProviders(@"provider my\").Count(), "multiwords good");
+                Assert.AreEqual(2, context2.SuggestProviders(@"prov my\").Count(), "multiwords good incomplete");
             }
         }
 
