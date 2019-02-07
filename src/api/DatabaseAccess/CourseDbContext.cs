@@ -257,7 +257,7 @@ SELECT * FROM (
     GROUP BY ""provider"".""Id"") AS sub
 ORDER BY lower(""Name"") <> lower(@query) ASC, ""cnt"" DESC
 LIMIT @limit",
-            new NpgsqlParameter("@query", query),
+            new NpgsqlParameter("@query", query.Replace(@"\","")),
             new NpgsqlParameter("@limit", 5))
             .ToList();
         }
