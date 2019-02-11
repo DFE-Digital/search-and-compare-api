@@ -502,7 +502,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
                     }
                 },
 
-                IncludesPgce = IncludesPgce.No,
+                IncludesPgce = IncludesPgce.QtsOnly,
 
                 // need fee or salary
                 Fees = new Fees(),

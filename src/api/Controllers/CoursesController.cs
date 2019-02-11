@@ -340,21 +340,21 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             }
             else if (qualQts && qualPgce)
             {
-                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.No ||
-                    x.IncludesPgce == IncludesPgce.Yes ||
+                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.QtsOnly ||
+                    x.IncludesPgce == IncludesPgce.QtsWithPgce ||
                     x.IncludesPgce == IncludesPgce.QtsWithOptionalPgce ||
                     x.IncludesPgce == IncludesPgce.QtsWithPgde);
             }
             else if (qualQts && qualOther)
             {
-                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.No ||
+                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.QtsOnly ||
                     x.IncludesPgce == IncludesPgce.QtlsOnly ||
                     x.IncludesPgce == IncludesPgce.QtlsWithPgce ||
                     x.IncludesPgce == IncludesPgce.QtlsWithPgde);
             }
             else if (qualPgce && qualOther)
             {
-                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.Yes ||
+                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.QtsWithPgce ||
                     x.IncludesPgce == IncludesPgce.QtsWithOptionalPgce ||
                     x.IncludesPgce == IncludesPgce.QtsWithPgde ||
                     x.IncludesPgce == IncludesPgce.QtlsOnly ||
@@ -363,12 +363,12 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             }
             else if (qualQts)
             {
-                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.No);
+                courses = courses.Where(x => x.IncludesPgce == IncludesPgce.QtsOnly);
             }
             else if (qualPgce)
             {
                 courses = courses.Where(x =>
-                    x.IncludesPgce == IncludesPgce.Yes ||
+                    x.IncludesPgce == IncludesPgce.QtsWithPgce ||
                     x.IncludesPgce == IncludesPgce.QtsWithOptionalPgce ||
                     x.IncludesPgce == IncludesPgce.QtsWithPgde);
             }

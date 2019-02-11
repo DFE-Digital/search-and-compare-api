@@ -3,11 +3,11 @@ namespace GovUk.Education.SearchAndCompare.Domain.Models.Enums
     public enum IncludesPgce
     {
         /* QTS only search category */
-        No = 0, // QtsOnly
+        QtsOnly = 0,
 
 
         /* QTS + PGCE search category */
-        Yes = 1, // QtsWithPgce
+        QtsWithPgce = 1,
         QtsWithOptionalPgce = 2,
         QtsWithPgde = 3,
         
