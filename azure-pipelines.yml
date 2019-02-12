@@ -37,8 +37,7 @@ steps:
   inputs:
     command: test
     projects: 'tests/**/*.Tests.csproj'
-    arguments: '--configuration $(buildConfiguration)'
-  enabled: true
+    arguments: '--configuration $(buildConfiguration) --filter FullyQualifiedName~Unit.Tests'
 
 - task: DotNetCoreCLI@2
   displayName: 'Publish API'
