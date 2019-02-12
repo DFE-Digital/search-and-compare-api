@@ -1,0 +1,253 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "appServiceName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the app service."
+            }
+        },
+        "appServicePlanName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the app service plan."
+            }
+        },
+        "databaseName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the database that the app will connect to."
+            }
+        },
+        "databaseServerName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the psql server hosting the database."
+            }
+        },
+        "databasePort": {
+            "type": "string",
+            "metadata": {
+                "description": "The default port for the psql server."
+            }
+        },
+        "databaseUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "The username used to connect to the database."
+            }
+        },
+        "databasePassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The password used to connect to the database."
+            }
+        },
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the storage account to be used with psql."
+            }
+        },
+        "securityAlertEmail": {
+            "type": "string",
+            "metadata": {
+                "description": "The email address to be used for psql security alerts."
+            }
+        },
+        "aspNetCoreEnvironment": {
+            "type": "string",
+            "defaultValue": "Production",
+            "metadata": {
+                "description": "Value for ASPNETCORE_ENVIRONMENT environment variable."
+            }
+        },
+        "searchAndCompareAPIKey": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Search and Compare API key."
+            }
+        }
+    },
+    "variables": {
+        "templateBaseUrl": "https://raw.githubusercontent.com/DFE-Digital/bat-platform-building-blocks/master/templates/"
+    },
+    "resources": [
+        {
+            "name": "storage-account",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('templateBaseUrl'), 'storage-account.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "storageAccountName": {
+                        "value": "[parameters('storageAccountName')]"
+                    }
+                }
+            }
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "postgresql-server",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('templateBaseUrl'),'postgresql-server.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "postgresServerName": {
+                        "value": "[parameters('databaseServerName')]"
+                    },
+                    "postgresAdminLogin": {
+                        "value": "[parameters('databaseUsername')]"
+                    },
+                    "postgresAdminPassword": {
+                        "value": "[parameters('databasePassword')]"
+                    },
+                    "securityAlertEmailAddress": {
+                        "value": "[parameters('securityAlertEmail')]"
+                    },
+                    "storageAccountName": {
+                        "value": "[parameters('storageAccountName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "storage-account"
+            ]
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "postgresql-database",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('templateBaseUrl'),'postgresql-database.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "serverName": {
+                        "value": "[parameters('databaseServerName')]"
+                    },
+                    "databaseName": {
+                        "value": "[parameters('databaseName')]"
+                    }
+                }
+            },
+            "dependsOn": [
+                "postgresql-server"
+            ]
+        },
+        {
+            "name": "app-service-plan",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('templateBaseUrl'), 'app-service-plan.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appServicePlanName": {
+                        "value": "[parameters('appServicePlanName')]"
+                    },
+                    "appServicePlanOS": {
+                        "value": "Windows"
+                    }
+                }
+            }
+        },
+        {
+            "name": "app-service",
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('templateBaseUrl'), 'app-service-windows.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appServiceName": {
+                        "value": "[parameters('appServiceName')]"
+                    },
+                    "appServicePlanResourceGroup": {
+                        "value": "[resourceGroup().name]"
+                    },
+                    "appServicePlanName": {
+                        "value": "[parameters('appServicePlanName')]"
+                    },
+                    "appServiceAppSettings": {
+                        "value": [
+                            {
+                                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                                "value": "[reference('app-insights').outputs.instrumentationKey.value]"
+                            },
+                            {
+                                "name": "api__key",
+                                "value": "[parameters('searchAndCompareAPIKey')]"
+                            },
+                            {
+                                "name": "ASPNETCORE_ENVIRONMENT",
+                                "value": "[parameters('aspNetCoreEnvironment')]"
+                            },
+                            {
+                                "name": "POSTGRESQL_SERVICE_HOST",
+                                "value": "[reference('postgresql-server').outputs.fullyQualifiedDomainName.value]"
+                            },
+                            {
+                                "name": "POSTGRESQL_SERVICE_PORT",
+                                "value": "[parameters('databasePort')]"
+                            },
+                            {
+                                "name": "PG_DATABASE",
+                                "value": "[parameters('databaseName')]"
+                            },
+                            {
+                                "name": "PG_PASSWORD",
+                                "value": "[parameters('databasePassword')]"
+                            },
+                            {
+                                "name": "PG_USERNAME",
+                                "value": "[concat(parameters('databaseUsername'), '@', parameters('databaseServerName'))]"
+                            }
+                        ]
+                    }
+                }
+            },
+            "dependsOn": [
+                "app-service-plan"
+            ]
+        },
+        {
+            "apiVersion": "2017-05-10",
+            "name": "app-insights",
+            "type": "Microsoft.Resources/deployments",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[concat(variables('templateBaseUrl'), 'application-insights.json')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "appInsightsName": {
+                        "value": "[parameters('appServiceName')]"
+                    },
+                    "attachedService": {
+                        "value": "[parameters('appServiceName')]"
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}
