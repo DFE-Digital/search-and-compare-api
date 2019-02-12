@@ -44,7 +44,7 @@ steps:
   inputs:
     command: publish
     publishWebProjects: false
-    projects: 'src\api\SearchAndCompareApi.csproj'
+    projects: 'src/api/SearchAndCompareApi.csproj'
     arguments: '--configuration $(buildConfiguration) --output $(build.artifactstagingdirectory)/publish --no-restore --no-build'
 
 - task: CopyFiles@2
