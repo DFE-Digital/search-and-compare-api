@@ -65,7 +65,7 @@ namespace GovUk.Education.SearchAndCompare.Api
             services.AddScoped<ICourseDbContext>(provider => provider.GetService<CourseDbContext>());
             services.AddScoped(provider => new HttpClient());
 
-            // QtsOnly default auth method has been set here because each action must explicitly be decorated with
+            // No default auth method has been set here because each action must explicitly be decorated with
             // ApiTokenAuthAttribute.
             services.AddAuthentication()
                 .AddBearerTokenApiKey(options =>
