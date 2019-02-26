@@ -20,12 +20,6 @@
                 "description": "The name of the database that the app will connect to."
             }
         },
-        "databaseServerName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the psql server hosting the database."
-            }
-        },
         "databasePort": {
             "type": "string",
             "metadata": {
@@ -98,7 +92,8 @@
         "resourceNamePrefix": "[toLower(concat('bat-', parameters('resourceEnvironmentName'),'-', parameters('serviceName')))]",
         "appServiceName": "[concat(variables('resourceNamePrefix'), '-as')]",
         "appServicePlanName": "[concat(variables('resourceNamePrefix'), '-asp')]",
-        "storageAccountName": "[replace(concat(variables('resourceNamePrefix'), 'str'), '-', '')]"
+        "storageAccountName": "[replace(concat(variables('resourceNamePrefix'), 'str'), '-', '')]",
+        "databaseServerName": "[concat(variables('resourceNamePrefix'), '-psql')]"
     },
     "resources": [
         {
@@ -154,7 +149,7 @@
                 },
                 "parameters": {
                     "postgresServerName": {
-                        "value": "[parameters('databaseServerName')]"
+                        "value": "[variables('databaseServerName')]"
                     },
                     "postgresAdminLogin": {
                         "value": "[parameters('databaseUsername')]"
@@ -186,7 +181,7 @@
                 },
                 "parameters": {
                     "serverName": {
-                        "value": "[parameters('databaseServerName')]"
+                        "value": "[variables('databaseServerName')]"
                     },
                     "databaseName": {
                         "value": "[parameters('databaseName')]"
@@ -269,7 +264,7 @@
                             },
                             {
                                 "name": "PG_USERNAME",
-                                "value": "[concat(parameters('databaseUsername'), '@', parameters('databaseServerName'))]"
+                                "value": "[concat(parameters('databaseUsername'), '@', variables('databaseServerName'))]"
                             }
                         ]
                     },
