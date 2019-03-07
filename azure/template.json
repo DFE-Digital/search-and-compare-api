@@ -84,6 +84,13 @@
             "metadata": {
                 "description": "The name of the certificate in key vault."
             }
+        },
+        "googleGeocodingKey": {
+            "type": "securestring",
+            "defaultValue": "",
+            "metadata": {
+                "description": "Google Cloud Platform Geocoding Key"
+            }
         }
     },
     "variables": {
@@ -355,6 +362,10 @@
                             {
                                 "name": "PG_USERNAME",
                                 "value": "[concat(parameters('databaseUsername'), '@', variables('databaseServerName'))]"
+                            },
+                            {
+                                "name": "google_cloud_platform_key_geocoding",
+                                "value": "[parameters('googleGeocodingKey')]"
                             }
                         ]
                     },
