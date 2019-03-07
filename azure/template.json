@@ -450,6 +450,10 @@
         "AppServiceName": {
             "type": "string",
             "value": "[variables('appServiceName')]"
-        }
+        },
+        "WorkerAppServiceName": {
+            "type": "string",
+            "value": "[variables('workerAppServiceName')]"
+        }        
     }
 }
