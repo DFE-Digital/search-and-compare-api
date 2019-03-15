@@ -50,6 +50,11 @@ Serilog has been configured to spit logs out to both the console
 
 Set the `APPINSIGHTS_INSTRUMENTATIONKEY` environment variable to tell Serilog the application insights key.
 
+## Error tracking
+
+This app sends exceptions and errors into [Sentry](https://sentry.io). To enable the integration,
+set the `SENTRY_DSN` environment variable.
+
 ## Importing/Publishing courses
 
 ### Add the api key
