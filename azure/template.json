@@ -87,6 +87,11 @@
         },
         "google_cloud_platform_key_geocoding": {
             "type": "securestring"
+        },
+        "sentryDSN": {
+          "type": "string",
+          "metadata": {
+            "description": "Connection string for Sentry monitoring."
         }
     },
     "variables": {
@@ -362,6 +367,10 @@
                             {
                                 "name": "google_cloud_platform_key_geocoding",
                                 "value": "[parameters('google_cloud_platform_key_geocoding')]"
+                            },
+                            {
+                                "name": "SENTRY_DSN",
+                                "value": "[parameters('sentryDSN')]"
                             }
                         ]
                     },
