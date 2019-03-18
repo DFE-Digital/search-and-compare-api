@@ -89,9 +89,10 @@
             "type": "securestring"
         },
         "sentryDSN": {
-          "type": "string",
-          "metadata": {
-            "description": "Connection string for Sentry monitoring."
+            "type": "string",
+            "metadata": {
+                "description": "Connection string for Sentry monitoring."
+            }
         }
     },
     "variables": {
@@ -399,7 +400,7 @@
                                 "physicalPath": "site\\wwwroot\\app_data\\jobs\\triggered\\SearchAndCompareGeocoder"
                             }
                         ]
-                    },                    
+                    },
                     "deployStagingSlot": {
                         "value": false
                     }
@@ -409,7 +410,7 @@
                 "storage-account",
                 "worker-app-service-plan"
             ]
-        },         
+        },
         {
             "apiVersion": "2017-05-10",
             "name": "app-insights",
@@ -459,6 +460,6 @@
         "WorkerAppServiceName": {
             "type": "string",
             "value": "[variables('workerAppServiceName')]"
-        }        
+        }
     }
 }
