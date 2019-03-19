@@ -99,8 +99,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         [RequestSizeLimit(100_000_000_000)]
         public IActionResult Index([FromBody]IList<Course> courses)
         {
-            // circuit breaker for empty post
-            if (courses == null || !courses.Any())
+            if (CircuitBreakerTripped(courses))
             {
                 return BadRequest();
             }
@@ -115,19 +114,6 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             if (ModelState.IsValid &&
                 courses.All(x => x.IsValid(false)))
             {
-                // circuit breaker for wildly different number of courses
-                var current = _context.Courses.Count();
-                if (current != 0) // empty database so skip the sanity check. This is useful for populating a local test system, or reconstructing production after a fire
-                {
-                    var incoming = courses.Count;
-                    var difference = incoming - current; // e.g. 100 existing, 98 incoming = difference of -2, i.e. there will be two less courses on find when completed
-                    const int maxDifference = 500; // todo: get from config, tune to realistic numbers. think about potential spikes at rollover etc
-                    if (Math.Abs(difference) > maxDifference)
-                    {
-                        _logger.LogError($"Refusing to update course list, difference of {difference} exceeded circuit breaker max of {maxDifference}");
-                        return BadRequest();
-                    }
-                }
                 var success = false;
                 // Strategy is required for compatibility with EnableRetryOnFailure in Startup. Ref https://docs.microsoft.com/en-gb/azure/architecture/best-practices/retry-service-specific#sql-database-using-entity-framework-core
                 var strategy = ((DbContext)_context).Database.CreateExecutionStrategy();
@@ -187,6 +173,40 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Return true if threshold exceeded so that we can halt the update.
+        /// </summary>
+        /// <param name="receivedCourses"></param>
+        /// <returns>true if threshold exceeded, false if all seems okay</returns>
+        private bool CircuitBreakerTripped(ICollection<Course> receivedCourses)
+        {
+            // circuit breaker for empty post
+            if (receivedCourses == null || !receivedCourses.Any())
+            {
+                return true;
+            }
+
+            var current = _context.Courses.Count();
+
+            if (current == 0)
+            {
+                // empty database so skip the sanity check. This is useful for populating a local test system, or reconstructing production after a fire
+                return false;
+            }
+
+            // circuit breaker for wildly different number of courses
+            var incoming = receivedCourses.Count;
+            var changeInCourseCount = incoming - current; // e.g. 100 existing, 98 incoming = difference of -2, i.e. there will be two less courses on find when completed
+            const int maxDifference = 500; // todo: get from config, tune to realistic numbers. think about potential spikes at rollover etc
+            if (Math.Abs(changeInCourseCount) <= maxDifference)
+            {
+                return false;
+            }
+
+            _logger.LogError( $"Refusing to update course list, difference of {changeInCourseCount} exceeded circuit breaker max of {maxDifference}");
+            return true;
         }
 
         [HttpGet("total")]
