@@ -185,34 +185,45 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         /// <returns>true if threshold exceeded, false if all seems okay</returns>
         private bool CircuitBreakerTripped(ICollection<Course> receivedCourses)
         {
+            var currentCourseCount = _context.Courses.Count();
+            var receivedCourseCount = receivedCourses?.Count ?? 0;
+            _logger.LogInformation($"Circuit breaker: Current courses {currentCourseCount}, received courses {receivedCourseCount}.");
+
             // circuit breaker for empty post
             if (receivedCourses == null || !receivedCourses.Any())
             {
+                _logger.LogError( "CircuitBreakerTripped: empty course list received");
                 return true;
             }
 
-            var currentCourseCount = _context.Courses.Count();
 
             if (currentCourseCount == 0)
             {
-                // empty database so skip the sanity check. This is useful for populating a local test system, or reconstructing production after a fire
+                _logger.LogInformation( "CircuitBreaker: bypassing checks as there are no courses in the database.");
+                // This is useful for populating a local test system, or reconstructing production after a fire
                 return false;
             }
 
-            var maxDifferenceString = _configuration["CIRCUIT_BREAKER_COURSE_LIMIT"];
+            const string limitKey = "CIRCUIT_BREAKER_COURSE_LIMIT";
+            var maxDifferenceString = _configuration[limitKey];
             if (string.IsNullOrWhiteSpace(maxDifferenceString))
             {
-                return true;
+                _logger.LogWarning( $"CircuitBreaker: bypassing checks as no limit configured. Configure with: {limitKey}");
+                return false;
             }
             var maxDifference = int.Parse(maxDifferenceString);
             var changeInCourseCount = receivedCourses.Count - currentCourseCount; // e.g. 100 existing, 98 incoming = difference of -2, i.e. there will be two less courses on find when completed
-            if (Math.Abs(changeInCourseCount) <= maxDifference)
+            var absDiff = Math.Abs(changeInCourseCount);
+            var reason = $"Received {absDiff} " + (receivedCourses.Count > currentCourseCount ? "new courses" : "less courses");
+            if (absDiff > maxDifference)
             {
-                return false;
+                _logger.LogError($"CircuitBreakerTripped: Change exceeded {limitKey}={maxDifference}. {reason}."
+                    + $"\nCurrent courses {currentCourseCount}, received courses {receivedCourseCount}.");
+                return true;
             }
 
-            _logger.LogError( $"Refusing to update course list, difference of {changeInCourseCount} exceeded circuit breaker maximum difference of {maxDifference}");
-            return true;
+            // all checks passed
+            return false;
         }
 
         [HttpGet("total")]
