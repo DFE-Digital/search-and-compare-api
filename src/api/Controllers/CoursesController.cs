@@ -16,6 +16,7 @@ using GovUk.Education.SearchAndCompare.Domain.Models.Joins;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace GovUk.Education.SearchAndCompare.Api.Controllers
 {
@@ -25,12 +26,14 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         private readonly ICourseDbContext _context;
 
         private readonly ILogger _logger;
+        private readonly IConfiguration _configuration;
         private int defaultPageSize = 10;
 
-        public CoursesController(ICourseDbContext courseDbContext, ILogger<CoursesController> logger)
+        public CoursesController(ICourseDbContext courseDbContext, ILogger<CoursesController> logger, IConfiguration configuration)
         {
             _context = courseDbContext;
             _logger = logger;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -188,24 +191,27 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
                 return true;
             }
 
-            var current = _context.Courses.Count();
+            var currentCourseCount = _context.Courses.Count();
 
-            if (current == 0)
+            if (currentCourseCount == 0)
             {
                 // empty database so skip the sanity check. This is useful for populating a local test system, or reconstructing production after a fire
                 return false;
             }
 
-            // circuit breaker for wildly different number of courses
-            var incoming = receivedCourses.Count;
-            var changeInCourseCount = incoming - current; // e.g. 100 existing, 98 incoming = difference of -2, i.e. there will be two less courses on find when completed
-            const int maxDifference = 500; // todo: get from config, tune to realistic numbers. think about potential spikes at rollover etc
+            var maxDifferenceString = _configuration["CIRCUIT_BREAKER_COURSE_LIMIT"];
+            if (string.IsNullOrWhiteSpace(maxDifferenceString))
+            {
+                return true;
+            }
+            var maxDifference = int.Parse(maxDifferenceString);
+            var changeInCourseCount = receivedCourses.Count - currentCourseCount; // e.g. 100 existing, 98 incoming = difference of -2, i.e. there will be two less courses on find when completed
             if (Math.Abs(changeInCourseCount) <= maxDifference)
             {
                 return false;
             }
 
-            _logger.LogError( $"Refusing to update course list, difference of {changeInCourseCount} exceeded circuit breaker max of {maxDifference}");
+            _logger.LogError( $"Refusing to update course list, difference of {changeInCourseCount} exceeded circuit breaker maximum difference of {maxDifference}");
             return true;
         }
 
