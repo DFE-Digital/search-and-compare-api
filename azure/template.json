@@ -93,6 +93,13 @@
             "metadata": {
                 "description": "Connection string for Sentry monitoring."
             }
+        },
+        "circuitBreakerCourseLimit": {
+            "type": "int",
+            "defaultValue": 100,
+            "metadata": {
+                "description": "The circuit breaker course limit, this it to prevent large surge or purge of course."
+            }
         }
     },
     "variables": {
@@ -372,6 +379,10 @@
                             {
                                 "name": "SENTRY_DSN",
                                 "value": "[parameters('sentryDSN')]"
+                            },
+                            {
+                                "name": "CIRCUIT_BREAKER_COURSE_LIMIT",
+                                "value": "[parameters('circuitBreakerCourseLimit')]"
                             }
                         ]
                     },
