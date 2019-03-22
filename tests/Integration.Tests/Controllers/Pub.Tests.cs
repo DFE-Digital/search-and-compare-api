@@ -16,6 +16,7 @@ using GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseAcces
 using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controllers
@@ -29,7 +30,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         public void Setup()
         {
             var loggerMock = new Mock<ILogger<CoursesController>>();
-            subject = new CoursesController(context, loggerMock.Object);
+            subject = new CoursesController(context, loggerMock.Object, new Mock<IConfiguration>().Object);
         }
 
 
