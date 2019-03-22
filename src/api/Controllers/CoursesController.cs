@@ -16,6 +16,7 @@ using GovUk.Education.SearchAndCompare.Domain.Models.Joins;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace GovUk.Education.SearchAndCompare.Api.Controllers
 {
@@ -25,12 +26,14 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         private readonly ICourseDbContext _context;
 
         private readonly ILogger _logger;
+        private readonly IConfiguration _configuration;
         private int defaultPageSize = 10;
 
-        public CoursesController(ICourseDbContext courseDbContext, ILogger<CoursesController> logger)
+        public CoursesController(ICourseDbContext courseDbContext, ILogger<CoursesController> logger, IConfiguration configuration)
         {
             _context = courseDbContext;
             _logger = logger;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -99,7 +102,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
         [RequestSizeLimit(100_000_000_000)]
         public IActionResult Index([FromBody]IList<Course> courses)
         {
-            if (courses == null || !courses.Any())
+            if (CircuitBreakerTripped(courses))
             {
                 return BadRequest();
             }
@@ -173,6 +176,54 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Return true if threshold exceeded so that we can halt the update.
+        /// </summary>
+        /// <param name="receivedCourses"></param>
+        /// <returns>true if threshold exceeded, false if all seems okay</returns>
+        private bool CircuitBreakerTripped(ICollection<Course> receivedCourses)
+        {
+            var currentCourseCount = _context.Courses.Count();
+            var receivedCourseCount = receivedCourses?.Count ?? 0;
+            _logger.LogInformation($"Circuit breaker: Current courses {currentCourseCount}, received courses {receivedCourseCount}.");
+
+            // circuit breaker for empty post
+            if (receivedCourses == null || !receivedCourses.Any())
+            {
+                _logger.LogError( "CircuitBreakerTripped: empty course list received");
+                return true;
+            }
+
+
+            if (currentCourseCount == 0)
+            {
+                _logger.LogInformation( "CircuitBreaker: bypassing checks as there are no courses in the database.");
+                // This is useful for populating a local test system, or reconstructing production after a fire
+                return false;
+            }
+
+            const string limitKey = "CIRCUIT_BREAKER_COURSE_LIMIT";
+            var maxDifferenceString = _configuration[limitKey];
+            if (string.IsNullOrWhiteSpace(maxDifferenceString))
+            {
+                _logger.LogWarning( $"CircuitBreaker: bypassing checks as no limit configured. Configure with: {limitKey}");
+                return false;
+            }
+            var maxDifference = int.Parse(maxDifferenceString);
+            var changeInCourseCount = receivedCourses.Count - currentCourseCount; // e.g. 100 existing, 98 incoming = difference of -2, i.e. there will be two less courses on find when completed
+            var absDiff = Math.Abs(changeInCourseCount);
+            var reason = $"Received {absDiff} " + (receivedCourses.Count > currentCourseCount ? "new courses" : "less courses");
+            if (absDiff > maxDifference)
+            {
+                _logger.LogError($"CircuitBreakerTripped: Change exceeded {limitKey}={maxDifference}. {reason}."
+                    + $"\nCurrent courses {currentCourseCount}, received courses {receivedCourseCount}.");
+                return true;
+            }
+
+            // all checks passed
+            return false;
         }
 
         [HttpGet("total")]
