@@ -13,6 +13,9 @@ using GovUk.Education.SearchAndCompare.Domain.Filters.Enums;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 using GovUk.Education.SearchAndCompare.Domain.Models.Enums;
 using GovUk.Education.SearchAndCompare.Domain.Models.Joins;
+using GovUk.Education.SearchAndCompare.Domain.Client;
+using GovUk.Education.SearchAndCompare.Geocoder;
+using Serilog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
@@ -25,14 +28,22 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
     {
         private readonly ICourseDbContext _context;
 
-        private readonly ILogger _logger;
+        private readonly Microsoft.Extensions.Logging.ILogger _logger;
+        private readonly Serilog.ILogger _serilogLogger;
         private readonly IConfiguration _configuration;
+        private readonly Geocoder.IHttpClient _httpClient;
         private int defaultPageSize = 10;
 
-        public CoursesController(ICourseDbContext courseDbContext, ILogger<CoursesController> logger, IConfiguration configuration)
+        public CoursesController(ICourseDbContext courseDbContext, ILogger<CoursesController> logger, IConfiguration configuration, Geocoder.IHttpClient httpClient)
         {
             _context = courseDbContext;
             _logger = logger;
+            _serilogLogger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .WriteTo
+                .ApplicationInsightsTraces(configuration["APPINSIGHTS_INSTRUMENTATIONKEY"])
+                .CreateLogger();
+            _httpClient = httpClient;
             _configuration = configuration;
         }
 
@@ -73,6 +84,14 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
                     _context.SaveChanges();
                     _logger.LogInformation($"Added/Updated Course successfully");
+                    var requesterConfig = LocationRequesterConfiguration.FromConfiguration(_configuration);
+
+                    var locationRequester = new LocationRequester(requesterConfig, _serilogLogger, _httpClient, _context);
+                    var exitcode = locationRequester.RequestLocations().Result;
+                    if (exitcode != 0)
+                    {
+                        _logger.LogWarning("Failed to run geocoder after individual course publish " + exitcode);
+                    }
 
                     result = Ok();
 

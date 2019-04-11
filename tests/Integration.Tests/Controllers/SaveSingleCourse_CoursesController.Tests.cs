@@ -20,6 +20,7 @@ using Microsoft.EntityFrameworkCore;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using GovUk.Education.SearchAndCompare.Geocoder;
 
 namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controllers
 {
@@ -32,7 +33,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         public void Setup()
         {
             var loggerMock = new Mock<ILogger<CoursesController>>();
-            subject = new CoursesController(context, loggerMock.Object, new Mock<IConfiguration>().Object);
+            subject = new CoursesController(context, loggerMock.Object, new Mock<IConfiguration>().Object, new Mock<IHttpClient>().Object);
         }
 
         [TearDown]
@@ -324,9 +325,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             context.Locations.Count().Should().Be(expectedLocations.Count());
             context.Campuses.Count().Should().Be(4); //definately right
 
-            // non-deduplicated            
+            // non-deduplicated
             context.Contacts.Count().Should().Be(2); //probably wrong
-            context.CourseSubjects.Count().Should().Be(1);            
+            context.CourseSubjects.Count().Should().Be(1);
         }
 
         [Test]

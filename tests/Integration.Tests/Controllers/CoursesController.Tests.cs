@@ -20,6 +20,7 @@ using Microsoft.Extensions.Logging;
 using GovUk.Education.SearchAndCompare.Domain.Lists;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using GovUk.Education.SearchAndCompare.Geocoder;
 
 namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controllers
 {
@@ -32,7 +33,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
         public void Setup()
         {
             var loggerMock = new Mock<ILogger<CoursesController>>();
-            subject = new CoursesController(context, loggerMock.Object, new Mock<IConfiguration>().Object);
+            subject = new CoursesController(context, loggerMock.Object, new Mock<IConfiguration>().Object, new Mock<IHttpClient>().Object);
         }
 
         [Test]
