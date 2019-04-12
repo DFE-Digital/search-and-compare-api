@@ -14,11 +14,11 @@ namespace GovUk.Education.SearchAndCompare.Geocoder
     ///    Tech debt: this is copy-and-pasted from Geocoder.cs in search-and-compare-ui.
     ///    We should extract a utilities project these two can share.
     ///    https://trello.com/c/66mYU1OF/308-tech-debt-extract-geocoder-into-shared-utilities-nuget-package
-    /// </summary> 
+    /// </summary>
     public class TECH_DEBT__TemporarilyCopied__Geocoder
     {
         private readonly string apiKey;
-        
+
         private readonly IHttpClient httpClient;
 
         public TECH_DEBT__TemporarilyCopied__Geocoder(string apiKey, IHttpClient httpClient)

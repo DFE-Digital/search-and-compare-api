@@ -20,6 +20,7 @@ using Microsoft.EntityFrameworkCore;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using GovUk.Education.SearchAndCompare.Geocoder;
 
 namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controllers
 {
@@ -27,12 +28,15 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
     public class SaveSingleCourse_CoursesControllerTests : CourseDbContextIntegrationBase
     {
         CoursesController subject;
+        Mock<ILocationRequester> locationRequesterMock;
+
 
         [SetUp]
         public void Setup()
         {
             var loggerMock = new Mock<ILogger<CoursesController>>();
-            subject = new CoursesController(context, loggerMock.Object, new Mock<IConfiguration>().Object);
+            locationRequesterMock = new Mock<ILocationRequester>();
+            subject = new CoursesController(context, loggerMock.Object, new Mock<IConfiguration>().Object, locationRequesterMock.Object);
         }
 
         [TearDown]
@@ -61,6 +65,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result = await subject.SaveCourses(null);
 
             AssertBad(result);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.Never);
         }
 
         [Test]
@@ -76,6 +81,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertBad(result);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.Never);
         }
 
         [Test]
@@ -91,6 +97,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertOkay(result);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.AtMostOnce);
+
         }
 
         [Test]
@@ -106,6 +114,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertOkay(result);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.AtMostOnce);
+
         }
 
         [Test]
@@ -122,6 +132,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertBad(result);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.Never);
         }
 
         [Test]
@@ -137,6 +148,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertBad(result);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.Never);
         }
 
         [Test]
@@ -152,6 +164,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result = await subject.SaveCourses(new List<Course> {course});
 
             AssertBad(result);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.Never);
         }
 
         [Test]
@@ -167,6 +180,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertBad(result);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.Never);
         }
 
         [Test]
@@ -182,6 +196,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertOkay(result);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.AtMostOnce);
+
         }
 
         [Test]
@@ -198,6 +214,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertBad(result);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.Never);
         }
 
         [Test]
@@ -213,6 +230,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertBad(result);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.Never);
         }
 
         [Test]
@@ -231,6 +249,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertBad(result);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.Never);
         }
 
         [Test]
@@ -246,6 +265,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertOkay(result);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.AtMostOnce);
         }
 
         [Test]
@@ -256,6 +276,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertOkay(result);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.AtMostOnce);
         }
 
         [Test]
@@ -266,11 +287,15 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertOkay(result);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.AtMostOnce);
+
 
             var course1 = courses[1];
             var result1 = await subject.SaveCourses(new List<Course>{course1});
 
             AssertOkay(result1);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.Exactly(2));
+
             var resultingCourses = context.GetCoursesWithProviderSubjectsRouteAndCampuses()
                 .Include(x => x.DescriptionSections)
                 .ToList();
@@ -301,10 +326,14 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var course = GetCourses(1).First();
             var result1 = subject.SaveCourses(new List<Course> { course }).Result;
             AssertOkay(result1);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.AtMostOnce());
+
 
             var course2 = GetCourses(1).First();
             var result2 = subject.SaveCourses(new List<Course>{course2}).Result;
             AssertOkay(result2);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.Exactly(2));
+
 
             var resultingCourses = context.GetCoursesWithProviderSubjectsRouteAndCampuses().ToList();
             var resultingProviders = context.Providers.ToList();
@@ -324,9 +353,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             context.Locations.Count().Should().Be(expectedLocations.Count());
             context.Campuses.Count().Should().Be(4); //definately right
 
-            // non-deduplicated            
+            // non-deduplicated
             context.Contacts.Count().Should().Be(2); //probably wrong
-            context.CourseSubjects.Count().Should().Be(1);            
+            context.CourseSubjects.Count().Should().Be(1);
         }
 
         [Test]
@@ -337,6 +366,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertOkay(result);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.AtMostOnce);
+
             // set some coordinates
             var location = context.Locations.First(l => l.Latitude == null && l.Longitude == null);
             location.Latitude = 51.0;
@@ -360,6 +391,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertOkay(result);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.AtMostOnce);
+
 
             // associate with a subject area
             context.Subjects.Single().SubjectArea.Should().BeNull();
@@ -385,6 +418,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result = await subject.SaveCourses(new List<Course> { course });
 
             AssertOkay(result);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.AtMostOnce);
+
 
             var savedCourse = context.GetCoursesWithProviderSubjectsRouteAndCampuses().Single();
             savedCourse.IsSen.Should().BeTrue();
@@ -394,6 +429,8 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             var result2 = await subject.SaveCourses(new List<Course> { course2 });
 
             AssertOkay(result2);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.Exactly(2));
+
 
             savedCourse = context.GetCoursesWithProviderSubjectsRouteAndCampuses().Single();
             savedCourse.IsSen.Should().BeFalse();

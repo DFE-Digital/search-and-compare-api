@@ -18,6 +18,7 @@ using Microsoft.EntityFrameworkCore;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using GovUk.Education.SearchAndCompare.Geocoder;
 
 namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controllers
 {
@@ -25,12 +26,16 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
     public class PubTests : CourseDbContextIntegrationBase
     {
         CoursesController subject;
+        Mock<ILocationRequester> locationRequesterMock;
+
 
         [SetUp]
         public void Setup()
         {
             var loggerMock = new Mock<ILogger<CoursesController>>();
-            subject = new CoursesController(context, loggerMock.Object, new Mock<IConfiguration>().Object);
+            locationRequesterMock = new Mock<ILocationRequester>();
+
+            subject = new CoursesController(context, loggerMock.Object, new Mock<IConfiguration>().Object, locationRequesterMock.Object);
         }
 
 
@@ -57,6 +62,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.Controlle
             }
 
             CoursesControllerTests.AssertOkay(result);
+            locationRequesterMock.Verify(x => x.RequestLocations(), Times.Never);
         }
     }
 }

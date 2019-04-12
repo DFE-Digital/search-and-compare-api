@@ -13,6 +13,9 @@ using GovUk.Education.SearchAndCompare.Domain.Filters.Enums;
 using GovUk.Education.SearchAndCompare.Domain.Models;
 using GovUk.Education.SearchAndCompare.Domain.Models.Enums;
 using GovUk.Education.SearchAndCompare.Domain.Models.Joins;
+using GovUk.Education.SearchAndCompare.Domain.Client;
+using GovUk.Education.SearchAndCompare.Geocoder;
+using Serilog;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.EntityFrameworkCore;
@@ -25,20 +28,23 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
     {
         private readonly ICourseDbContext _context;
 
-        private readonly ILogger _logger;
+        private readonly Microsoft.Extensions.Logging.ILogger _logger;
         private readonly IConfiguration _configuration;
+        private readonly Geocoder.ILocationRequester _locationRequester;
         private int defaultPageSize = 10;
 
-        public CoursesController(ICourseDbContext courseDbContext, ILogger<CoursesController> logger, IConfiguration configuration)
+        public CoursesController(ICourseDbContext courseDbContext, ILogger<CoursesController> logger, IConfiguration configuration, ILocationRequester locationRequester)
         {
             _context = courseDbContext;
             _logger = logger;
+
+            _locationRequester = locationRequester;
             _configuration = configuration;
         }
 
         /// <summary>
         /// Add/update one or more courses.
-        /// This is used when a user on manage courses publishes a course.
+        /// This is used when a user on manage courses publishes a course, or publish a provider's courses.
         /// </summary>
         [HttpPut("")]
         [ApiTokenAuth]
@@ -73,6 +79,12 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
 
                     _context.SaveChanges();
                     _logger.LogInformation($"Added/Updated Course successfully");
+
+                    var exitcode = await _locationRequester.RequestLocations();
+                    if (exitcode != 0)
+                    {
+                        _logger.LogWarning($"Failed to geocode {exitcode} location");
+                    }
 
                     result = Ok();
 
