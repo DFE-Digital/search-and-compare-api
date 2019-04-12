@@ -77,8 +77,14 @@ namespace GovUk.Education.SearchAndCompare.Geocoder
                         failures.Add(location.Id.ToString(), location.GeoAddress);
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    new TelemetryClient().TrackException(ex,
+                        new Dictionary<string, string> {
+                        {"Type", "SearchAndCompareGeocoder"},
+                        {"Message", $"Geocode unable to resolve: {location.Id}, {location.GeoAddress}"}}
+                    );
+                    _logger.Error(ex, $"Geocode unable to resolve: {location.Id}, {location.GeoAddress}");
                     failures.Add(location.Id.ToString(), location.GeoAddress);
                 }
             }
