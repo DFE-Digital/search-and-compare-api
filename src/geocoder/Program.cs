@@ -25,6 +25,9 @@ namespace GovUk.Education.SearchAndCompare.Geocoder
                 .ReadFrom.Configuration(configuration)
                 .WriteTo
                 .ApplicationInsightsTraces(configuration["APPINSIGHTS_INSTRUMENTATIONKEY"])
+                .Enrich.WithProperty("Type", "SearchAndCompareGeocoder")
+                .Enrich.WithProperty("WebJob_Identifer", Guid.NewGuid())
+                .Enrich.WithProperty("WebJob_Triggered_Date", DateTime.UtcNow)
                 .CreateLogger();
 
             var options = new DbContextOptionsBuilder<CourseDbContext>()

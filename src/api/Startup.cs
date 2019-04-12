@@ -65,7 +65,17 @@ namespace GovUk.Education.SearchAndCompare.Api
             );
             services.AddScoped<ICourseDbContext>(provider => provider.GetService<CourseDbContext>());
             services.AddScoped(provider => new HttpClient());
-            services.AddScoped<IHttpClient>(provider => new WrappedHttpClient());
+            services.AddSingleton<IHttpClient>(provider => new WrappedHttpClient());
+            services.AddSingleton<LocationRequesterConfiguration>(provider => LocationRequesterConfiguration.FromConfiguration(Configuration));
+            services.AddSingleton<Serilog.ILogger>(provider => new LoggerConfiguration()
+                .ReadFrom.Configuration(Configuration)
+                .WriteTo
+                .ApplicationInsightsTraces(Configuration["APPINSIGHTS_INSTRUMENTATIONKEY"])
+                .Enrich.WithProperty("Type", "SearchAndCompareGeocoder")
+                .Enrich.WithProperty("Identifer", Guid.NewGuid())
+                .CreateLogger());
+
+            services.AddSingleton<ILocationRequester, LocationRequester>();
 
             // No default auth method has been set here because each action must explicitly be decorated with
             // ApiTokenAuthAttribute.

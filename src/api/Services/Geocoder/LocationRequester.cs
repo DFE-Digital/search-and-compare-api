@@ -13,7 +13,7 @@ using Serilog.Core;
 
 namespace GovUk.Education.SearchAndCompare.Geocoder
 {
-    public class LocationRequester
+    public class LocationRequester : ILocationRequester
     {
         private readonly LocationRequesterConfiguration _config;
         private readonly ILogger _logger;
@@ -61,16 +61,23 @@ namespace GovUk.Education.SearchAndCompare.Geocoder
             var failures = new Dictionary<string, string>();
             foreach (var location in locations)
             {
-
-                var coordinates = await geocoder.ResolvePostCodeAsync(location.GeoAddress);
-                if (coordinates != null)
+                // The try catch needs to be here as geocoder consume external service
+                try
                 {
-                    location.FormattedAddress = coordinates.FormattedLocation;
-                    location.Longitude = coordinates.Longitude;
-                    location.Latitude = coordinates.Latitude;
-                    location.LastGeocodedUtc = utcNow;
+                    var coordinates = await geocoder.ResolvePostCodeAsync(location.GeoAddress);
+                    if (coordinates != null)
+                    {
+                        location.FormattedAddress = coordinates.FormattedLocation;
+                        location.Longitude = coordinates.Longitude;
+                        location.Latitude = coordinates.Latitude;
+                        location.LastGeocodedUtc = utcNow;
+                    }
+                    else
+                    {
+                        failures.Add(location.Id.ToString(), location.GeoAddress);
+                    }
                 }
-                else
+                catch (Exception)
                 {
                     failures.Add(location.Id.ToString(), location.GeoAddress);
                 }
