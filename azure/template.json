@@ -463,7 +463,7 @@
                         "value": "[concat(variables('workerAppServicePlanName'),'-AZURE_IP-')]"
                     },
                     "ipAddresses": {
-                        "value": "[reference('app-service').outputs.possibleOutboundIpAddresses.value]"
+                        "value": "[reference('worker-app-service').outputs.possibleOutboundIpAddresses.value]"
                     },
                     "serverName": {
                         "value": "[variables('databaseServerName')]"
