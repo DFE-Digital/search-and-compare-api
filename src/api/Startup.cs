@@ -63,7 +63,8 @@ namespace GovUk.Education.SearchAndCompare.Api
                     options.SerializerSettings.PreserveReferencesHandling = Newtonsoft.Json.PreserveReferencesHandling.Objects;
                 }
             );
-            services.AddScoped<ICourseDbContext>(provider => provider.GetService<CourseDbContext>());
+            var context = services.BuildServiceProvider().GetService<CourseDbContext>();
+            services.AddSingleton<ICourseDbContext>(provider => context);
             services.AddScoped(provider => new HttpClient());
             services.AddSingleton<IHttpClient>(provider => new WrappedHttpClient());
             services.AddSingleton<LocationRequesterConfiguration>(provider => LocationRequesterConfiguration.FromConfiguration(Configuration));
