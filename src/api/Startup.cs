@@ -75,7 +75,7 @@ namespace GovUk.Education.SearchAndCompare.Api
                 .Enrich.WithProperty("Identifer", Guid.NewGuid())
                 .CreateLogger());
 
-            services.AddSingleton<ILocationRequester, LocationRequester>();
+            services.AddScoped<ILocationRequester, LocationRequester>();
 
             // No default auth method has been set here because each action must explicitly be decorated with
             // ApiTokenAuthAttribute.
