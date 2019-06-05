@@ -227,9 +227,14 @@ namespace GovUk.Education.SearchAndCompare.Api.Controllers
             var changeInCourseCount = receivedCourses.Count - currentCourseCount; // e.g. 100 existing, 98 incoming = difference of -2, i.e. there will be two less courses on find when completed
             var absDiff = Math.Abs(changeInCourseCount);
             var reason = $"Received {absDiff} " + (receivedCourses.Count > currentCourseCount ? "new courses" : "less courses");
+            var coursesAddedOrRemoved = changeInCourseCount > 0 ? "added" : "removed";
+            var changedCourseInfos = (changeInCourseCount > 0 ? receivedCourses.ToList() : _context.Courses.ToList())
+              .Skip((changeInCourseCount > 0 ? receivedCourses.Count : _context.Courses.Count()) - 5)
+              .Select(x => $"{x.Provider.ProviderCode}/{x.ProgrammeCode}");
             if (absDiff > maxDifference)
             {
                 _logger.LogError($"CircuitBreakerTripped: Change exceeded {limitKey}={maxDifference}. {reason}."
+                    + $"\nLast 5 course IDs being {coursesAddedOrRemoved}: {string.Join(", ", changedCourseInfos)}"
                     + $"\nCurrent courses {currentCourseCount}, received courses {receivedCourseCount}.");
                 return true;
             }
