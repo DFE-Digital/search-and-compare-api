@@ -100,6 +100,19 @@
             "metadata": {
                 "description": "The circuit breaker course limit, this it to prevent large surge or purge of course."
             }
+        },
+        "appServicePlanSize": {
+            "type": "string",
+            "allowedValues": [
+                "1",
+                "2",
+                "3"
+            ],
+            "defaultValue": "1"
+        },
+        "appServicePlanInstances": {
+            "type": "int",
+            "defaultValue": 1
         }
     },
     "variables": {
@@ -252,6 +265,12 @@
                     },
                     "appServicePlanOS": {
                         "value": "Windows"
+                    },
+                    "appServicePlanSize": {
+                        "value": "[parameters('appServicePlanSize')]"
+                    },
+                    "appServicePlanInstances": {
+                        "value": "[parameters('appServicePlanInstances')]"
                     }
                 }
             }
