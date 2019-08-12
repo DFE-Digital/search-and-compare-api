@@ -10,7 +10,7 @@ services:
   web:
     build: .
     ports:
-      - "5001:5001"
+      - "5001:80" # outside:inside
     depends_on:
       - db
     environment:
