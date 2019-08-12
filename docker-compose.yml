@@ -9,14 +9,9 @@ services:
       - dbdata:/var/lib/postgresql/data
   web:
     build: .
-    volumes:
-      - .:/app
     ports:
       - "5001:5001"
     depends_on:
       - db
     environment:
-      - POSTGRESQL_SERVICE_HOST=db
-      - PG_USERNAME=postgres
-      - PG_PASSWORD=manage_courses_backend
-      - PG_DATABASE=manage_courses_backend_development
+      - DatabaseConnection__Server=db
