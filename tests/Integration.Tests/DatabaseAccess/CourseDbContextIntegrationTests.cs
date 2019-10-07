@@ -170,6 +170,30 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
         }
 
         [Test]
+        public void SuggestProviders_PrioritiseMatching()
+        {
+          Assert.AreEqual(0, context.Courses.Count());
+
+          var courseOne = GetSimpleCourse();
+          courseOne.Provider.Name = "provider SCITT";
+          var entityOne = context.Courses.Add(courseOne);
+          var courseTwo = GetSimpleCourse();
+          courseTwo.Provider.Name = "SCITT provider";
+          var entityTwo = context.Courses.Add(courseTwo);
+          context.SaveChanges();
+
+          entitiesToCleanUp.Add(entityOne);
+          entitiesToCleanUp.Add(entityTwo);
+
+          using (var context2 = GetContext())
+          {
+            var providers = context2.SuggestProviders("scitt");
+            Assert.AreEqual("SCITT provider", providers.First().Name);
+            Assert.AreEqual(2, providers.Count);
+          }
+        }
+
+        [Test]
         [TestCase("xyz", 1)]
         [TestCase("wxy", 1)]
         [TestCase("xxx", 0)]
