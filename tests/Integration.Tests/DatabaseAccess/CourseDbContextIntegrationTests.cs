@@ -187,8 +187,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Integration.Tests.DatabaseA
 
           using (var context2 = GetContext())
           {
-            var courses = context2.SuggestProviders("SCITT");
-            Assert.AreEqual("SCITT provider", courses.First().Name);
+            var providers = context2.SuggestProviders("scitt");
+            Assert.AreEqual("SCITT provider", providers.First().Name);
+            Assert.AreEqual(2, providers.Count);
           }
         }
 

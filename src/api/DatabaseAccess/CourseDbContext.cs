@@ -255,14 +255,23 @@ SELECT * FROM (
     WHERE (to_tsvector('english', ""provider"".""Name"") @@ to_tsquery('english', quote_literal(@query) || ':*')) IS TRUE
     OR (to_tsvector('english', ""provider"".""ProviderCode"") @@ to_tsquery('english', quote_literal(@query) || ':*')) IS TRUE
     GROUP BY ""provider"".""Id"") AS sub
-ORDER BY lower(""Name"") <> lower(@query) ASC, ""cnt"" DESC",
-            new NpgsqlParameter("@query", query.Replace(@"\","")),
-            new NpgsqlParameter("@limit", 5))
+ORDER BY ""cnt"" DESC",
+            new NpgsqlParameter("@query", query.Replace(@"\","")))
             .ToList();
 
-            var matchedProviders = providers.Where(p => p.Name.StartsWith(query));
-            var nonMatchedProviders = providers.Where(p => !p.Name.StartsWith(query));
-            return matchedProviders.Concat(nonMatchedProviders).Take(5).ToList();
+
+            /*
+             * When there are multiple providers with common words in, the provider a user is searching for might 
+             * not appear on the list.
+             *
+             * An example of this was "Teach North", where it would match on things like "Teaching Alliance (North)"
+             *
+             * The below prioritises providers whose name starts with the given search query
+             */
+
+            var providersStartingWithQuery = providers.Where(p => p.Name.ToLower().StartsWith(query.ToLower()));
+            var providersNotStartingWithquery = providers.Where(p => !p.Name.ToLower().StartsWith(query.ToLower()));
+            return providersStartingWithQuery.Concat(providersNotStartingWithquery).Take(5).ToList();
         }
 
         private IQueryable<Course> ForListing(IQueryable<Course> queryable)
