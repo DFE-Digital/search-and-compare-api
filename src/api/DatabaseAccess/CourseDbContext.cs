@@ -247,7 +247,7 @@ WHERE lower(""p1"".""Name"") = lower(@query) OR lower(""p2"".""Name"") = lower(@
 
         public List<Provider> SuggestProviders(string query)
         {
-            return Providers.FromSql(@"
+            var providers =  Providers.FromSql(@"
 SELECT * FROM (
     SELECT ""provider"".*, COUNT(*) AS cnt
     FROM ""provider""
@@ -255,11 +255,14 @@ SELECT * FROM (
     WHERE (to_tsvector('english', ""provider"".""Name"") @@ to_tsquery('english', quote_literal(@query) || ':*')) IS TRUE
     OR (to_tsvector('english', ""provider"".""ProviderCode"") @@ to_tsquery('english', quote_literal(@query) || ':*')) IS TRUE
     GROUP BY ""provider"".""Id"") AS sub
-ORDER BY lower(""Name"") <> lower(@query) ASC, ""cnt"" DESC
-LIMIT @limit",
+ORDER BY lower(""Name"") <> lower(@query) ASC, ""cnt"" DESC",
             new NpgsqlParameter("@query", query.Replace(@"\","")),
             new NpgsqlParameter("@limit", 5))
             .ToList();
+
+            var matchedProviders = providers.Where(p => p.Name.StartsWith(query));
+            var nonMatchedProviders = providers.Where(p => !p.Name.StartsWith(query));
+            return matchedProviders.Concat(nonMatchedProviders).Take(5).ToList();
         }
 
         private IQueryable<Course> ForListing(IQueryable<Course> queryable)
