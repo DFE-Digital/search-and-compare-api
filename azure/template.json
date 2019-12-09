@@ -328,6 +328,10 @@
                             {
                                 "name": "PG_USERNAME",
                                 "value": "[concat(parameters('databaseUsername'), '@', variables('databaseServerName'))]"
+                            },
+                            {
+                                "name": "CIRCUIT_BREAKER_COURSE_LIMIT",
+                                "value": "[parameters('circuitBreakerCourseLimit')]"
                             }
                         ]
                     },
