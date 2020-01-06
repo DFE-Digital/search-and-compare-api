@@ -27,29 +27,44 @@ namespace GovUk.Education.SearchAndCompare.Api.Helpers
         /// <returns>true if threshold exceeded, false if all seems okay</returns>
         public bool Run(ICollection<Course> receivedCourses)
         {
+            const string limitKey = "CIRCUIT_BREAKER_COURSE_LIMIT";
+            var maxDifference = 100; // default
+            var maxDifferenceConfig = _configuration[limitKey];
+            if (!string.IsNullOrWhiteSpace(maxDifferenceConfig))
+            {
+                var valid = int.TryParse(maxDifferenceConfig, out int result);
+                if (valid)
+                {
+                    maxDifference = result;
+                }
+                else
+                {
+                    _logger.LogError(
+                        $"CircuitBreaker: Non-integer {limitKey} value '{maxDifferenceConfig}', reverting to default value {maxDifference}");
+                }
+            }
+
             var currentCourseCount = _existingCourses.Count();
             var receivedCourseCount = receivedCourses?.Count ?? 0;
-            _logger.LogInformation($"Circuit breaker: Current courses {currentCourseCount}, received courses {receivedCourseCount}.");
+            var changeInCourseCount = receivedCourseCount - currentCourseCount; // e.g. 100 existing, 98 incoming = difference of -2, i.e. there will be two less courses on find when completed
+            var absDiff = Math.Abs(changeInCourseCount);
+            var changeInfo = $"Received {absDiff} " + (receivedCourses.Count > currentCourseCount ? "new courses" : "less courses");
 
-            // circuit breaker for empty post
+            _logger.LogInformation($"CircuitBreaker: [Analysing] Current courses {currentCourseCount},"
+                + $" received courses {receivedCourseCount}. {changeInfo}."
+                + $" Configured {limitKey}='{maxDifferenceConfig}', active limit: {maxDifference}");
+
+            // circuit breaker for empty post, regardless of configured limits. Once bitten twice shy.
             if (receivedCourses == null || !receivedCourses.Any())
             {
-                _logger.LogError( "CircuitBreakerTripped: empty course list received");
+                _logger.LogError( "CircuitBreaker: Tripped! Empty course list received.");
                 return true;
             }
 
             if (currentCourseCount == 0)
             {
-                _logger.LogInformation( "CircuitBreaker: bypassing checks as there are no courses in the database.");
+                _logger.LogInformation( "CircuitBreaker: Bypassing checks as there are no courses in the database.");
                 // This is useful for populating a local test system, or reconstructing production after a fire
-                return false;
-            }
-
-            const string limitKey = "CIRCUIT_BREAKER_COURSE_LIMIT";
-            var maxDifferenceString = _configuration[limitKey];
-            if (string.IsNullOrWhiteSpace(maxDifferenceString))
-            {
-                _logger.LogWarning( $"CircuitBreaker: bypassing checks as no limit configured. Configure with: {limitKey}");
                 return false;
             }
 
@@ -66,9 +81,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Helpers
 
             var diff = new CoursesDiffDetails(current, recieved);
 
-            var changes = $"[Added: {diff.Added.Count()}], [Removed: {diff.Removed.Count()}]";
+            var changes = $"Added: {diff.Added.Count()}, Removed: {diff.Removed.Count()}";
 
-            var diffMsgFormat = "CircuitBreaker Diff: [{0}:, [{1}]]";
+            var diffMsgFormat = "CircuitBreaker: Diff {0}: {1}";
             _logger.LogInformation(string.Format(diffMsgFormat, "Summary", changes));
 
             if(diff.Added.Any())
@@ -81,14 +96,10 @@ namespace GovUk.Education.SearchAndCompare.Api.Helpers
                 _logger.LogInformation(string.Format(diffMsgFormat, "Removed", string.Join(",", diff.Removed)));
             }
 
-            var maxDifference = int.Parse(maxDifferenceString);
-            var changeInCourseCount = receivedCourses.Count - currentCourseCount; // e.g. 100 existing, 98 incoming = difference of -2, i.e. there will be two less courses on find when completed
-            var absDiff = Math.Abs(changeInCourseCount);
-            var reason = $"Received {absDiff} " + (receivedCourses.Count > currentCourseCount ? "new courses" : "less courses");
             if (absDiff > maxDifference)
             {
-                _logger.LogError($"CircuitBreakerTripped: Change exceeded {limitKey}={maxDifference}. {reason}."
-                                 + $"\nCurrent courses {currentCourseCount}, received courses {receivedCourseCount}.");
+                _logger.LogError($"CircuitBreaker: Tripped! Change exceeded {limitKey}={maxDifference}. {changeInfo}."
+                    + $"\nCurrent courses {currentCourseCount}, received courses {receivedCourseCount}.");
 
                 return true;
             }

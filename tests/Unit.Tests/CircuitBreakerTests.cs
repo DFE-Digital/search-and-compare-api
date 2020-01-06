@@ -50,7 +50,9 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests
 
             // Assert
             AssertLog(LogLevel.Information,
-                $"Circuit breaker: Current courses {_existingCourses.Count()}, received courses {_receivedCourses.Count}.");
+                $"CircuitBreaker: [Analysing] Current courses {_existingCourses.Count()},"
+                + $" received courses {_receivedCourses.Count}. Received 1 less courses."
+                + " Configured CIRCUIT_BREAKER_COURSE_LIMIT='', active limit: 100");
         }
 
         [Test]
@@ -65,7 +67,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests
             // Assert
             tripped.Should().Be(true, "because no courses in payload");
             AssertLog(LogLevel.Error,
-                "CircuitBreakerTripped: empty course list received");
+                "CircuitBreaker: Tripped! Empty course list received.");
         }
 
         [Test]
@@ -81,23 +83,29 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests
             // Assert
             tripped.Should().Be(false, "because database is empty so nothing to protect");
             AssertLog(LogLevel.Information,
-                "CircuitBreaker: bypassing checks as there are no courses in the database.");
+                "CircuitBreaker: Bypassing checks as there are no courses in the database.");
         }
 
         [Test]
-        public void BypassWhenNotConfigured()
+        public void TripsWhenNotConfigured()
         {
             // Arrange
-            _existingCourses = new List<Course> { new Course() }.AsQueryable();
-            _receivedCourses = new List<Course> { new Course() };
+            var existing = new List<Course>();
+            _receivedCourses = new List<Course> {new Course()};
+            for (var i = 1; i <= 200; i++)
+            {
+                existing.Add(new Course());
+            }
+            _existingCourses = existing.AsQueryable();
 
             // Act
             var tripped = RunCircuitBreaker();
 
             // Assert
-            tripped.Should().Be(false, "because unconfigured");
-            AssertLog(LogLevel.Warning,
-                "CircuitBreaker: bypassing checks as no limit configured. Configure with: CIRCUIT_BREAKER_COURSE_LIMIT");
+            tripped.Should().Be(true, "because unconfigured, and more than default limit of courses missing");
+            AssertLog(LogLevel.Error,
+                "CircuitBreaker: Tripped! Change exceeded CIRCUIT_BREAKER_COURSE_LIMIT=100. Received 199 less courses.\n"
+                +"Current courses 200, received courses 1.");
         }
 
         [Test]
@@ -120,7 +128,7 @@ namespace GovUk.Education.SearchAndCompare.Api.Tests.Unit.Tests
             // Assert
             tripped.Should().Be(true, "too many courses removed");
             AssertLog(LogLevel.Error,
-                "CircuitBreakerTripped: Change exceeded CIRCUIT_BREAKER_COURSE_LIMIT=2. Received 3 less courses.\n"
+                "CircuitBreaker: Tripped! Change exceeded CIRCUIT_BREAKER_COURSE_LIMIT=2. Received 3 less courses.\n"
                 +"Current courses 5, received courses 2.");
         }
 
